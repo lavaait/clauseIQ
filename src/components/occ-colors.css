@@ -1,0 +1,106 @@
+
+:root {
+  /* Primary Colors */
+  --occ-blue: #005ACA;          
+  --occ-blue-dark: #001D4F;
+  --occ-gray: #98999B;          
+  --occ-yellow: #FFCE00;      
+  
+  /* Secondary Colors (for web) */
+  --occ-secondary-blue: #0072C6;
+  --occ-secondary-gray: #E6E6E6;
+  --occ-secondary-black: #000000;
+  --occ-secondary-white: #FFFFFF;
+  --occ-secondary-orange: #F68E32;
+  
+  /* Spacing */
+  --occ-clear-space: 2rem;
+}
+
+.occ-blue { color: #005ACA; }
+.occ-blue-dark { color: #001D4F; }
+.occ-gray { color: #98999B; }
+.occ-yellow { color: #FFCE00; }
+
+/* Secondary Colors */
+.occ-secondary-blue { color: #0072C6; }
+.occ-secondary-gray { color: #E6E6E6; }
+.occ-secondary-black { color: #000000; }
+.occ-secondary-white { color: #FFFFFF; }
+.occ-secondary-orange { color: #F68E32; }
+
+/* Background Color Classes */
+.bg-occ-blue { background-color: #005ACA; }
+.bg-occ-blue-dark { background-color: #001D4F; }
+.bg-occ-gray { background-color: #98999B; }
+.bg-occ-yellow { background-color: #FFCE00; }
+
+.bg-occ-secondary-blue { background-color: #0072C6; }
+.bg-occ-secondary-gray { background-color: #E6E6E6; }
+.bg-occ-secondary-black { background-color: #000000; }
+.bg-occ-secondary-white { background-color: #FFFFFF; }
+.bg-occ-secondary-orange { background-color: #F68E32; }
+
+/* Border Color Classes */
+.border-occ-blue { border-color: #005ACA; }
+.border-occ-blue-dark { border-color: #001D4F; }
+.border-occ-gray { border-color: #98999B; }
+.border-occ-yellow { border-color: #FFCE00; }
+
+.border-occ-secondary-blue { border-color: #0072C6; }
+.border-occ-secondary-gray { border-color: #E6E6E6; }
+.border-occ-secondary-black { border-color: #000000; }
+.border-occ-secondary-white { border-color: #FFFFFF; }
+.border-occ-secondary-orange { border-color: #F68E32; }
+
+/* Font Family Classes */
+.font-times {
+  font-family: 'Times New Roman', serif;
+}
+
+.font-helvetica {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+/* Spacing Classes */
+.occ-clear-space {
+  padding: var(--occ-clear-space);
+}
+
+/* Utility classes for common use cases */
+.text-occ-primary {
+  color: var(--occ-blue);
+}
+
+.bg-occ-primary {
+  background-color: var(--occ-blue);
+}
+
+/* Fill colors for SVGs */
+.fill-occ-blue { fill: #005ACA; }
+.fill-occ-blue-dark { fill: #001D4F; }
+.fill-occ-gray { fill: #98999B; }
+.fill-occ-yellow { fill: #FFCE00; }
+
+
+
+.hover\:bg-occ-blue:hover {
+  background-color: #005ACA;
+}
+
+.hover\:bg-occ-blue-dark:hover {
+  background-color: #001D4F;
+}
+
+.sidebar-item-hover:hover {
+  background-color: rgba(0, 90, 202, 0.2); 
+}
+
+.sidebar-item-active {
+  background-color: #005ACA; /* OCC Blue */
+}
+
+/* For section titles */
+.sidebar-section-title {
+  color: #E6E6E6; 
+}
