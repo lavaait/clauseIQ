@@ -1,0 +1,103 @@
+Synthetic Contract 2: Mobile Device Procurement
+
+1. Pre-Award
+Acquisition Plan
+
+1. Requirement Summary:
+- Description: Procurement of services for Mobile Device Procurement.
+- Estimated Dollar Value: $885,883
+- Funding Source: R&D
+
+2. Market Research Summary:
+- Methods Used: Online research, industry outreach
+- Results: 4 vendors capable of performance
+- Available Sources: Multiple small businesses identified
+
+3. Contract Type & Justification:
+- Type: Time & Materials
+- Rationale: Based on project nature and cost structure
+
+4. Competition Strategy:
+- Competitive: Yes
+
+5. Milestones & Schedule:
+- Draft Solicitation: 2025-03-01
+- Final Solicitation: 2025-03-15
+- Award Date: 2025-05-15
+
+6. Risk Assessment:
+- Identified Risks: budget overruns
+- Mitigation Strategies: Frequent milestone tracking and performance reviews
+
+2. Award
+Contract Award Summary
+
+Contractor Name: PrimeMobility Inc.
+
+Contract Number: CN-9439-2025
+
+Award Date: 2025-05-15
+
+Total Value: $885,883
+
+Contract Type: Time & Materials
+
+Period of Performance: 2025-06-01 to 2026-05-31
+
+Brief Summary of Services/Supplies: Includes full performance for Mobile Device
+
+Proprietary
+
+Procurement
+
+Competitive? (Y/N): Y
+
+Justification for Award Decision: Best value determination through technical evaluation
+and pricing
+
+CO Signature: John Smith Date: 2025-05-15
+
+3. Post-Award
+Contract Administration Plan
+
+1. Contract Overview:
+- Contractor: PrimeMobility Inc., Contract Number: CN-9439-2025, Award Date: 2025-
+05-15
+
+2. Key Points of Contact:
+- CO: John Smith
+- COR: Alice Johnson
+- Contractor PM: Jane Doe
+
+3. Roles & Responsibilities:
+- COR to monitor monthly deliverables, approve invoices, and report issues
+
+4. Deliverable Schedule:
+- Monthly Performance Reports | Monthly | Submitted electronically
+
+5. Risk Monitoring Plan:
+- Identified: budget overruns
+- Mitigation: Track KPIs biweekly, conduct quarterly reviews
+
+4. Closeout
+Contract Closeout Checklist
+
+[x] Final invoice received and paid
+
+[x] All deliverables accepted
+
+[x] Government property returned
+
+[x] Final performance evaluation completed
+[x] Release of Claims signed by contractor
+[x] Financial records reconciled
+
+[x] Contract file archived
+
+Closeout Completed By: Alice Johnson
+
+Proprietary
+
+Date: 2026-06-10
+
+Proprietary

@@ -1,0 +1,398 @@
+Synthetic Contract 1: Cybersecurity Monitoring Services
+
+1. Pre-Award
+Acquisition Plan
+
+1. Requirement Summary:
+- Description: Procurement of services for Cybersecurity Monitoring Services.
+- Estimated Dollar Value: $1,189,745
+- Funding Source: O&M
+
+2. Market Research Summary:
+- Methods Used: Online research, industry outreach
+- Results: 4 vendors capable of performance
+- Available Sources: Multiple small businesses identified
+
+3. Contract Type & Justification:
+- Type: Firm Fixed Price
+- Rationale: Based on project nature and cost structure
+
+4. Competition Strategy:
+- Competitive: Yes
+
+5. Milestones & Schedule:
+- Draft Solicitation: 2025-03-01
+- Final Solicitation: 2025-03-15
+- Award Date: 2025-05-15
+
+6. Risk Assessment:
+- Identified Risks: delayed deliverables
+- Mitigation Strategies: Frequent milestone tracking and performance reviews
+
+2. Award
+Contract Award Summary
+
+Contractor Name: SecureTech Solutions LLC
+
+Contract Number: CN-8870-2025
+
+Award Date: 2025-05-15
+
+Total Value: $1,189,745
+
+Contract Type: Firm Fixed Price
+
+Period of Performance: 2025-06-01 to 2026-05-31
+
+Brief Summary of Services/Supplies: Includes full performance for Cybersecurity
+
+Proprietary
+
+Monitoring Services
+
+Competitive? (Y/N): Y
+
+Justification for Award Decision: Best value determination through technical evaluation
+and pricing
+
+CO Signature: John Smith Date: 2025-05-15
+
+3. Post-Award
+Contract Administration Plan
+
+1. Contract Overview:
+- Contractor: SecureTech Solutions LLC, Contract Number: CN-8870-2025, Award
+Date: 2025-05-15
+
+2. Key Points of Contact:
+- CO: John Smith
+- COR: Alice Johnson
+- Contractor PM: Jane Doe
+
+3. Roles & Responsibilities:
+- COR to monitor monthly deliverables, approve invoices, and report issues
+
+4. Deliverable Schedule:
+- Monthly Performance Reports | Monthly | Submitted electronically
+
+5. Risk Monitoring Plan:
+- Identified: delayed deliverables
+- Mitigation: Track KPIs biweekly, conduct quarterly reviews
+
+4. Closeout
+Contract Closeout Checklist
+
+[x] Final invoice received and paid
+
+[x] All deliverables accepted
+
+[x] Government property returned
+
+[x] Final performance evaluation completed
+[x] Release of Claims signed by contractor
+[x] Financial records reconciled
+
+[x] Contract file archived
+
+Closeout Completed By: Alice Johnson
+
+Proprietary
+
+Date: 2026-06-10
+
+Synthetic Contract 2: Mobile Device Procurement
+
+1. Pre-Award
+Acquisition Plan
+
+1. Requirement Summary:
+- Description: Procurement of services for Mobile Device Procurement.
+- Estimated Dollar Value: $1,088,614
+- Funding Source: R&D
+
+2. Market Research Summary:
+- Methods Used: Online research, industry outreach
+- Results: 4 vendors capable of performance
+- Available Sources: Multiple small businesses identified
+
+3. Contract Type & Justification:
+- Type: Time & Materials
+- Rationale: Based on project nature and cost structure
+
+4. Competition Strategy:
+- Competitive: Yes
+
+5. Milestones & Schedule:
+- Draft Solicitation: 2025-03-01
+- Final Solicitation: 2025-03-15
+- Award Date: 2025-05-15
+
+6. Risk Assessment:
+- Identified Risks: budget overruns
+- Mitigation Strategies: Frequent milestone tracking and performance reviews
+
+2. Award
+Contract Award Summary
+
+Contractor Name: PrimeMobility Inc.
+Contract Number: CN-8382-2025
+Award Date: 2025-05-15
+
+Total Value: $1,088,614
+
+Contract Type: Time & Materials
+
+Proprietary
+
+Period of Performance: 2025-06-01 to 2026-05-31
+
+Brief Summary of Services/Supplies: Includes full performance for Mobile Device
+Procurement
+
+Competitive? (Y/N): Y
+
+Justification for Award Decision: Best value determination through technical evaluation
+and pricing
+
+CO Signature: John Smith Date: 2025-05-15
+
+3. Post-Award
+Contract Administration Plan
+
+1. Contract Overview:
+- Contractor: PrimeMobility Inc., Contract Number: CN-8382-2025, Award Date: 2025-
+05-15
+
+2. Key Points of Contact:
+- CO: John Smith
+- COR: Alice Johnson
+- Contractor PM: Jane Doe
+
+3. Roles & Responsibilities:
+- COR to monitor monthly deliverables, approve invoices, and report issues
+
+4. Deliverable Schedule:
+- Monthly Performance Reports | Monthly | Submitted electronically
+
+5. Risk Monitoring Plan:
+- Identified: budget overruns
+- Mitigation: Track KPIs biweekly, conduct quarterly reviews
+
+4. Closeout
+Contract Closeout Checklist
+
+[x] Final invoice received and paid
+
+[x] All deliverables accepted
+
+[x] Government property returned
+
+[x] Final performance evaluation completed
+[x] Release of Claims signed by contractor
+[x] Financial records reconciled
+
+[x] Contract file archived
+
+Proprietary
+
+Closeout Completed By: Alice Johnson
+Date: 2026-06-10
+
+Synthetic Contract 3: Facility HVAC Maintenance
+
+1. Pre-Award
+Acquisition Plan
+
+1. Requirement Summary:
+- Description: Procurement of services for Facility HVAC Maintenance.
+- Estimated Dollar Value: $851,575
+- Funding Source: Procurement
+
+2. Market Research Summary:
+- Methods Used: Online research, industry outreach
+- Results: 4 vendors capable of performance
+- Available Sources: Multiple small businesses identified
+
+3. Contract Type & Justification:
+- Type: Cost Plus Fixed Fee
+- Rationale: Based on project nature and cost structure
+
+4. Competition Strategy:
+- Competitive: Yes
+
+5. Milestones & Schedule:
+- Draft Solicitation: 2025-03-01
+- Final Solicitation: 2025-03-15
+- Award Date: 2025-05-15
+
+6. Risk Assessment:
+- Identified Risks: staff turnover
+- Mitigation Strategies: Frequent milestone tracking and performance reviews
+
+2. Award
+Contract Award Summary
+
+Contractor Name: GreenWorks Facilities
+Contract Number: CN-9743-2025
+
+Award Date: 2025-05-15
+
+Total Value: $851,575
+
+Proprietary
+
+Contract Type: Cost Plus Fixed Fee
+
+Period of Performance: 2025-06-01 to 2026-05-31
+
+Brief Summary of Services/Supplies: Includes full performance for Facility HVAC
+Maintenance
+
+Competitive? (Y/N): Y
+
+Justification for Award Decision: Best value determination through technical evaluation
+and pricing
+
+CO Signature: John Smith Date: 2025-05-15
+
+3. Post-Award
+Contract Administration Plan
+
+1. Contract Overview:
+- Contractor: GreenWorks Facilities, Contract Number: CN-9743-2025, Award Date:
+2025-05-15
+
+2. Key Points of Contact:
+- CO: John Smith
+- COR: Alice Johnson
+- Contractor PM: Jane Doe
+
+3. Roles & Responsibilities:
+- COR to monitor monthly deliverables, approve invoices, and report issues
+
+4. Deliverable Schedule:
+- Monthly Performance Reports | Monthly | Submitted electronically
+
+5. Risk Monitoring Plan:
+- Identified: staff turnover
+- Mitigation: Track KPIs biweekly, conduct quarterly reviews
+
+4. Closeout
+Contract Closeout Checklist
+
+[x] Final invoice received and paid
+
+[x] All deliverables accepted
+
+[x] Government property returned
+
+[x] Final performance evaluation completed
+[x] Release of Claims signed by contractor
+[x] Financial records reconciled
+
+[x] Contract file archived
+
+Proprietary
+
+Closeout Completed By: Alice Johnson
+Date: 2026-06-10
+
+Synthetic Contract 4: Cloud Infrastructure Migration
+
+1. Pre-Award
+Acquisition Plan
+
+1. Requirement Summary:
+- Description: Procurement of services for Cloud Infrastructure Migration.
+- Estimated Dollar Value: $1,139,254
+- Funding Source: IT Modernization
+
+2. Market Research Summary:
+- Methods Used: Online research, industry outreach
+- Results: 4 vendors capable of performance
+- Available Sources: Multiple small businesses identified
+
+3. Contract Type & Justification:
+- Type: Indefinite Delivery/Indefinite Quantity
+- Rationale: Based on project nature and cost structure
+
+4. Competition Strategy:
+- Competitive: Yes
+
+5. Milestones & Schedule:
+- Draft Solicitation: 2025-03-01
+- Final Solicitation: 2025-03-15
+- Award Date: 2025-05-15
+
+6. Risk Assessment:
+- Identified Risks: security compliance
+- Mitigation Strategies: Frequent milestone tracking and performance reviews
+
+2. Award
+Contract Award Summary
+Contractor Name: CloudSphere Technologies
+
+Contract Number: CN-8655-2025
+Award Date: 2025-05-15
+
+Proprietary
+
+Total Value: $1,139,254
+
+Contract Type: Indefinite Delivery/Indefinite Quantity
+
+Period of Performance: 2025-06-01 to 2026-05-31
+
+Brief Summary of Services/Supplies: Includes full performance for Cloud Infrastructure
+Migration
+
+Competitive? (Y/N): Y
+
+Justification for Award Decision: Best value determination through technical evaluation
+and pricing
+
+CO Signature: John Smith Date: 2025-05-15
+
+3. Post-Award
+Contract Administration Plan
+
+1. Contract Overview:
+- Contractor: CloudSphere Technologies, Contract Number: CN-8655-2025, Award
+Date: 2025-05-15
+
+2. Key Points of Contact:
+- CO: John Smith
+- COR: Alice Johnson
+- Contractor PM: Jane Doe
+
+3. Roles & Responsibilities:
+- COR to monitor monthly deliverables, approve invoices, and report issues
+
+4. Deliverable Schedule:
+- Monthly Performance Reports | Monthly | Submitted electronically
+
+5. Risk Monitoring Plan:
+- Identified: security compliance
+- Mitigation: Track KPIs biweekly, conduct quarterly reviews
+
+4. Closeout
+Contract Closeout Checklist
+
+[x] Final invoice received and paid
+
+[x] All deliverables accepted
+
+[x] Government property returned
+
+[x] Final performance evaluation completed
+[x] Release of Claims signed by contractor
+[x] Financial records reconciled
+
+Proprietary
+
+[x] Contract file archived
+
+Closeout Completed By: Alice Johnson
+Date: 2026-06-10
+
+Proprietary

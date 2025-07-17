@@ -36,11 +36,11 @@ class DocumentOCR:
         full_text = []
 
         for idx, img in enumerate(images):
-            print(f"🔍 Processing PDF page {idx+1}")
+            print(f"🔍 Processing PDF page {idx+1}: {pdf_path}")
             cv_image = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             preprocessed = self._preprocess_image(cv_image)
             page_text = self._ocr_image(preprocessed)
-            print(f"\n📄 Text from page {idx+1}:\n{page_text.strip()}")
+            print(f"📄 Text from page {idx+1}:\n{page_text.strip()}")
             full_text.append(page_text.strip())
 
         return "\n\n".join(full_text)
@@ -55,20 +55,37 @@ class DocumentOCR:
         elif ext == ".pdf":
             text = self.read_pdf_file(path)
         else:
-            raise ValueError(f"Unsupported file type: {ext}")
+            print(f"⚠️ Skipping unsupported file: {path}")
+            return None
 
-        # Save to text file
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(text)
 
-        print(f"\n✅ OCR text saved to: {output_file}")
-        print(f"\n📄 Final OCR Text:\n{text.strip()}")
+        print(f"\n✅ Saved OCR output to: {output_file}")
         return text
+
+    def extract_from_folder(self, folder_path):
+        supported_extensions = (".pdf", ".jpg", ".jpeg", ".png", ".bmp", ".tiff")
+
+        files = [f for f in os.listdir(folder_path) if f.lower().endswith(supported_extensions)]
+
+        if not files:
+            print("No supported files found in folder.")
+            return
+
+        for file in files:
+            full_path = os.path.join(folder_path, file)
+            print(f"\n📂 Processing file: {file}")
+            try:
+                self.extract_from_path(full_path)
+            except Exception as e:
+                print(f"❌ Error processing {file}: {e}")
         
 if __name__ == "__main__":
     ocr = DocumentOCR(
         tesseract_path = r"C:\Users\lavan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
         poppler_path = r"C:\Program Files\poppler-24.07.0\Library\bin" 
     )
-    file_path = r"E:\clauseIQ\OCC_Backend\data\sample_software_fds_contract.pdf"  # Can also be .jpg, .png, etc.
-    ocr.extract_from_path(file_path)
+
+    folder_path = r"E:\clauseIQ\OCC_Backend\data"  # Folder with PDFs, JPGs, etc.
+    ocr.extract_from_folder(folder_path)
