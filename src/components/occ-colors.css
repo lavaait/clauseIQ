@@ -104,3 +104,8 @@
 .sidebar-section-title {
   color: #E6E6E6; 
 }
+
+
+.bg-occ-blue-gradient {
+  background-image: linear-gradient(to right, var(--occ-blue), var(--occ-blue-dark));
+}

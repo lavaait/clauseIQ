@@ -1,9 +1,16 @@
-import React from 'react';
+
 import SidebarSection from './SidebarSection';
 import SidebarItem from './SidebarItem';
 import { X } from 'lucide-react';
 import '../occ-colors.css'; 
+import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
+
 const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
+  const [ setActiveItem] = useState('/')
+  const location = useLocation();
+
   return (
     <>
       {isOpen && (
@@ -24,7 +31,7 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
         <div className="p-4 border-b border-occ-blue flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 flex items-center justify-center overflow-hidden">
-              <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
+              <img src="/logo192.png" alt="Logo" className="w-6 h-6 object-contain" />
             </div>
             <span className="font-semibold occ-secondary-white text-lg">ClauseIQ</span>
           </div>
@@ -41,17 +48,33 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
         {/* Navigation content */}
         <nav className="flex-1 py-4 overflow-y-auto hide-scrollbar">
           {/* Dashboard Section */}
-          <SidebarItem emoji="🏠" label="Home" active={true} />
+          <SidebarItem 
+            emoji="🏠" 
+            label="Home" 
+            href="/"
+            isActive={location.pathname === '/'}
+            onClick={() => setActiveItem('/')}
+          />
           <SidebarItem emoji="📊" label="Analytics & KPIs" />
 
           {/* Contract Lifecycle */}
           <SidebarSection title="Contract Lifecycle">
             <SidebarItem emoji="📥" label="Contract Intake" />
-            <SidebarItem emoji="➕" label="New Contract Request" indent={1} />
+            <SidebarItem
+              emoji="➕"
+              label="New Contract Request"
+              href="/new-contract-request"
+              indent={1}
+              isActive={location.pathname === '/new-contract-request'}
+            />
+
             <SidebarItem emoji="📁" label="My Requests" indent={1} />
             <SidebarItem emoji="📜" label="Acquisition Strategy (AI)" indent={1} />
             <SidebarItem emoji="🧠" label="Planning & Solicitation" />
-            <SidebarItem emoji="📆" label="Solicitation Planner" indent={1} />
+            <SidebarItem emoji="📆" label="Solicitation Planner" indent={1}
+         
+              href="/solicitation-planner"
+              isActive={location.pathname === '/solicitation-planner'} />
             <SidebarItem emoji="🔍" label="Market Research Tracker" indent={1} />
             <SidebarItem emoji="✅" label="Pre-Solicitation Checklist" indent={1} />
             <SidebarItem emoji="📑" label="Proposal Evaluation" />
