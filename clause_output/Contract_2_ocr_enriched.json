@@ -1,0 +1,71 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Preamble",
+    "text": "Synthetic Contract 2: Mobile Device Procurement 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Mobile Device Procurement. - Estimated Dollar Value: $885,883 - Funding Source: R&D 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Time & Materials - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: budget overruns - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "source_file": "Contract_2_ocr.txt",
+    "section_path": "0",
+    "rule_based_type": "Uncategorized",
+    "transformer_type": "NEUTRAL",
+    "summary": " Synthetic Contract 2: Mobile Device Procurement 1.2: Mobile device procurement . Pre-Award Acquisition Plan: $885,883 . Estimated Dollar Value of Mobile Device procurement",
+    "validation": " You are a contract compliance assistant for the following clause:Synthetic Contract 2: Mobile Device Procurement 1. You are the compliance assistant . You are tasked with the procurement of services for mobile device procurement . You need to provide an assessment of the risks and risks associated with the project .",
+    "trace": {
+      "trace_id": "2aa66558-326a-4b96-a6cc-39e30cccd56f",
+      "timestamp": "2025-07-18T16:22:52.938962Z"
+    },
+    "status": "processed",
+    "contract_number": "CN94392025",
+    "contract_type": "Contract",
+    "vendor_name": "##ility Inc",
+    "contract_value": "$885,883",
+    "threshold": "$885,883",
+    "start_date": null,
+    "end_date": null
+  },
+  {
+    "clause_id": "2",
+    "title": "Award:",
+    "text": "Contract Award Summary Contractor Name: PrimeMobility Inc. Contract Number: CN94392025 Award Date: 20250515 Total Value: $885,883 Contract Type: Time & Materials Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Mobile Device  Procurement Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: PrimeMobility Inc., Contract Number: CN94392025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: budget overruns - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "source_file": "Contract_2_ocr.txt",
+    "section_path": "2",
+    "rule_based_type": "Termination",
+    "transformer_type": "NEUTRAL",
+    "summary": " PrimeMobility Inc. awarded a contract for $885,883 . The contract includes full performance for Mobile Device .",
+    "validation": " Contractor: PrimeMobility Inc., Contract Number: CN94392025, Award Date: 20250515 Total Value: $885,883 Contract Type: Time & Materials Period of Performance:  20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Mobile Device Procurement Competitive? (Y/N): Y Justification for Award Decision: Best value determination .",
+    "trace": {
+      "trace_id": "b1e55d03-edc3-48c6-b60b-ae7bc269c338",
+      "timestamp": "2025-07-18T16:23:02.371070Z"
+    },
+    "status": "processed",
+    "contract_number": "CN94392025",
+    "contract_type": "Contract",
+    "vendor_name": "##ility Inc",
+    "contract_value": "$885,883",
+    "threshold": "$885,883",
+    "start_date": null,
+    "end_date": null
+  },
+  {
+    "clause_id": "4",
+    "title": "Closeout:",
+    "text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived Closeout Completed By: Alice Johnson  Date: 20260610",
+    "source_file": "Contract_2_ocr.txt",
+    "section_path": "4",
+    "rule_based_type": "Payment",
+    "transformer_type": "NEUTRAL",
+    "summary": " Contract Closeout Checklist: Final invoice received and paid [x] Final performance evaluation completed . Government property returned [",
+    "validation": " Contract Closeout Checklist: Final invoice received and paid [x] All deliverables accepted . Government property returned . Final performance evaluation completed . Release of Claims signed by contractor . Financial records reconciled . Contract file archived Closeout Completed by: Alice Johnson  Date: 20260610 .",
+    "trace": {
+      "trace_id": "ecfe98a1-82f0-433a-b4f1-9655733e08f1",
+      "timestamp": "2025-07-18T16:23:08.792819Z"
+    },
+    "status": "processed",
+    "contract_number": "CN94392025",
+    "contract_type": "Contract",
+    "vendor_name": "##ility Inc",
+    "contract_value": "$885,883",
+    "threshold": "$885,883",
+    "start_date": null,
+    "end_date": null
+  }
+]

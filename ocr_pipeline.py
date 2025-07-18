@@ -40,7 +40,7 @@ class DocumentOCR:
             cv_image = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             preprocessed = self._preprocess_image(cv_image)
             page_text = self._ocr_image(preprocessed)
-            print(f"📄 Text from page {idx+1}:\n{page_text.strip()}")
+            print(f"Text from page {idx+1}:\n{page_text.strip()}")
             full_text.append(page_text.strip())
 
         return "\n\n".join(full_text)
@@ -55,13 +55,13 @@ class DocumentOCR:
         elif ext == ".pdf":
             text = self.read_pdf_file(path)
         else:
-            print(f"⚠️ Skipping unsupported file: {path}")
+            print(f"Skipping unsupported file: {path}")
             return None
 
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(text)
 
-        print(f"\n✅ Saved OCR output to: {output_file}")
+        print(f"\n Saved OCR output to: {output_file}")
         return text
 
     def extract_from_folder(self, folder_path):
@@ -75,11 +75,11 @@ class DocumentOCR:
 
         for file in files:
             full_path = os.path.join(folder_path, file)
-            print(f"\n📂 Processing file: {file}")
+            print(f"\n Processing file: {file}")
             try:
                 self.extract_from_path(full_path)
             except Exception as e:
-                print(f"❌ Error processing {file}: {e}")
+                print(f"Error processing {file}: {e}")
         
 if __name__ == "__main__":
     ocr = DocumentOCR(

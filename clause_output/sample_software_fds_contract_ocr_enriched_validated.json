@@ -1,0 +1,24 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Uncategorized",
+    "clause_text": "Functional Design Specification (FDS) Project Title: Sample Software Application Client: ABC Corporation Prepared by: XYZ Solutions Date: July 17: , 2025 1. Introduction This document outlines the functional design specifications for the Sample Software Application. It defines the functional requirements and system behavior agreed upon by both parties. 2. Objectives The objective of this project is to develop a webbased platform that allows users to register, authenticate, and manage their profiles, while administrators manage content and user privileges. 3. Functional Requirements - User Registration and Login - Password Reset via Email - Profile Management - Admin Dashboard - Content Management Module - Reporting and Analytics 4. System Architecture The system will follow a clientserver model using React for the frontend and Django for the backend. Data will be stored in a PostgreSQL database and hosted on AWS. 5. Interface Specifications - RESTful API for frontendbackend communication - JSON format for data exchange - Responsive UI design 6. Acceptance Criteria - All functionalities must pass user acceptance testing - System must support at least 500 concurrent users - Uptime of 99.5% over a month 7. SignOff Client Signature: Date: Developer Signature: Date:",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "59427011-e182-4581-9b63-2797366e9b1e",
+      "timestamp": "2025-07-18T19:09:08.433204+00:00"
+    },
+    "missing_clauses": [
+      "Termination",
+      "Payment",
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  }
+]

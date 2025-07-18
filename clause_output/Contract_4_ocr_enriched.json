@@ -1,0 +1,71 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Preamble",
+    "text": "Synthetic Contract 4: Cloud Infrastructure Migration 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Cloud Infrastructure Migration. - Estimated Dollar Value: $1,465,110 - Funding Source: IT Modernization 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Indefinite Delivery/Indefinite Quantity - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: security compliance - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "source_file": "Contract_4_ocr.txt",
+    "section_path": "0",
+    "rule_based_type": "Uncategorized",
+    "transformer_type": "NEUTRAL",
+    "summary": " Estimated Dollar Value: $1,465,110 - Funding Source: IT Modernization . Synthetic Contract 4: Cloud Infrastructure Migration .",
+    "validation": " You are a contract compliance assistant for the following clause:Synthetic Contract 4: Cloud Infrastructure Migration . You are tasked with the procurement of services for cloud infrastructure migration . The project will cost $1,465,110, and the funding source is IT Modernization . The contract will be awarded a contract with an award date of 20250515 .",
+    "trace": {
+      "trace_id": "06b5c165-11ea-475a-9fcc-c9263596aa26",
+      "timestamp": "2025-07-18T16:23:50.640160Z"
+    },
+    "status": "processed",
+    "contract_number": "CN77682025",
+    "contract_type": "Contract",
+    "vendor_name": "CloudSphere Technologies",
+    "contract_value": "$1,465,110",
+    "threshold": "$1,465,110",
+    "start_date": null,
+    "end_date": null
+  },
+  {
+    "clause_id": "2",
+    "title": "Award:",
+    "text": "Contract Award Summary Contractor Name: CloudSphere Technologies Contract Number: CN77682025 Award Date: 20250515 Total Value: $1,465,110 Contract Type: Indefinite Delivery/Indefinite Quantity Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Cloud Infrastructure Migration Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: CloudSphere Technologies, Contract Number: CN77682025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: security compliance - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "source_file": "Contract_4_ocr.txt",
+    "section_path": "2",
+    "rule_based_type": "Termination",
+    "transformer_type": "NEUTRAL",
+    "summary": " Contract Award Summary Contractor Name: CloudSphere Technologies Contract Number: CN77682025 Award Date: 20250515 Total Value: $1,465,110 Contract Type: Ind",
+    "validation": " Contractor: CloudSphere Technologies, Contract Number: CN77682025, Award Date: 20250515 Total Value: $1,465,110 Contract Type: Indefinite Delivery/Indefinite Quantity Period of Performance : 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Cloud Infrastructure Migration Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing .",
+    "trace": {
+      "trace_id": "c2b9a58f-24b0-4195-b5bb-beaf279c4001",
+      "timestamp": "2025-07-18T16:24:02.888748Z"
+    },
+    "status": "processed",
+    "contract_number": "CN77682025",
+    "contract_type": "Contract",
+    "vendor_name": "CloudSphere Technologies",
+    "contract_value": "$1,465,110",
+    "threshold": "$1,465,110",
+    "start_date": null,
+    "end_date": null
+  },
+  {
+    "clause_id": "4",
+    "title": "Closeout:",
+    "text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived Closeout Completed By: Alice Johnson Date: 20260610",
+    "source_file": "Contract_4_ocr.txt",
+    "section_path": "4",
+    "rule_based_type": "Payment",
+    "transformer_type": "NEUTRAL",
+    "summary": " Contract Closeout Checklist: Final invoice received and paid [x] Final performance evaluation completed . Government property returned [",
+    "validation": " Contract Closeout Checklist: Final invoice received and paid [x] All deliverables accepted [x], Government property returned [x]. Final performance evaluation completed . Release of Claims signed by contractor . Financial records reconciled . Contract file archived Closeout Completed by Alice Johnson Date: 20260610",
+    "trace": {
+      "trace_id": "c2287ec5-ba70-4e09-b883-be8efd2e08cc",
+      "timestamp": "2025-07-18T16:24:09.741814Z"
+    },
+    "status": "processed",
+    "contract_number": "CN77682025",
+    "contract_type": "Contract",
+    "vendor_name": "CloudSphere Technologies",
+    "contract_value": "$1,465,110",
+    "threshold": "$1,465,110",
+    "start_date": null,
+    "end_date": null
+  }
+]

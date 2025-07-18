@@ -1,0 +1,62 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Uncategorized",
+    "clause_text": "Synthetic Contract 4: Cloud Infrastructure Migration 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Cloud Infrastructure Migration. - Estimated Dollar Value: $1,465,110 - Funding Source: IT Modernization 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Indefinite Delivery/Indefinite Quantity - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: security compliance - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_summary": "Market Research 2. Market Research 3. Contract Type & Justification: - Type: Indefinite Delivery/Indefinite Quantity 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: security compliance Mitigation Strategies: Frequent Milestone Tracking and Performance Reviews",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "978a8533-d821-4da5-bb46-e970fa0b98ec",
+      "timestamp": "2025-07-18T19:08:18.488217+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "2",
+    "title": "Termination",
+    "clause_text": "Contract Award Summary Contractor Name: CloudSphere Technologies Contract Number: CN77682025 Award Date: 20250515 Total Value: $1,465,110 Contract Type: Indefinite Delivery/Indefinite Quantity Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Cloud Infrastructure Migration Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: CloudSphere Technologies, Contract Number: CN77682025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: security compliance - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "8fe13b36-e809-4df6-88e4-b581d2b21618",
+      "timestamp": "2025-07-18T19:08:26.088254+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "4",
+    "title": "Payment",
+    "clause_text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived Closeout Completed By: Alice Johnson Date: 20260610",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High is the lowest level of risk.",
+    "risk_confidence": "N/A",
+    "closeout_status": "Passed",
+    "trace": {
+      "trace_id": "e75aa95b-5431-449b-a44a-c42be5f2ac3f",
+      "timestamp": "2025-07-18T19:08:42.880089+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  }
+]

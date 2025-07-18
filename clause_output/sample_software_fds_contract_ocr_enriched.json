@@ -1,0 +1,25 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Preamble",
+    "text": "Functional Design Specification (FDS) Project Title: Sample Software Application Client: ABC Corporation Prepared by: XYZ Solutions Date: July 17: , 2025 1. Introduction This document outlines the functional design specifications for the Sample Software Application. It defines the functional requirements and system behavior agreed upon by both parties. 2. Objectives The objective of this project is to develop a webbased platform that allows users to register, authenticate, and manage their profiles, while administrators manage content and user privileges. 3. Functional Requirements - User Registration and Login - Password Reset via Email - Profile Management - Admin Dashboard - Content Management Module - Reporting and Analytics 4. System Architecture The system will follow a clientserver model using React for the frontend and Django for the backend. Data will be stored in a PostgreSQL database and hosted on AWS. 5. Interface Specifications - RESTful API for frontendbackend communication - JSON format for data exchange - Responsive UI design 6. Acceptance Criteria - All functionalities must pass user acceptance testing - System must support at least 500 concurrent users - Uptime of 99.5% over a month 7. SignOff Client Signature: Date: Developer Signature: Date:",
+    "source_file": "sample_software_fds_contract_ocr.txt",
+    "section_path": "0",
+    "rule_based_type": "Uncategorized",
+    "transformer_type": "NEUTRAL",
+    "summary": " This document outlines the functional design specifications for the Sample Software Application . It defines the functional requirements and system behavior agreed upon by both parties . The objective of this project is to develop a web",
+    "validation": " Document outlines the functional design specifications for the Sample Software Application . It defines the functional requirements and system behavior agreed upon by both parties . System will follow a clientserver model using React for the frontend and Django for the backend . Data will be stored in a Postgres database and hosted on AWS .",
+    "trace": {
+      "trace_id": "c343bebf-9c51-48b5-ba05-a8cd8ee1b376",
+      "timestamp": "2025-07-18T16:24:20.249068Z"
+    },
+    "status": "processed",
+    "contract_number": null,
+    "contract_type": null,
+    "vendor_name": "A",
+    "contract_value": null,
+    "threshold": null,
+    "start_date": "July 17",
+    "end_date": null
+  }
+]

@@ -1,0 +1,182 @@
+[
+  {
+    "clause_id": "0",
+    "title": "Uncategorized",
+    "clause_text": "Synthetic Contract 1: Cybersecurity Monitoring Services 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Cybersecurity Monitoring Services. - Estimated Dollar Value: $1,189,745 - Funding Source: O&M 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Firm Fixed Price - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: delayed deliverables - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_summary": "- Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Firm Fixed Price - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: delayed deliverables - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "e37eaab7-f563-4020-a318-abee0e7972ee",
+      "timestamp": "2025-07-18T19:09:57.279480+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "2",
+    "title": "Termination",
+    "clause_text": "Contract Award Summary Contractor Name: SecureTech Solutions LLC Contract Number: CN88702025 Award Date: 20250515 Total Value: $1,189,745 Contract Type: Firm Fixed Price Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Cybersecurity  Monitoring Services Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: SecureTech Solutions LLC, Contract Number: CN88702025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: delayed deliverables - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "15ef3a6e-0c39-4a8a-aaa6-6109115361ef",
+      "timestamp": "2025-07-18T19:10:11.760316+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "4",
+    "title": "Payment",
+    "clause_text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived Closeout Completed By: Alice Johnson  Date: 20260610 Synthetic Contract 2: Mobile Device Procurement 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Mobile Device Procurement. - Estimated Dollar Value: $1,088,614 - Funding Source: R&D 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Time & Materials - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: budget overruns - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_summary": "Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type & Justification: Synthetic Contract Type ",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "61916a85-72b7-4f89-93a3-6d64c165c744",
+      "timestamp": "2025-07-18T19:11:35.008601+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "2",
+    "title": "Termination",
+    "clause_text": "Contract Award Summary Contractor Name: PrimeMobility Inc. Contract Number: CN83822025 Award Date: 20250515 Total Value: $1,088,614 Contract Type: Time & Materials  Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Mobile Device Procurement Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: PrimeMobility Inc., Contract Number: CN83822025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: budget overruns - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "485de39b-5e44-4a88-b95a-80cb8e64cc78",
+      "timestamp": "2025-07-18T19:11:41.308610+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "4",
+    "title": "Payment",
+    "clause_text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived  Closeout Completed By: Alice Johnson Date: 20260610 Synthetic Contract 3: Facility HVAC Maintenance 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Facility HVAC Maintenance. - Estimated Dollar Value: $851,575 - Funding Source: Procurement 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Cost Plus Fixed Fee - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: staff turnover - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_summary": "- Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description: Procurement of services for Facility HVAC Maintenance. - Description",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "43f54db4-8dd5-4ad8-8d83-ce26d622499e",
+      "timestamp": "2025-07-18T19:13:03.582533+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "2",
+    "title": "Termination",
+    "clause_text": "Contract Award Summary Contractor Name: GreenWorks Facilities Contract Number: CN97432025 Award Date: 20250515 Total Value: $851,575  Contract Type: Cost Plus Fixed Fee Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Facility HVAC Maintenance Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: GreenWorks Facilities, Contract Number: CN97432025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: staff turnover - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "b6691670-2dd0-43f6-9f27-fee41068a58d",
+      "timestamp": "2025-07-18T19:13:17.073249+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "4",
+    "title": "Payment",
+    "clause_text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled [x] Contract file archived  Closeout Completed By: Alice Johnson Date: 20260610 Synthetic Contract 4: Cloud Infrastructure Migration 1. PreAward Acquisition Plan 1. Requirement Summary: - Description: Procurement of services for Cloud Infrastructure Migration. - Estimated Dollar Value: $1,139,254 - Funding Source: IT Modernization 2. Market Research Summary: - Methods Used: Online research, industry outreach - Results: 4 vendors capable of performance - Available Sources: Multiple small businesses identified 3. Contract Type & Justification: - Type: Indefinite Delivery/Indefinite Quantity - Rationale: Based on project nature and cost structure 4. Competition Strategy: - Competitive: Yes 5. Milestones & Schedule: - Draft Solicitation: 20250301 - Final Solicitation: 20250315 - Award Date: 20250515 6. Risk Assessment: - Identified Risks: security compliance - Mitigation Strategies: Frequent milestone tracking and performance reviews",
+    "compliance_summary": "- Description: Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/Indefinite Quantity Contract Type & Justification: Indefinite Delivery/",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "abad50c2-abd3-4571-8064-8a8b95d4a65f",
+      "timestamp": "2025-07-18T19:14:48.537032+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "2",
+    "title": "Termination",
+    "clause_text": "Contract Award Summary Contractor Name: CloudSphere Technologies Contract Number: CN86552025 Award Date: 20250515  Total Value: $1,139,254 Contract Type: Indefinite Delivery/Indefinite Quantity Period of Performance: 20250601 to 20260531 Brief Summary of Services/Supplies: Includes full performance for Cloud Infrastructure Migration Competitive? (Y/N): Y Justification for Award Decision: Best value determination through technical evaluation and pricing CO Signature: John Smith Date: 20250515 3. PostAward Contract Administration Plan 1. Contract Overview: - Contractor: CloudSphere Technologies, Contract Number: CN86552025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: security compliance - Mitigation: Track KPIs biweekly, conduct quarterly reviews",
+    "compliance_summary": "Contract Overview: - Contractor: CloudSphere Technologies, Contract Number: CN86552025, Award Date: 20250515 2. Key Points of Contact: - CO: John Smith - COR: Alice Johnson - Contractor PM: Jane Doe 3. Roles & Responsibilities: - COR to monitor monthly deliverables, approve invoices, and report issues 4. Deliverable Schedule: - Monthly Performance Reports | Monthly | Submitted electronically 5. Risk Monitoring Plan: - Identified: security compliance",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High",
+    "risk_confidence": "N/A",
+    "closeout_status": "Review Required",
+    "trace": {
+      "trace_id": "7a6e2700-7d2e-4aea-adc7-342b9d257f3c",
+      "timestamp": "2025-07-18T19:15:28.368850+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  },
+  {
+    "clause_id": "4",
+    "title": "Payment",
+    "clause_text": "Contract Closeout Checklist [x] Final invoice received and paid [x] All deliverables accepted [x] Government property returned [x] Final performance evaluation completed [x] Release of Claims signed by contractor [x] Financial records reconciled  [x] Contract file archived Closeout Completed By: Alice Johnson Date: 20260610",
+    "compliance_summary": "Compliant",
+    "compliance_confidence": 0.0,
+    "risk_assessment": "High is the lowest level of risk.",
+    "risk_confidence": "N/A",
+    "closeout_status": "Passed",
+    "trace": {
+      "trace_id": "c5513150-8206-48e5-ac94-0cb92ba89f27",
+      "timestamp": "2025-07-18T19:15:46.497062+00:00"
+    },
+    "missing_clauses": [
+      "Governing Law",
+      "Confidentiality",
+      "Indemnity"
+    ],
+    "misaligned_clauses": []
+  }
+]
