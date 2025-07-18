@@ -17,6 +17,7 @@
   --occ-clear-space: 2rem;
 }
 
+
 .occ-blue { color: #005ACA; }
 .occ-blue-dark { color: #001D4F; }
 .occ-gray { color: #98999B; }
@@ -37,6 +38,7 @@
 
 .bg-occ-secondary-blue { background-color: #0072C6; }
 .bg-occ-secondary-gray { background-color: #E6E6E6; }
+.bg-occ-secondary-blue-dark {background-color:  #001D4F;;}
 .bg-occ-secondary-black { background-color: #000000; }
 .bg-occ-secondary-white { background-color: #FFFFFF; }
 .bg-occ-secondary-orange { background-color: #F68E32; }
@@ -109,3 +111,4 @@
 .bg-occ-blue-gradient {
   background-image: linear-gradient(to right, var(--occ-blue), var(--occ-blue-dark));
 }
+

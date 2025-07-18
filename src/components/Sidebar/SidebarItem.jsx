@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const SidebarItem = ({ emoji, label, indent = 0, href, isActive, onClick }) => {
+const SidebarItem = ({ icon, label, indent = 0, href, isActive, onClick }) => {
 
   const baseClassName = `
     flex items-center px-4 py-2 cursor-pointer transition-colors duration-200
@@ -14,7 +14,7 @@ const SidebarItem = ({ emoji, label, indent = 0, href, isActive, onClick }) => {
 
   const itemContent = (
     <>
-      <span className="mr-3 text-lg">{emoji}</span>
+      <span className="mr-3 flex-shrink-0 text-occ-secondary-white">{icon}</span>
       <span className="text-sm">{label}</span>
     </>
   );

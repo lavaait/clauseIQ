@@ -1,4 +1,3 @@
-// SidebarSection.jsx
 import React from 'react';
 import '../occ-colors.css';
 
