@@ -1,5 +1,6 @@
 import os, json, uuid, datetime, re
 from typing import List, Dict, Tuple
+from pathlib import Path
 
 from transformers import pipeline, AutoTokenizer
 from langchain_community.document_loaders import TextLoader
@@ -182,9 +183,14 @@ class ClauseValidation:
 
 
 if __name__ == "__main__":
+    BASE_DIR = Path(__file__).resolve().parent
+    clause_folder = BASE_DIR / "clause_output"
+    regulation_path = BASE_DIR / "clause_compliance" / "far_dfars.txt"
+    output_folder = BASE_DIR / "clause_output"
+
     validator = ClauseValidation(
-        clause_folder=r"E:\clauseIQ\OCC_Backend\clause_output",
-        regulation_path=r"E:\clauseIQ\OCC_Backend\clause_compliance\far_dfars.txt",
-        output_folder=r"E:\clauseIQ\OCC_Backend\clause_output",
+    clause_folder=str(clause_folder),
+    regulation_path=str(regulation_path),
+    output_folder=str(output_folder),
     )
     validator.process_clauses()

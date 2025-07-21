@@ -2,6 +2,7 @@ import re
 import os
 import json
 import spacy
+from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
 class ContractMetadataExtractor:
@@ -68,14 +69,11 @@ class ContractMetadataExtractor:
 
 if __name__ == "__main__":
     extractor = ContractMetadataExtractor()
-
     ocr_folder = "ocr_output"
     txt_files = [f for f in os.listdir(ocr_folder) if f.endswith("_ocr.txt")]
-
     metadata_dict = {}  #Step 1: Initialize dictionary
-
     if not txt_files:
-        print("⚠️ No OCR output files found in 'ocr_output' folder.")
+        print(" No OCR output files found in 'ocr_output' folder.")
     else:
         for filename in txt_files:
             file_path = os.path.join(ocr_folder, filename)
@@ -83,19 +81,20 @@ if __name__ == "__main__":
 
             with open(file_path, "r", encoding="utf-8") as f:
                 text = f.read()
-
             metadata = extractor.extract_metadata(text)
-
             print("Extracted Contract Metadata:")
             for key, value in metadata.items():
                 print(f"  {key}: {value if value else 'Not found'}")
-
             base_name = os.path.splitext(filename)[0]
             metadata_dict[base_name] = metadata  #  Step 2: Store in dictionary
 
+        # Define the project root dynamically (script directory)
+        BASE_DIR = Path(__file__).resolve().parent
+        output_folder = BASE_DIR / "clause_output"
+        output_folder.mkdir(parents=True, exist_ok=True)
+        output_file = output_folder / "metadata_summary.json"
+
         # Step 3: Save full dictionary to JSON file
-        output_file = "E:\clauseIQ\OCC_Backend\clause_output\metadata_summary.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(metadata_dict, f, indent=2)
-
         print(f"\n All metadata saved to: {output_file}")

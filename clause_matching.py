@@ -3,6 +3,7 @@ import os
 import json
 import uuid
 import datetime
+from pathlib import Path
 from transformers import pipeline
 from langchain.chains import LLMChain
 from langchain_core.prompts import PromptTemplate
@@ -206,8 +207,9 @@ Respond with:
 if __name__ == "__main__":
     from metadata_extraction import ContractMetadataExtractor  # ← you must implement or import
 
-    input_folder = r"E:\clauseIQ\OCC_Backend\ocr_output"
-    output_folder = r"E:\clauseIQ\OCC_Backend\clause_output"
+    BASE_DIR = Path(__file__).resolve().parent
+    input_folder = os.path.join(BASE_DIR, "ocr_output")
+    output_folder = os.path.join(BASE_DIR, "clause_output")
     os.makedirs(output_folder, exist_ok=True)
 
     textpreprocessor = TextProcessor()
@@ -222,7 +224,6 @@ if __name__ == "__main__":
                 text = f.read()
 
             print(f"Processing file: {filename}")
-
 
             cleaned_text = textpreprocessor.preprocess_text(text) # Call the TextProcessor
             clauses = segmenter.segment_clauses(cleaned_text, source_file=filename) # Use cleaned_text here

@@ -3,6 +3,7 @@ import cv2
 import pytesseract
 import numpy as np
 from pdf2image import convert_from_path
+from pathlib import Path
 from PIL import Image
 
 class DocumentOCR:
@@ -86,6 +87,7 @@ if __name__ == "__main__":
         tesseract_path = r"C:\Users\lavan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
         poppler_path = r"C:\Program Files\poppler-24.07.0\Library\bin" 
     )
-
-    folder_path = r"E:\clauseIQ\OCC_Backend\data"  # Folder with PDFs, JPGs, etc.
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    folder_path = SCRIPT_DIR/"data"
+    os.makedirs(folder_path, exist_ok=True)
     ocr.extract_from_folder(folder_path)
