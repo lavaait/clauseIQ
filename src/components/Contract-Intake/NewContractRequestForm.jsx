@@ -116,7 +116,7 @@ const NewContractRequestForm = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6"> 
           {/* Header Card */}
          <div className="bg-occ-blue-gradient rounded-t-xl p-6 shadow-lg">
-            <h2 className="text-2xl font-bold occ-secondary-white flex items-center gap-3">
+            <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold occ-secondary-white flex items-center gap-3">
               <FileCheck className="w-7 h-7" />
               New Contract Request
             </h2>
