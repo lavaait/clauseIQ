@@ -10,6 +10,7 @@ import ContractModificationTracker from './components/Modifications/ContractModi
 import CloseoutChecklistWizard from './components/Closeout/CloseoutChecklistWizard';
 import UserManagement from './components/Admin/UserManagement';
 import AIAuditLogs from './components/Admin/AIAuditLogs';
+import ComplianceDashboard from './components/Reports-Exports/ComplianceDashboard';
 
 const App = () => {
   return (
@@ -25,7 +26,7 @@ const App = () => {
         <Route path="/closeout-checklist-wizard"  element={<CloseoutChecklistWizard />}/>   
         <Route path="/admin/user-management"  element={<UserManagement />}/>
         <Route path="/admin/audit-logs"  element={<AIAuditLogs />}/>   
-
+        <Route path='/report/dashboard'element={<ComplianceDashboard/>} />
       </Routes>
     </Router>
   );

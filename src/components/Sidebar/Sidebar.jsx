@@ -61,12 +61,15 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
         {/* Header - Fixed */}
         <div className="flex-shrink-0 p-4 border-b border-occ-blue flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            {/* Enlarged logo container */}
-            <div className="w-20 h-20 flex items-center justify-center bg-white rounded-xl shadow-lg p-3">
+            {/* Logo container - adjusted for better alignment */}
+            <div className="h-12 w-12 flex items-center justify-center bg-white rounded-xl shadow-lg p-2">
               <img 
                 src="/logo192.png" 
                 alt="ClauseIQ Logo" 
-                className="w-full h-full object-contain filter brightness-110 contrast-125"
+                className="w-full h-full object-contain"
+                style={{
+                  filter: 'contrast(1.2) saturate(1.1) brightness(1.1)'
+                }}
                 onError={(e) => {
                   // Fallback if logo doesn't load
                   e.target.style.display = 'none';
@@ -74,13 +77,14 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
                 }}
               />
               {/* Fallback icon if logo fails to load */}
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-sm hidden">
-                <FileText size={28} />
+              <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-sm hidden">
+                <FileText size={20} />
               </div>
             </div>
-            {/* Separate ClauseIQ name */}
-            <div className="flex flex-col">
-              <span className="font-bold occ-secondary-white text-3xl leading-tight">ClauseIQ</span>
+            
+            {/* Company name - aligned to match logo height */}
+            <div className="flex items-center h-12">
+              <span className="font-bold occ-secondary-white text-4xl leading-none">ClauseIQ</span>
             </div>
           </div>
 
@@ -95,10 +99,7 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
         </div>
 
         {/* Navigation content - Scrollable */}
-        <div className="flex-1 overflow-y-auto" style={{ 
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#005ACA #001D4F'
-          }}>
+        <div className="flex-1 overflow-y-auto sidebar-scroll">
           <nav className="py-4 pb-8">
             {/* Dashboard Section */}
             <SidebarItem 
@@ -207,7 +208,13 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
 
             {/* Reports & Exports */}
             <SidebarSection title="Reports & Exports">
-              <SidebarItem icon={<FileText size={18} />} label="Compliance Summary" />
+              <SidebarItem 
+              icon={<FileText size={18} />} 
+              label="Compliance Summary"
+              index={1}
+              href={"/report/dashboard"}
+              isActive={location.pathname === "/report/dashboard"}
+               />
               <SidebarItem icon={<BarChart3 size={18} />} label="Contract Portfolio Reports" />
               <SidebarItem icon={<FileDown size={18} />} label="Export to Excel/PDF" />
             </SidebarSection>
@@ -241,27 +248,6 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
           </nav>
         </div>
       </div>
-
-      {/* Add custom scrollbar styles */}
-      <style jsx>{`
-        /* Custom scrollbar for webkit browsers */
-        .sidebar-scroll::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar-track {
-          background: #001D4F;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar-thumb {
-          background: #005ACA;
-          border-radius: 3px;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-          background: #0072C6;
-        }
-      `}</style>
     </>
   );
 };
