@@ -11,6 +11,7 @@ import CloseoutChecklistWizard from './components/Closeout/CloseoutChecklistWiza
 import UserManagement from './components/Admin/UserManagement';
 import AIAuditLogs from './components/Admin/AIAuditLogs';
 import ComplianceDashboard from './components/Reports-Exports/ComplianceDashboard';
+import ProposalAnalysis from './components/Proposal/ProposalAnalysis';
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/admin/user-management"  element={<UserManagement />}/>
         <Route path="/admin/audit-logs"  element={<AIAuditLogs />}/>   
         <Route path='/report/dashboard'element={<ComplianceDashboard/>} />
+        <Route path="/proposal-analysis" element={<ProposalAnalysis />} />
       </Routes>
     </Router>
   );
