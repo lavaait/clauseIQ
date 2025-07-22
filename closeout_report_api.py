@@ -1,131 +1,213 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import Response
-from pydantic import BaseModel
-from typing import List, Optional
-import datetime, pdfkit, json, os
-from jinja2 import Template
+from __future__ import annotations
 
-app = FastAPI()
+import io
+from datetime import datetime
+from typing import List, Literal
 
-@app.get("/")
-def root():
-    return {"message": "Server is running"}
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse, StreamingResponse
+from pydantic import BaseModel, Field
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
 
-# ──────── CONFIG ──────────────────────────────
-WKHTMLTOPDF_CMD = None  # e.g. "/usr/local/bin/wkhtmltopdf"
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-METADATA_PATH = os.path.join(SCRIPT_DIR, "clause_output", "metadata_summary.json")
+###############################################################################
+# Pydantic models
+###############################################################################
 
-PDFKIT_CFG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_CMD) if WKHTMLTOPDF_CMD else None
-
-# ──────── Load Metadata on Startup ────────────
-if not os.path.exists(METADATA_PATH):
-    raise RuntimeError(f"Missing metadata file at {METADATA_PATH}")
-with open(METADATA_PATH, "r") as f:
-    METADATA = json.load(f)
-# ──────────────────────────────────────────────
-
-# ──────── Data Models ─────────────────────────
 class ChecklistItem(BaseModel):
-    code: str
+    id: int
+    text: str
+    checked: bool = Field(default=False)
+    required: bool = Field(default=True)
+
+class AICheck(BaseModel):
+    id: int
+    type: Literal["info", "warning", "error"]
+    title: str
     description: str
-    resolved: bool = False
+    status: Literal["pending", "resolved"] = "pending"
 
-class ChecklistSubmission(BaseModel):
-    contract_number: str
-    officer_name: str
-    closeout_date: datetime.date
-    items: List[ChecklistItem]
+class ChecklistTemplateResponse(BaseModel):
+    checklist: List[ChecklistItem]
 
-class ValidationError(BaseModel):
-    code: str
-    message: str
+class ValidationRequest(BaseModel):
+    checklist: List[ChecklistItem]
+    ai_checks: List[AICheck]
 
 class ValidationResponse(BaseModel):
-    unresolved: List[ValidationError]
-# ──────────────────────────────────────────────
+    total_items: int
+    completed_items: int
+    pending_items: int
+    required_items: int
+    completed_required_items: int
+    ai_issues: int
+    ready_for_closeout: bool
 
-def load_contract_metadata(contract_number: str) -> Optional[dict]:
-    for entry in METADATA.values():
-        if entry.get("contract_number") == contract_number:
-            return entry
-    return None
+class ReportRequest(ValidationRequest):
+    """Reuse ValidationRequest schema for report generation"""
 
-@app.post("/closeout/validate", response_model=ValidationResponse)
-def validate_closeout(payload: ChecklistSubmission):
-    md = load_contract_metadata(payload.contract_number)
-    if not md:
-        raise HTTPException(status_code=404, detail="Contract metadata not found.")
+###############################################################################
+# App init & CORS
+###############################################################################
 
-    unresolved = []
-    status_map = {item.code: item.resolved for item in payload.items}
+app = FastAPI(title="Closeout Checklist Wizard API", version="0.2.0")
 
-    if md.get("contract_value") and not status_map.get("FINAL_INVOICE", False):
-        unresolved.append(ValidationError(code="FINAL_INVOICE", message="Final invoice missing."))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten in prod
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    if md.get("vendor_name") and not status_map.get("RELEASE_OF_CLAIMS", False):
-        unresolved.append(ValidationError(code="RELEASE_OF_CLAIMS", message="Release of Claims form missing."))
+###############################################################################
+# In‑memory template & AI stubs
+###############################################################################
 
-    return ValidationResponse(unresolved=unresolved)
+_DEFAULT_CHECKLIST: List[ChecklistItem] = [
+    ChecklistItem(id=1, text="All deliverables verified", required=True),
+    ChecklistItem(id=2, text="Final invoices received", required=True),
+    ChecklistItem(id=3, text="Outstanding obligations resolved", required=True),
+    ChecklistItem(id=4, text="Property disposition completed", required=True),
+    ChecklistItem(id=5, text="Final acceptance documented", required=True),
+    ChecklistItem(id=6, text="Contractor performance evaluated", required=False),
+]
 
-@app.post("/closeout/report")
-def generate_report(payload: ChecklistSubmission):
-    validation = validate_closeout(payload)
-    if validation.unresolved:
-        raise HTTPException(status_code=400, detail="Cannot generate report: unresolved checklist items.")
+###############################################################################
+# Utility helpers
+###############################################################################
 
-    html_template = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8" />
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 12pt; }
-            h1   { font-size: 18pt; }
-            table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-            th, td { border: 1px solid #ccc; padding: 6px; }
-            .ok   { color: green; }
-            .fail { color: red; }
-        </style>
-    </head>
-    <body>
-        <h1>Contract Closeout Report</h1>
-        <p><strong>Contract #:</strong> {{ checklist.contract_number }}</p>
-        <p><strong>Officer:</strong> {{ checklist.officer_name }}</p>
-        <p><strong>Closeout Date:</strong> {{ checklist.closeout_date }}</p>
-        <p><strong>Generated:</strong> {{ generated }}</p>
+def run_ai_checks() -> List[AICheck]:
+    """Stub generator that simulates LLM‑based auto‑checks."""
+    return [
+        AICheck(
+            id=1,
+            type="warning",
+            title="Subcontractor payment still pending",
+            description="Review necessary for final closeout",
+        ),
+        AICheck(
+            id=2,
+            type="info",
+            title="Performance evaluation period ending soon",
+            description="Consider completing contractor performance evaluation",
+        ),
+    ]
 
-        <h2>Checklist Summary</h2>
-        <table>
-            <thead>
-              <tr><th>Item</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-            {% for item in checklist.items %}
-              <tr>
-                <td>{{ item.description }}</td>
-                <td class="{{ 'ok' if item.resolved else 'fail' }}">
-                  {{ "Resolved" if item.resolved else "Unresolved" }}
-                </td>
-              </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </body>
-    </html>
-    """
 
-    template = Template(html_template)
-    html_content = template.render(
-        checklist=payload,
-        generated=datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+def compute_validation(payload: ValidationRequest) -> ValidationResponse:
+    total_items = len(payload.checklist)
+    completed_items = sum(1 for i in payload.checklist if i.checked)
+    pending_items = total_items - completed_items
+
+    required_items = [i for i in payload.checklist if i.required]
+    completed_required_items = sum(1 for i in required_items if i.checked)
+
+    ai_issues = sum(1 for chk in payload.ai_checks if chk.status == "pending")
+
+    ready = (
+        completed_required_items == len(required_items)
+        and all(chk.type != "error" for chk in payload.ai_checks)
     )
 
-    try:
-        pdf_bytes = pdfkit.from_string(html_content, False, configuration=PDFKIT_CFG)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")
+    return ValidationResponse(
+        total_items=total_items,
+        completed_items=completed_items,
+        pending_items=pending_items,
+        required_items=len(required_items),
+        completed_required_items=completed_required_items,
+        ai_issues=ai_issues,
+        ready_for_closeout=ready,
+    )
 
-    filename = f"Closeout_Report_{payload.contract_number}.pdf"
-    headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
-    return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
+
+def build_report_content(payload: ReportRequest, stats: ValidationResponse) -> str:
+    """Produce the plain‑text report body used for both TXT and PDF."""
+
+    checklist_lines = [
+        f"{'✓' if item.checked else '○'} {item.text}{' (Required)' if item.required else ''}"
+        for item in payload.checklist
+    ]
+
+    ai_lines = [
+        f"{chk.type.upper()}: {chk.title} - {chk.description}"
+        for chk in payload.ai_checks
+    ]
+
+    content = (
+        "CONTRACT CLOSEOUT REPORT\n"
+        f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}\n\n"
+        "CHECKLIST STATUS:\n" + "\n".join(checklist_lines) + "\n\n"  # noqa: E501
+        "SUMMARY:\n"
+        f"- Total Items: {stats.total_items}\n"
+        f"- Completed: {stats.completed_items}\n"
+        f"- Pending: {stats.pending_items}\n"
+        f"- Required Items Complete: {stats.completed_required_items}/{stats.required_items}\n\n"
+        "AI AUTO-CHECKS:\n" + ("\n".join(ai_lines) or "No AI checks") + "\n\n"
+        "RECOMMENDATIONS:\n"
+        + (
+            "- Complete all pending checklist items before final closeout\n"
+            if stats.pending_items > 0
+            else "- All checklist items completed successfully\n"
+        )
+        + (
+            "- Address all AI‑identified issues\n"
+            if stats.ai_issues > 0
+            else "- No outstanding issues identified\n"
+        )
+        + "\n\n"
+        f"Contract ready for closeout: {'YES' if stats.ready_for_closeout else 'NO'}"
+    )
+    return content
+
+
+def generate_pdf(content: str) -> bytes:
+    """Render plain‑text content into a simple paginated PDF."""
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=LETTER)
+    width, height = LETTER
+
+    left_margin, top_margin = 72, height - 72  # 1‑inch margins
+    line_height = 14
+    y = top_margin
+
+    for line in content.split("\n"):
+        c.drawString(left_margin, y, line)
+        y -= line_height
+        if y < 72:  # start a new page
+            c.showPage()
+            y = top_margin
+
+    c.save()
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
+
+###############################################################################
+# Routes
+###############################################################################
+
+@app.get("/checklist/default", response_model=ChecklistTemplateResponse)
+async def get_default_checklist():
+    """Return the server‑side checklist template."""
+    return ChecklistTemplateResponse(checklist=_DEFAULT_CHECKLIST)
+
+
+@app.post("/validate", response_model=ValidationResponse)
+async def validate(payload: ValidationRequest):
+    return compute_validation(payload)
+
+
+@app.post("/report/pdf")
+async def report_pdf(payload: ReportRequest):
+    stats = compute_validation(payload)
+    body = build_report_content(payload, stats)
+    pdf_bytes = generate_pdf(body)
+
+    filename = f"closeout-report-{datetime.utcnow().date()}.pdf"
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Cache-Control": "no-store",
+    }
+    return StreamingResponse(io.BytesIO(pdf_bytes), media_type="application/pdf", headers=headers)

@@ -1,108 +1,16 @@
-"""Unified Checklist Builder
-- Base rules by contract type & agency
-- Exposed via build_unified_checklist()
-"""
-from typing import List, Dict, Optional
+from typing import Dict, List
+from io import BytesIO
 
-# ────────────────────────────────────────────────────────────────────────────────
-# Unified checklist builder
-# ────────────────────────────────────────────────────────────────────────────────
-
-def build_unified_checklist(contract_type: str, agency: str, options: Optional[dict] = None) -> List[str]:
-    """Generate a checklist based only on contract type and agency policy."""
-    options = options or {}
-    checklist: list[str] = []
-
-    # Contract-type rules
-    contract_rules: dict[str, list[str]] = {
-        "Mobile Device Procurement": [
-            "Develop Acquisition Plan",
-            "Conduct Market Research",
-            "Define Contract Type & Justification (Time & Materials)",
-            "Establish Competition Strategy",
-            "Set Milestone Schedule",
-            "Perform Risk Assessment",
-            "Award Summary & Justification",
-            "Define Roles: CO, COR, PM",
-            "Monthly Deliverables & Reports",
-            "Track KPIs and conduct Quarterly Reviews",
-        ],
-    }
-
-
-    # Agency overlays
-    agency_overrides: dict[str, list[str]] = {
-    "R&D": [
-        "Ensure Funding Certification",
-        "Track Performance Metrics",
-        "Archive Contract File at Closeout",
-        "Verify Final Performance Evaluation",
-        "Obtain Signed Release of Claims",
-    ],
-    "NASA": [
-        "Conduct Export Control Review",
-        "Include NASA FAR Supplement Clauses",
-        "Review Technology Transfer and IP Provisions",
-        "Include Cybersecurity Plan (per NPR 2810.1)",
-        "Verify ITAR/EAR compliance forms are complete"
-    ],
-    "DoD": [
-        "Apply DFARS Compliance Clauses",
-        "Validate Contractor Security Clearance",
-        "Include CMMC Self-Assessment or Certification",
-        "Initiate Defense Contract Audit Agency (DCAA) Review",
-        "Submit Anti-Terrorism Level I Training Verification"
-    ],
-    "DOE": [
-        "Ensure Environmental Impact Acknowledgement",
-        "Confirm Conflict of Interest Disclosure",
-        "Verify Performance Milestone Reporting",
-        "Ensure Energy Efficiency Clauses Included",
-        "Review Proprietary Research Safeguards"
-    ],
-    "NIH": [
-        "Check Human Subjects Compliance (IRB Protocol)",
-        "Ensure ClinicalTrials.gov Registration",
-        "Apply Public Access Policy Requirements",
-        "Submit Financial Conflict of Interest Forms",
-        "Confirm Informed Consent Documentation Requirements"
-    ]
-    }
-
-    checklist.extend(contract_rules.get(contract_type, ["General Contract Review"]))
-    checklist.extend(agency_overrides.get(agency, []))
-
-    if options.get("value", 0) > 500_000:
-        checklist.append("Executive Review for High‑Value Contract")
-    if options.get("risk_level", "").lower() == "high":
-        checklist.append("Initiate Formal Risk Mitigation Review")
-
-    return list(dict.fromkeys(checklist))  # Deduplicate while preserving order
-
-# ==============================================================================
-# FastAPI server with PDF export
-# ==============================================================================
-
-"""server.py – API surface for checklist generation & PDF export.
-Run with:
-    uvicorn server:app --reload
-Requirements:
-    pip install fastapi uvicorn python-multipart pdfkit jinja2
-    # And ensure wkhtmltopdf is installed & on PATH for pdfkit.
-"""
-
-import os, pdfkit
-from fastapi import FastAPI, Form
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from jinja2 import Template
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
-app = FastAPI(title="Checklist Generator API")
+app = FastAPI(title="Checklist Generator API", version="1.0.0")
 
-@app.get("/")
-def root():
-    return {"message": "Server is running"}
-
+# CORS (update allow_origins for production)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -111,53 +19,151 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Simple HTML template used for PDF rendering
-HTML_TEMPLATE = """
-<!doctype html>
-<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Checklist</title></head>
-<body>
-    <h2>Checklist – {{ contract_type }} ({{ agency }})</h2>
-    <ol>
-    {% for item in checklist %}
-        <li>{{ item }}</li>
-    {% endfor %}
-    </ol>
-</body></html>
-"""
+# ----------------------
+# Data Models
+# ----------------------
+class ChecklistItem(BaseModel):
+    id: int
+    text: str
+    checked: bool = True
 
-def _render_pdf(contract_type: str, agency: str, checklist: list[str], out_path: str) -> str:
-    """Render checklist → PDF with pdfkit."""
-    html = Template(HTML_TEMPLATE).render(contract_type=contract_type, agency=agency, checklist=checklist)
-    pdfkit.from_string(html, out_path)
-    return out_path
+class ChecklistResponse(BaseModel):
+    contract_type: str
+    agency_policy: str
+    items: List[ChecklistItem]
 
-# ────────────────────────────────────────────────────────────────────────────────
-# API Endpoints
-# ────────────────────────────────────────────────────────────────────────────────
 
-@app.post("/checklist/generate")
-async def generate_checklist(
-    contract_type: str = Form(...),
-    agency: str         = Form(...),
-    value: float        = Form(...),
-    risk_level: str     = Form(...),
+# ----------------------
+# In‑Memory Data Store
+# ----------------------
+CHECKLIST_DATA: Dict[str, Dict[str, List[ChecklistItem]]] = {
+    "Firm-Fixed-Price": {
+        "Agency A": [
+            ChecklistItem(id=1, text="Correct contract structure"),
+            ChecklistItem(id=2, text="Specified contract period"),
+            ChecklistItem(id=3, text="Price includes all costs"),
+            ChecklistItem(id=4, text="Inspection and acceptance terms"),
+            ChecklistItem(id=5, text="Termination clauses"),
+            ChecklistItem(id=6, text="Certifications and representations"),
+            ChecklistItem(id=7, text="Payment and invoicing terms"),
+            ChecklistItem(id=8, text="Applicable FAR clauses"),
+        ],
+        "Agency B": [
+            ChecklistItem(id=1, text="Correct contract structure"),
+            ChecklistItem(id=2, text="Specified contract period"),
+            ChecklistItem(id=3, text="Price includes all costs"),
+            ChecklistItem(id=4, text="Performance work statement"),
+            ChecklistItem(id=5, text="Quality assurance surveillance plan"),
+            ChecklistItem(id=6, text="Security requirements"),
+            ChecklistItem(id=7, text="Data rights provisions"),
+            ChecklistItem(id=8, text="Applicable DFARS clauses"),
+        ],
+    },
+    "Cost-Plus-Fixed-Fee": {
+        "Agency A": [
+            ChecklistItem(id=1, text="Cost accounting standards compliance"),
+            ChecklistItem(id=2, text="Allowable cost provisions"),
+            ChecklistItem(id=3, text="Fee structure definition"),
+            ChecklistItem(id=4, text="Cost monitoring requirements"),
+            ChecklistItem(id=5, text="Audit and records access"),
+            ChecklistItem(id=6, text="Termination for convenience"),
+            ChecklistItem(id=7, text="Progress reporting requirements"),
+            ChecklistItem(id=8, text="Applicable cost accounting clauses"),
+        ],
+        "Agency B": [
+            ChecklistItem(id=1, text="Cost accounting standards compliance"),
+            ChecklistItem(id=2, text="Allowable cost provisions"),
+            ChecklistItem(id=3, text="Fee structure definition"),
+            ChecklistItem(id=4, text="Enhanced audit requirements"),
+            ChecklistItem(id=5, text="Security clearance provisions"),
+            ChecklistItem(id=6, text="Intellectual property rights"),
+            ChecklistItem(id=7, text="Export control compliance"),
+            ChecklistItem(id=8, text="DCAA audit readiness"),
+        ],
+    },
+    "Time-and-Materials": {
+        "Agency A": [
+            ChecklistItem(id=1, text="Labor hour limitations"),
+            ChecklistItem(id=2, text="Material cost controls"),
+            ChecklistItem(id=3, text="Ceiling price establishment"),
+            ChecklistItem(id=4, text="Labor category definitions"),
+            ChecklistItem(id=5, text="Invoicing procedures"),
+            ChecklistItem(id=6, text="Quality control measures"),
+            ChecklistItem(id=7, text="Government oversight provisions"),
+            ChecklistItem(id=8, text="T&M specific FAR clauses"),
+        ],
+        "Agency B": [
+            ChecklistItem(id=1, text="Labor hour limitations"),
+            ChecklistItem(id=2, text="Material cost controls"),
+            ChecklistItem(id=3, text="Ceiling price establishment"),
+            ChecklistItem(id=4, text="Security labor requirements"),
+            ChecklistItem(id=5, text="Contractor personnel screening"),
+            ChecklistItem(id=6, text="Government facility access"),
+            ChecklistItem(id=7, text="Subcontractor oversight"),
+            ChecklistItem(id=8, text="Performance metrics tracking"),
+        ],
+    },
+}
+
+# ----------------------
+# API Routes
+# ----------------------
+@app.get("/checklist", response_model=ChecklistResponse, tags=["Checklist"])
+async def get_checklist(
+    contract_type: str = Query(..., description="Contract type, e.g. 'Firm-Fixed-Price'"),
+    agency_policy: str = Query(..., description="Agency policy, e.g. 'Agency A'"),
 ):
-    """Return checklist as JSON."""
-    options = {"value": value, "risk_level": risk_level}
-    checklist = build_unified_checklist(contract_type, agency, options)
-    return JSONResponse({"checklist": checklist})
+    """Return checklist items for the specified contract & agency."""
+    try:
+        items = CHECKLIST_DATA[contract_type][agency_policy]
+    except KeyError as exc:
+        raise HTTPException(404, detail="Unsupported contract/agency combination") from exc
 
-@app.post("/checklist/pdf")
-async def generate_checklist_pdf(
-    contract_type: str = Form(...),
-    agency: str         = Form(...),
-    value: float        = Form(...),
-    risk_level: str     = Form(...),
+    return ChecklistResponse(
+        contract_type=contract_type,
+        agency_policy=agency_policy,
+        items=items,
+    )
+
+
+@app.get("/checklist/pdf", tags=["Checklist"])
+async def download_checklist_pdf(
+    contract_type: str = Query(...),
+    agency_policy: str = Query(...),
 ):
-    """Generate checklist and return as downloadable PDF."""
-    options = {"value": value, "risk_level": risk_level}
-    checklist = build_unified_checklist(contract_type, agency, options)
+    """Generate a PDF rendition of the checklist for download."""
+    try:
+        items = CHECKLIST_DATA[contract_type][agency_policy]
+    except KeyError as exc:
+        raise HTTPException(404, detail="Unsupported contract/agency combination") from exc
 
-    os.makedirs("pdf_export_output", exist_ok=True)
-    pdf_path = _render_pdf(contract_type, agency, checklist, out_path="pdf_export_output/checklist.pdf")
-    return FileResponse(pdf_path, media_type="application/pdf", filename="checklist.pdf")
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    # Header
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(30, height - 40, f"Checklist – {contract_type} / {agency_policy}")
+
+    # Body
+    pdf.setFont("Helvetica", 11)
+    y = height - 70
+    for item in items:
+        pdf.drawString(40, y, f"☐ {item.text}")
+        y -= 18
+        if y < 50:  # simple page-break logic
+            pdf.showPage()
+            y = height - 40
+
+    pdf.save()
+    buffer.seek(0)
+
+    filename = f"checklist_{contract_type}_{agency_policy}.pdf".replace(" ", "_").lower()
+    headers = {"Content-Disposition": f"attachment; filename={filename}"}
+    return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
+
+
+@app.get("/healthz", tags=["Meta"])
+async def health_check():
+    """Container orchestrators readiness/liveness probe."""
+    return {"status": "ok"}

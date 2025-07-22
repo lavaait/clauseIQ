@@ -1,112 +1,160 @@
-from fastapi import FastAPI, UploadFile, File
-from pydantic import BaseModel
-from typing import List, Literal
-from difflib import unified_diff
-from datetime import date, datetime
-from uuid import uuid4
-from pathlib import Path
-
-from langchain_community.llms import HuggingFaceEndpoint
 import os
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import difflib
+from typing import List
+import uuid
+import json
+import re
+
 from dotenv import load_dotenv
 load_dotenv()
 
-app = FastAPI(title="AI Powered Contract Modification API")
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain_groq import ChatGroq
 
-# In-memory store for modification history
-MOD_HISTORY = {}
+app = FastAPI()
 
-# --- Input schema ---
-class ContractModification(BaseModel):
-    contract_id: str
-    version: int
-    mod_type: Literal["Scope", "Funding", "Schedule", "Other"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# -----------------------------
+# Models
+# -----------------------------
+class VersionEntry(BaseModel):
+    type: str
+    description: str
+    date: str
+    user: str
+
+class ModificationRequest(BaseModel):
+    original_text: str
+    modified_text: str
+
+class ModificationAnalysis(BaseModel):
+    modification_type: str  # scope, funding, schedule
     justification: str
-    effective_date: date
-    end_date: date
-    original_clause: str
-    modified_clause: str
+    summary: str
+    impact_analysis: str
+    lifecycle_impact: str
+    risk_score: float
+    on_time_rate: str
+    cost_impact: str
+    full_diff: str
+    health_score: float
+    modified_by: str
+    logged_by: str
+    version_history: List[VersionEntry]
 
-# --- Diff Generator ---
-def generate_clause_diff(original: str, modified: str) -> str:
-    diff = unified_diff(
-        original.splitlines(),
-        modified.splitlines(),
-        fromfile="Original",
-        tofile="Modified",
-        lineterm=""
-    )
+# -----------------------------
+# Diff Logic
+# -----------------------------
+def compute_diff(original: str, modified: str) -> str:
+    original_lines = original.strip().splitlines()
+    modified_lines = modified.strip().splitlines()
+    diff = difflib.unified_diff(original_lines, modified_lines, lineterm='')
     return "\n".join(diff)
 
-# --- AI Impact Analysis ---
-def analyze_modification(diff_text: str, mod_type: str, justification: str) -> dict:
-    llm = HuggingFaceEndpoint(
-    repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-    temperature=0,
-    max_new_tokens=512,
-    huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN")
+# -----------------------------
+# LLM: Groq (LLaMA3-70B by default)
+# -----------------------------
+def get_llm():
+    temperature = float(os.getenv("LLM_TEMPERATURE", 0.3))
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY environment variable not set")
+
+    return ChatGroq(
+        model_name="llama3-70b-8192",
+        temperature=temperature,
+        api_key=api_key
     )
-    prompt = PromptTemplate(
-        input_variables=["diff", "mod_type", "justification"],
-        template="""
-You are a contract compliance advisor.
-A user submitted a contract modification with the following details:
 
-Type: {mod_type}
-Justification: {justification}
+# -----------------------------
+# Prompt and Chain
+# -----------------------------
+prompt = PromptTemplate(
+    input_variables=["diff"],
+    template="""
+You are a contracts AI assistant.
+Given the following unified diff between two versions of a government contract:
 
-Here is the diff between the original and modified clause:
 {diff}
 
-Analyze the impact on the contract lifecycle. Indicate affected areas (schedule, cost, scope, performance). Estimate:
-- Risk trend: Improving or Worsening
-- Risk increase percent
-- Cost variance in dollars (positive = overrun, negative = savings)
-- Obligations on-time (%)
-- Severity level: Low / Moderate / High
-Return a JSON object with keys:
-affected, severity, summary, trend, risk_increase_pct, cost_variance, on_time_pct.
+Respond in JSON with these fields:
+- modification_type: one of ['scope', 'funding', 'schedule']
+- justification: a sentence explaining the change
+- impact_analysis: a short paragraph describing the impact on contract lifecycle
+- summary: concise description of what changed
+- risk_score: percentage increase/decrease or qualitative value (e.g., '5%' or 'medium')
+- on_time_rate: % of obligations likely on time
+- cost_impact: estimated financial impact ($)
+- lifecycle_impact: one of ['Improving', 'Neutral', 'Declining']
+- health_score: float between 0–10
+- modified_by: name of the person who modified it
+- logged_by: name of the person who logged the change
+- version_history: list of objects with fields: type, description, date, user
 """
-    )
+)
+
+# -----------------------------
+# Analysis Execution
+# -----------------------------
+def analyze_diff_with_llm(diff: str) -> ModificationAnalysis:
+    llm = get_llm()
     chain = LLMChain(llm=llm, prompt=prompt)
-    response = chain.run(diff=diff_text, mod_type=mod_type, justification=justification)
-    return response
 
-# --- Main Analysis Endpoint ---
-@app.post("/analyze-modification")
-def analyze(mod: ContractModification):
-    diff = generate_clause_diff(mod.original_clause, mod.modified_clause)
-    impact = analyze_modification(diff, mod.mod_type, mod.justification)
+    try:
+        result = chain.run({"diff": diff}).strip()
 
-    entry = {
-        "id": str(uuid4()),
-        "contract_id": mod.contract_id,
-        "version": mod.version,
-        "type": mod.mod_type,
-        "justification": mod.justification,
-        "effective_date": str(mod.effective_date),
-        "end_date": str(mod.end_date),
-        "diff": diff,
-        "ai_impact": impact,
-        "timestamp": datetime.utcnow().isoformat()
+        # Clean result before parsing
+        result = re.sub(r"(?s)^.*?(\{)", r"\1", result)  # remove leading non-JSON text
+        result = re.sub(r"```.*?```", "", result, flags=re.DOTALL).strip()
+        result = result.split("```")[0].strip()
+
+        print("LLM raw output:", result)  # debug log
+
+        if not result:
+            raise ValueError("Empty response from LLM.")
+
+        parsed = json.loads(result)
+        return ModificationAnalysis(
+            modification_type=parsed["modification_type"],
+            justification=parsed["justification"],
+            impact_analysis=parsed["impact_analysis"],
+            summary=parsed["summary"],
+            lifecycle_impact=parsed["lifecycle_impact"],
+            risk_score=float(parsed["risk_score"].replace('%', '').replace('high', '10').replace('medium', '5').replace('low', '1')),
+            on_time_rate=parsed["on_time_rate"],
+            cost_impact=parsed["cost_impact"],
+            full_diff=diff,
+            health_score=float(parsed["health_score"]),
+            modified_by=parsed["modified_by"],
+            logged_by=parsed["logged_by"],
+            version_history=[VersionEntry(**entry) for entry in parsed["version_history"]]
+        )
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse JSON. Raw output: {result}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM analysis failed: {e}")
+
+@app.post("/analyze_modification", response_model=ModificationAnalysis)
+def analyze_modification(req: ModificationRequest):
+    """
+    Analyze contract modification and return impact assessment and version history.
+    Sample Request:
+    {
+        "original_text": "Contract ends on June 30, 2024. Value is $1,000,000.",
+        "modified_text": "Contract ends on August 31, 2024. Value is $1,075,000."
     }
-    MOD_HISTORY.setdefault(mod.contract_id, []).append(entry)
-
-    return entry
-
-# --- Version History Lookup ---
-@app.get("/modification-history/{contract_id}")
-def get_history(contract_id: str):
-    return MOD_HISTORY.get(contract_id, [])
-
-# --- File Upload Support ---
-@app.post("/upload-modification-file/{contract_id}")
-async def upload_file(contract_id: str, file: UploadFile = File(...)):
-    save_path = Path("uploads") / contract_id
-    save_path.mkdir(parents=True, exist_ok=True)
-    file_path = save_path / file.filename
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
-    return {"message": "File uploaded", "path": str(file_path)}
+    """
+    diff = compute_diff(req.original_text, req.modified_text)
+    result = analyze_diff_with_llm(diff)
+    return result
