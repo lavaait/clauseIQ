@@ -2,22 +2,23 @@ from typing import Dict, List
 from io import BytesIO
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-app = FastAPI(title="Checklist Generator API", version="1.0.0")
+router = APIRouter()
 
-# CORS (update allow_origins for production)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# # CORS (update allow_origins for production)
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # ----------------------
 # Data Models
@@ -108,7 +109,7 @@ CHECKLIST_DATA: Dict[str, Dict[str, List[ChecklistItem]]] = {
 # ----------------------
 # API Routes
 # ----------------------
-@app.get("/checklist", response_model=ChecklistResponse, tags=["Checklist"])
+@router.get("/checklist_validation", response_model=ChecklistResponse, tags=["Checklist"])
 async def get_checklist(
     contract_type: str = Query(..., description="Contract type, e.g. 'Firm-Fixed-Price'"),
     agency_policy: str = Query(..., description="Agency policy, e.g. 'Agency A'"),
@@ -126,7 +127,7 @@ async def get_checklist(
     )
 
 
-@app.get("/checklist/pdf", tags=["Checklist"])
+@router.get("/checklist/pdf", tags=["Checklist"])
 async def download_checklist_pdf(
     contract_type: str = Query(...),
     agency_policy: str = Query(...),
@@ -163,7 +164,7 @@ async def download_checklist_pdf(
     return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
 
 
-@app.get("/healthz", tags=["Meta"])
+@router.get("/healthz", tags=["Meta"])
 async def health_check():
     """Container orchestrators readiness/liveness probe."""
     return {"status": "ok"}

@@ -1,25 +1,15 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, UploadFile, File, Form
 import shutil, os, sqlite3
 from sqlite_db import init_db
 
-app = FastAPI()
-
-# Enable CORS for React frontend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+router = APIRouter()
 
 UPLOAD_FOLDER = "new_contract_uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 init_db()
 
-@app.post("/contracts/submit")
+@router.post("/contracts/submit")
 async def submit_contract(
     title: str = Form(...),
     agency: str = Form(...),
@@ -29,11 +19,11 @@ async def submit_contract(
 ):
     file_location = os.path.join(UPLOAD_FOLDER, file.filename)
 
-    # Save file to uploads folder
+    # Save uploaded file
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Save metadata to database
+    # Insert metadata into SQLite
     with sqlite3.connect("contracts.db") as conn:
         cursor = conn.cursor()
         cursor.execute("""

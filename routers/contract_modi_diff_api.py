@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import difflib
@@ -15,15 +16,15 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_groq import ChatGroq
 
-app = FastAPI()
+router = APIRouter()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # -----------------------------
 # Models
@@ -145,7 +146,7 @@ def analyze_diff_with_llm(diff: str) -> ModificationAnalysis:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM analysis failed: {e}")
 
-@app.post("/analyze_modification", response_model=ModificationAnalysis)
+@router.post("/analyze_modification", response_model=ModificationAnalysis)
 def analyze_modification(req: ModificationRequest):
     """
     Analyze contract modification and return impact assessment and version history.

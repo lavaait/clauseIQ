@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List, Literal
 
 from fastapi import FastAPI
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, StreamingResponse
 from pydantic import BaseModel, Field
@@ -51,15 +52,15 @@ class ReportRequest(ValidationRequest):
 # App init & CORS
 ###############################################################################
 
-app = FastAPI(title="Closeout Checklist Wizard API", version="0.2.0")
+router = APIRouter()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # tighten in prod
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # tighten in prod
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 ###############################################################################
 # In‑memory template & AI stubs
@@ -185,21 +186,21 @@ def generate_pdf(content: str) -> bytes:
     return pdf_bytes
 
 ###############################################################################
-# Routes
+# Router
 ###############################################################################
 
-@app.get("/checklist/default", response_model=ChecklistTemplateResponse)
+@router.get("/checklist/default", response_model=ChecklistTemplateResponse)
 async def get_default_checklist():
     """Return the server‑side checklist template."""
     return ChecklistTemplateResponse(checklist=_DEFAULT_CHECKLIST)
 
 
-@app.post("/validate", response_model=ValidationResponse)
+@router.post("/validate", response_model=ValidationResponse)
 async def validate(payload: ValidationRequest):
     return compute_validation(payload)
 
 
-@app.post("/report/pdf")
+@router.post("/report/pdf")
 async def report_pdf(payload: ReportRequest):
     stats = compute_validation(payload)
     body = build_report_content(payload, stats)

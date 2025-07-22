@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import fitz  # PyMuPDF - import name is 'fitz'
@@ -12,20 +13,20 @@ import logging
 import os
 
 logging.basicConfig(level=logging.INFO)
-app = FastAPI()
+router = APIRouter()
 
-@app.get("/")
+@router.get("/")
 def root():
     return {"message": "Server is running"}
 
-# -------- CORS (consider using env var for production) ------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=os.getenv("CORS_ALLOW_ORIGINS", "*").split(","),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# # -------- CORS (consider using env var for production) ------------------------
+# router.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=os.getenv("CORS_ALLOW_ORIGINS", "*").split(","),
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # -------- Summarizer model ----------------------------------------------------
 MODEL_NAME = os.getenv("HF_SUM_MODEL", "t5-small")  # override via env
@@ -49,7 +50,7 @@ except Exception as exc:
     llm = None
 
 # ------------------------------------------------------------------------------
-@app.post("/upload-and-summarize/", summary="Upload a PDF and get its summary")
+@router.post("/upload-and-summarize/", summary="Upload a PDF and get its summary")
 async def upload_and_summarize_proposal(file: UploadFile = File(...)):
     if file.content_type != "application/pdf":
         raise HTTPException(400, detail="Only PDF files are allowed.")
