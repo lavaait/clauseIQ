@@ -9,7 +9,7 @@ from routers.document_ocr import router as ocr_router
 from routers.clause_validation_router import router as clause_validator_router
 from routers.clause_matching_router import router as clause_matching_router
 from routers.dashboard_router import router as dashboard_router
-# from routers.export_router import router as export_router
+from routers.export_router import router as export_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -39,6 +39,6 @@ app.include_router(ocr_router, prefix="/api/document_parsing", tags=["OCR"])
 app.include_router(clause_validator_router, prefix="/api/clause_validator", tags=["Clause_Compliance"])
 app.include_router(clause_matching_router, prefix="/api/clause_matching", tags=["Clause_Matching"])
 app.include_router(dashboard_router,prefix="/api/dashboard",tags=["Compliance_Dashboard"])
-# app.include_router(export_router, prefix="/api/export_pdf",tags=["Export_Pdf"])
+app.include_router(export_router, prefix="/api/export_pdf",tags=["Export_Pdf"])
 
 
