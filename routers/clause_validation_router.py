@@ -24,7 +24,7 @@ validator = ClauseValidation(
     output_folder=str(OUTPUT_DIR),
 )
 
-router = APIRouter(prefix="/clauses", tags=["clauses"])
+router = APIRouter(prefix="/Clause_Validation", tags=["Clause_Validation"])
 # ───────────────────────────────────────────────
 
 

@@ -11,7 +11,7 @@ ocr = DocumentOCR(
     output_dir="ocr_output",
 )
 
-router = APIRouter(prefix="/ocr", tags=["ocr"])
+router = APIRouter(prefix="/OCR", tags=["OCR"])
 
 ALLOWED_EXTS = {".pdf", ".jpg", ".jpeg", ".png", ".bmp", ".tiff"}
 TMP_UPLOADS   = Path("data")

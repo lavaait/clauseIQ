@@ -46,54 +46,30 @@ def init_db():
         priority TEXT
         )
         """)
-        # ______ AI Recommendations table _________
-
-
-        # ───────────────────────────────────────────────
-        # 1. Main dashboard metrics table
-        # ───────────────────────────────────────────────
+        
+        #____ user admin table _________
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS contract_metrics (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL,
-                contract_type TEXT,
-                stage TEXT NOT NULL,                -- e.g. 'Intake', 'Evaluation'
-                intake_date TEXT NOT NULL,          -- ISO format 'YYYY-MM-DD'
-                executed_date TEXT,                 -- nullable
-                compliance_status TEXT NOT NULL,    -- e.g. 'Compliant' or 'Non-Compliant'
-                amount REAL                         -- optional value
-
-            )
-        """)
-
-        # ───────────────────────────────────────────────
-        # 2. Activity Feed – contract_events
-        # ───────────────────────────────────────────────
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS contract_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                contract_id INTEGER NOT NULL,
-                description TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                FOREIGN KEY (contract_id) REFERENCES contract_metrics(id)
-            )
-        """)
-
-        # ───────────────────────────────────────────────
-        # 3. (Optional) Lookup: Stages
-        # ───────────────────────────────────────────────
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS stages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL
-            )
-        """)
-        cursor.executemany(
-            "INSERT OR IGNORE INTO stages (name) VALUES (?)",
-            [("Intake",), ("Evaluation",), ("Performance",), ("Closeout",)]
+            CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('admin', 'reviewer', 'viewer')),
+        created_at TEXT DEFAULT (datetime('now'))
         )
+        """)
 
-
+        #_______ audit logs ______________
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        action TEXT NOT NULL,
+        ai_decision TEXT,
+        status TEXT CHECK (status IN ('accepted', 'rejected', 'pending')),
+        timestamp TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        """)
 
 if __name__ == "__main__":
     init_db()
