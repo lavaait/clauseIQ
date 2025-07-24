@@ -9,8 +9,8 @@
     "risk_confidence": "N/A",
     "closeout_status": "Review Required",
     "trace": {
-      "trace_id": "326e6660-ed0a-41bb-afd8-283abe6ae7bb",
-      "timestamp": "2025-07-21T07:46:36.281469+00:00"
+      "trace_id": "cd2810a6-7f72-486a-98b8-d899443a7de3",
+      "timestamp": "2025-07-23T14:38:22.925745+00:00"
     },
     "missing_clauses": [
       "Governing Law",
@@ -29,8 +29,8 @@
     "risk_confidence": "N/A",
     "closeout_status": "Review Required",
     "trace": {
-      "trace_id": "9511654b-9339-4615-9813-90454fbd46ef",
-      "timestamp": "2025-07-21T07:46:43.282972+00:00"
+      "trace_id": "83ac1e7b-14d8-4855-9b50-8081d5370ea8",
+      "timestamp": "2025-07-23T14:38:31.746294+00:00"
     },
     "missing_clauses": [
       "Governing Law",
@@ -49,8 +49,8 @@
     "risk_confidence": "N/A",
     "closeout_status": "Passed",
     "trace": {
-      "trace_id": "06f393dc-b574-4a06-8757-b43a9a465bac",
-      "timestamp": "2025-07-21T07:46:59.966495+00:00"
+      "trace_id": "bf937234-fd29-424a-97eb-7373ddefde5b",
+      "timestamp": "2025-07-23T14:38:50.511765+00:00"
     },
     "missing_clauses": [
       "Governing Law",

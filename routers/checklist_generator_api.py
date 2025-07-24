@@ -162,9 +162,3 @@ async def download_checklist_pdf(
     filename = f"checklist_{contract_type}_{agency_policy}.pdf".replace(" ", "_").lower()
     headers = {"Content-Disposition": f"attachment; filename={filename}"}
     return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
-
-
-@router.get("/healthz", tags=["Meta"])
-async def health_check():
-    """Container orchestrators readiness/liveness probe."""
-    return {"status": "ok"}
