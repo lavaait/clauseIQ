@@ -1,31 +1,54 @@
-# === Backend & Web Server ===
+# # === Backend & Web Server ===
+# fastapi==0.110.2
+# uvicorn==0.29.0
+# python-multipart==0.0.9
+# pydantic==2.6.4
+
+# # === PDF & OCR ===
+# pdfminer.six==20221105
+# pdf2image==1.17.0
+# pillow==10.2.0
+# pytesseract==0.3.10
+# opencv-python==4.9.0.80
+# numpy==1.24.4
+
+# # === HuggingFace Transformers ===
+# transformers==4.41.2           # Latest that works with tokenizers 0.19+
+# tokenizers==0.19.1             # Compatible with latest HuggingFace + LangChain
+# torch==2.2.2
+# accelerate==0.29.3
+# sentencepiece==0.2.0
+
+# # === LangChain Core and Plugins ===
+# langchain==0.1.17
+# langchain-core==0.1.52
+# langchain-community==0.0.36
+# langchain-huggingface==0.0.2   # Works with tokenizers>=0.19.1
+
+# # === Vector Search + Utilities ===
+# faiss-cpu==1.7.4
+# spacy==3.7.4
+# tqdm==4.66.4
+
 fastapi==0.110.2
 uvicorn==0.29.0
 python-multipart==0.0.9
-pydantic==2.6.4
-
-# === PDF & OCR ===
+pydantic==2.11.7
+transformers==4.41.2
+tokenizers==0.19.1
+torch==2.2.2
+accelerate==0.29.3
+sentencepiece==0.2.0
+langchain==0.3.27
+langchain-core
+langchain-community==0.3.27
+langchain-huggingface==0.3.1
+faiss-cpu==1.7.4
+spacy==3.7.4
+tqdm==4.66.4
 pdfminer.six==20221105
 pdf2image==1.17.0
 pillow==10.2.0
 pytesseract==0.3.10
-opencv-python==4.9.0.80
-numpy==1.24.4
-
-# === HuggingFace Transformers ===
-transformers==4.41.2           # Latest that works with tokenizers 0.19+
-tokenizers==0.19.1             # Compatible with latest HuggingFace + LangChain
-torch==2.2.2
-accelerate==0.29.3
-sentencepiece==0.2.0
-
-# === LangChain Core and Plugins ===
-langchain==0.1.17
-langchain-core==0.1.52
-langchain-community==0.0.36
-langchain-huggingface==0.0.2   # Works with tokenizers>=0.19.1
-
-# === Vector Search + Utilities ===
-faiss-cpu==1.7.4
-spacy==3.7.4
-tqdm==4.66.4
+opencv-python==4.12.0.88
+numpy==1.26.4
