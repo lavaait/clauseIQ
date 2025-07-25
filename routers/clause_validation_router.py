@@ -7,11 +7,7 @@ from routers.clause_validation import ClauseValidation
 from pathlib import Path
 
 # Explicitly set your project root folder
-BASE_DIR = Path(__file__).resolve()
-while BASE_DIR.name != "OCC_Backend":
-    if BASE_DIR.parent == BASE_DIR:
-        raise RuntimeError("Could not find 'occ_backend' in path hierarchy.")
-    BASE_DIR = BASE_DIR.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Now set your paths
 CLAUSE_IN   = BASE_DIR / "clause_output"

@@ -4,11 +4,14 @@ from pathlib import Path
 
 from transformers import pipeline, AutoTokenizer
 from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import CharacterTextSplitter
+from langchain_text_splitters import TokenTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import HuggingFacePipeline
+from langchain_huggingface import HuggingFacePipeline
 from langchain.chains import RetrievalQA
+from langchain_core.runnables import RunnableSequence
+import logging
+logging.getLogger("langchain").setLevel(logging.ERROR)
 
 
 EXPECTED_CLAUSES = [
@@ -45,7 +48,9 @@ class ClauseValidation:
         loader = TextLoader(self.regulation_path, encoding="utf-8")
         docs = loader.load()
 
-        splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+        splitter = TokenTextSplitter(
+                    chunk_size=500,
+                    chunk_overlap=50)
         doc_chunks = splitter.split_documents(docs)
 
         embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
