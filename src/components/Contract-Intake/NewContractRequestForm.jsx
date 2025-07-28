@@ -101,7 +101,7 @@ return (
 };
 
 // API configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://3.95.95.62:8006';
 const API_ENDPOINTS = {
   submitContract: '/api/new_contract_request/contracts/submit'
 };

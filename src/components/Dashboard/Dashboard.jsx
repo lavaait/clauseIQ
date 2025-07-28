@@ -286,14 +286,14 @@ const Dashboard = () => {
 
             {/* AI Recommendations */}
             <div className="bg-occ-secondary-white rounded-lg sm:rounded-xl shadow-lg border border-occ-secondary-gray sm:border-2 overflow-hidden">
-              <div className="p-4 sm:p-6 border-b border-occ-secondary-gray bg-occ-yellow">
+              <div className="p-4 sm:p-6 border-b border-occ-secondary-gray bg-occ-blue">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-occ-blue-dark rounded-lg">
                     <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 occ-secondary-white" />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-semibold occ-blue-dark">AI Recommendations</h3>
-                    <p className="text-xs sm:text-sm occ-blue-dark opacity-80">Smart insights and suggested actions</p>
+                    <h3 className="text-base sm:text-lg font-semibold occ-secondary-white">AI Recommendations</h3>
+                    <p className="text-xs sm:text-sm occ-secondary-white opacity-80">Smart insights and suggested actions</p>
                   </div>
                 </div>
               </div>

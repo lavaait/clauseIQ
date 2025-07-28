@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, X, FileCheck, Loader2, AlertCircle, Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Upload, FileText, X, FileCheck, Loader2, AlertCircle, Check, ArrowDown, Download, Share, Copy } from 'lucide-react';
 import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
 // API configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://3.95.95.62:8006';
 const API_ENDPOINTS = {
   uploadAndSummarize: '/api/proposal_summary/upload-and-summarize/'
 };
@@ -16,12 +15,13 @@ const ALLOWED_FILE_TYPES = ['application/pdf'];
 const MAX_FILES = 10; // Reasonable limit for simultaneous uploads
 
 const ProposalUpload = () => {
-  const navigate = useNavigate();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileSummaries, setFileSummaries] = useState({});
   const [globalError, setGlobalError] = useState(null);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const fileInputRef = useRef(null);
+  const analysisRef = useRef(null);
 
   // File validation function
   const validateFile = (file) => {
@@ -46,88 +46,74 @@ const ProposalUpload = () => {
   };
 
   // API call to upload and get summary
-// API call to upload and get summary
-const uploadAndSummarize = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
+  const uploadAndSummarize = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.uploadAndSummarize}`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.uploadAndSummarize}`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (!response.ok) {
-      if (response.status === 422) {
-        const errorData = await response.json();
-        const errorMessages = errorData.detail?.map(err => err.msg).join(', ') || 'Validation error';
-        throw new Error(`Validation Error: ${errorMessages}`);
-      } else if (response.status === 413) {
-        throw new Error('File too large. Maximum size is 50MB.');
-      } else if (response.status === 415) {
-        throw new Error('Unsupported file type. Please upload a PDF file.');
-      } else if (response.status >= 500) {
-        throw new Error('Server error. Please try again later.');
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${errorText || `Error ${response.status}`}`);
+      if (!response.ok) {
+        if (response.status === 422) {
+          const errorData = await response.json();
+          const errorMessages = errorData.detail?.map(err => err.msg).join(', ') || 'Validation error';
+          throw new Error(`Validation Error: ${errorMessages}`);
+        } else if (response.status === 413) {
+          throw new Error('File too large. Maximum size is 50MB.');
+        } else if (response.status === 415) {
+          throw new Error('Unsupported file type. Please upload a PDF file.');
+        } else if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        } else {
+          const errorText = await response.text();
+          throw new Error(`Upload failed: ${errorText || `Error ${response.status}`}`);
+        }
       }
-    }
 
-    const result = await response.json();
-    
-    // Log the actual response for debugging
-    console.log('API Response:', result);
-    console.log('Response type:', typeof result);
-    console.log('Response keys:', result && typeof result === 'object' ? Object.keys(result) : 'N/A');
-    
-    // Handle different possible response formats
-    let summary;
-    
-    if (typeof result === 'string') {
-      // Response is directly a string
-      summary = result;
-    } else if (result && typeof result === 'object') {
-      // Response is an object, try common field names
-      summary = result.summary || 
-                result.text || 
-                result.content || 
-                result.message || 
-                result.data ||
-                JSON.stringify(result); // Fallback to stringified object
-    } else {
-      // Unexpected format
-      throw new Error(`Unexpected response format: ${typeof result}`);
+      const result = await response.json();
+      
+      // Handle different possible response formats
+      let summary;
+      
+      if (typeof result === 'string') {
+        summary = result;
+      } else if (result && typeof result === 'object') {
+        summary = result.summary || 
+                  result.text || 
+                  result.content || 
+                  result.message || 
+                  result.data ||
+                  JSON.stringify(result);
+      } else {
+        throw new Error(`Unexpected response format: ${typeof result}`);
+      }
+      
+      if (!summary || (typeof summary === 'string' && summary.trim().length === 0)) {
+        throw new Error('Empty or invalid summary received from server');
+      }
+      
+      return summary;
+    } catch (error) {
+      console.error('Upload error:', error);
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('Network error. Please check your connection and try again.');
+      }
+      
+      if (error.name === 'SyntaxError') {
+        throw new Error('Invalid response format from server. Please try again.');
+      }
+      
+      throw error;
     }
-    
-    // Validate summary exists and is not empty
-    if (!summary || (typeof summary === 'string' && summary.trim().length === 0)) {
-      throw new Error('Empty or invalid summary received from server');
-    }
-    
-    return summary;
-  } catch (error) {
-    console.error('Upload error:', error);
-    
-    // Handle network errors
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Network error. Please check your connection and try again.');
-    }
-    
-    // Handle JSON parsing errors
-    if (error.name === 'SyntaxError') {
-      throw new Error('Invalid response format from server. Please try again.');
-    }
-    
-    throw error;
-  }
-};
+  };
 
   const handleFileUpload = async (files) => {
-    // Clear any global errors
     setGlobalError(null);
 
-    // Check file count limit
     if (uploadedFiles.length + files.length > MAX_FILES) {
       setGlobalError(`Maximum ${MAX_FILES} files allowed. Please remove some files first.`);
       return;
@@ -136,7 +122,6 @@ const uploadAndSummarize = async (file) => {
     const validFiles = [];
     const invalidFiles = [];
 
-    // Validate each file
     Array.from(files).forEach(file => {
       const errors = validateFile(file);
       if (errors.length === 0) {
@@ -146,7 +131,6 @@ const uploadAndSummarize = async (file) => {
       }
     });
 
-    // Show validation errors
     if (invalidFiles.length > 0) {
       const errorMessages = invalidFiles.map(({ file, errors }) => 
         `${file.name}: ${errors.join(', ')}`
@@ -158,7 +142,6 @@ const uploadAndSummarize = async (file) => {
       return;
     }
 
-    // Check for duplicate files
     const duplicateFiles = validFiles.filter(file => 
       uploadedFiles.some(uploaded => uploaded.name === file.name && uploaded.size === file.size)
     );
@@ -169,7 +152,6 @@ const uploadAndSummarize = async (file) => {
       return;
     }
 
-    // Process valid files
     for (const file of validFiles) {
       const fileObj = {
         id: Date.now() + Math.random(),
@@ -184,10 +166,8 @@ const uploadAndSummarize = async (file) => {
       setUploadedFiles(prev => [...prev, fileObj]);
 
       try {
-        // Upload file and get summary
         const summary = await uploadAndSummarize(file);
         
-        // Update file status and store summary
         setUploadedFiles(prev => 
           prev.map(f => 
             f.id === fileObj.id 
@@ -204,7 +184,6 @@ const uploadAndSummarize = async (file) => {
       } catch (error) {
         console.error('Error uploading file:', file.name, error);
         
-        // Update file status to error
         setUploadedFiles(prev => 
           prev.map(f => 
             f.id === fileObj.id 
@@ -238,7 +217,6 @@ const uploadAndSummarize = async (file) => {
     if (files.length > 0) {
       handleFileUpload(files);
     }
-    // Reset input value to allow selecting the same file again
     e.target.value = '';
   };
 
@@ -250,9 +228,9 @@ const uploadAndSummarize = async (file) => {
       return newSummaries;
     });
     
-    // Clear global error if no files left
     if (uploadedFiles.length === 1) {
       setGlobalError(null);
+      setShowAnalysis(false);
     }
   };
 
@@ -260,7 +238,6 @@ const uploadAndSummarize = async (file) => {
     const file = uploadedFiles.find(f => f.id === fileId);
     if (!file) return;
 
-    // Reset file status
     setUploadedFiles(prev => 
       prev.map(f => 
         f.id === fileId 
@@ -319,6 +296,7 @@ const uploadAndSummarize = async (file) => {
     setUploadedFiles([]);
     setFileSummaries({});
     setGlobalError(null);
+    setShowAnalysis(false);
   };
 
   const viewAnalysis = () => {
@@ -334,21 +312,39 @@ const uploadAndSummarize = async (file) => {
       return;
     }
 
-    // Navigate to analysis page with data
-    navigate('/proposal-analysis', {
-      state: {
-        uploadedFiles: completedFiles,
-        fileSummaries
-      }
-    });
+    setShowAnalysis(true);
+    
+    // Smooth scroll to analysis section
+    setTimeout(() => {
+      analysisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  const copyAllSummaries = () => {
+    const completedFiles = uploadedFiles.filter(f => f.uploadStatus === 'completed');
+    const allSummaries = completedFiles
+      .map((file, index) => `${index + 1}. ${file.name}\n${fileSummaries[file.id] || 'No summary available'}\n`)
+      .join('\n');
+    
+    navigator.clipboard.writeText(allSummaries);
+    alert('All summaries copied to clipboard!');
+  };
+
+  const copyIndividualSummary = (fileId, fileName) => {
+    const summary = fileSummaries[fileId];
+    if (summary) {
+      navigator.clipboard.writeText(`${fileName}\n\n${summary}`);
+      alert('Summary copied to clipboard!');
+    }
   };
 
   const completedCount = uploadedFiles.filter(f => f.uploadStatus === 'completed').length;
   const uploadingCount = uploadedFiles.filter(f => f.uploadStatus === 'uploading').length;
   const errorCount = uploadedFiles.filter(f => f.uploadStatus === 'error').length;
+  const completedFiles = uploadedFiles.filter(f => f.uploadStatus === 'completed');
 
   return (
-    <MainLayout title='Proposal Upload' userRole='Proposal Evaluation'>
+    <MainLayout title='Proposal Upload & Analysis' userRole='Proposal Evaluation'>
       <div className="min-h-screen pb-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Header Section */}
@@ -377,7 +373,7 @@ const uploadAndSummarize = async (file) => {
           )}
 
           {/* Upload Form */}
-          <div className="bg-occ-secondary-white rounded-xl shadow-lg overflow-hidden border border-occ-secondary-gray">
+          <div className="bg-occ-secondary-white rounded-xl shadow-lg overflow-hidden border border-occ-secondary-gray mb-6">
             <div className="p-6 sm:p-8">
               {/* File Upload */}
               <div className="mb-6">
@@ -490,16 +486,6 @@ const uploadAndSummarize = async (file) => {
                             </div>
                           </div>
 
-                          {/* Summary Display */}
-                          {file.uploadStatus === 'completed' && fileSummaries[file.id] && (
-                            <div className="p-4 border-t border-occ-secondary-gray">
-                              <h4 className="text-sm font-medium occ-blue-dark mb-2">AI Summary:</h4>
-                              <p className="text-sm occ-gray leading-relaxed">
-                                {fileSummaries[file.id]}
-                              </p>
-                            </div>
-                          )}
-
                           {/* Error Display */}
                           {file.uploadStatus === 'error' && (
                             <div className="p-4 border-t border-red-200 bg-red-50">
@@ -530,11 +516,139 @@ const uploadAndSummarize = async (file) => {
                   disabled={completedCount === 0}
                 >
                   <FileCheck size={18} />
-                  View Analysis ({completedCount})
+                  {showAnalysis ? 'Scroll to Analysis' : 'View Analysis'} ({completedCount})
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Analysis Results Section */}
+          {showAnalysis && completedFiles.length > 0 && (
+            <div ref={analysisRef} className="space-y-6">
+              {/* Analysis Header */}
+              <div className="bg-occ-blue-gradient rounded-xl p-6 sm:p-8 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <ArrowDown className="w-6 h-6 occ-secondary-white animate-bounce" />
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-bold occ-secondary-white">Analysis Results</h2>
+                      <p className="occ-secondary-white opacity-90">AI-generated summaries for {completedFiles.length} proposals</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={copyAllSummaries}
+                      className="px-4 py-2 bg-occ-secondary-white/20 hover:bg-occ-secondary-white/30 occ-secondary-white rounded-lg transition-all flex items-center gap-2"
+                    >
+                      <Download size={16} />
+                      Copy All
+                    </button>
+                    <button className="px-4 py-2 bg-occ-secondary-white/20 hover:bg-occ-secondary-white/30 occ-secondary-white rounded-lg transition-all flex items-center gap-2">
+                      <Share size={16} />
+                      Share
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Proposal Summaries */}
+                  <div className="bg-occ-secondary-white rounded-xl shadow-lg overflow-hidden border border-occ-secondary-gray">
+                    <div className="bg-occ-blue-dark p-4">
+                      <h3 className="text-lg font-semibold occ-secondary-white flex items-center gap-2">
+                        <FileCheck size={18} />
+                        AI-Generated Proposal Summaries
+                      </h3>
+                    </div>
+                    <div className="p-6 space-y-6">
+                      {completedFiles.map((file, index) => (
+                        <div key={file.id} className="border border-occ-secondary-gray rounded-lg overflow-hidden">
+                          {/* File Header */}
+                          <div className="bg-occ-secondary-gray p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="rounded-full w-8 h-8 flex items-center justify-center font-semibold bg-occ-blue occ-secondary-white">
+                                  {index + 1}
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold occ-blue-dark">{file.name}</h4>
+                                  <p className="text-xs occ-gray">{formatFileSize(file.size)}</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => copyIndividualSummary(file.id, file.name)}
+                                className="px-3 py-1 bg-occ-blue occ-secondary-white text-xs rounded hover:bg-occ-blue-dark transition-all flex items-center gap-1"
+                              >
+                                <Copy size={12} />
+                                Copy
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Summary Content */}
+                          <div className="p-4">
+                            <h5 className="font-medium occ-blue-dark mb-3">Summary:</h5>
+                            <p className="occ-blue-dark leading-relaxed whitespace-pre-wrap text-sm">
+                              {fileSummaries[file.id] || 'No summary available'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  {/* Analysis Overview */}
+                  <div className="bg-occ-secondary-white rounded-xl shadow-lg p-6 border border-occ-secondary-gray">
+                    <h4 className="font-semibold occ-blue-dark mb-4">Analysis Overview</h4>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-2 border-b border-occ-secondary-gray">
+                        <span className="text-sm occ-gray">Total Files</span>
+                        <span className="font-semibold occ-blue-dark">{completedFiles.length}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-occ-secondary-gray">
+                        <span className="text-sm occ-gray">Successfully Processed</span>
+                        <span className="font-semibold occ-blue-dark">{completedFiles.length}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm occ-gray">Total Size</span>
+                        <span className="font-semibold occ-blue-dark">
+                          {formatFileSize(completedFiles.reduce((total, file) => total + file.size, 0))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Processed Files */}
+                  <div className="bg-occ-secondary-white rounded-xl shadow-lg p-6 border border-occ-secondary-gray">
+                    <h4 className="font-semibold occ-blue-dark mb-4 flex items-center gap-2">
+                      <FileText size={16} className="occ-blue" />
+                      Processed Files
+                    </h4>
+                    <div className="space-y-2">
+                      {completedFiles.map((file, index) => (
+                        <div key={file.id} className="p-3 bg-occ-secondary-gray rounded border text-sm">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="w-5 h-5 rounded-full bg-occ-blue occ-secondary-white text-xs flex items-center justify-center font-medium">
+                              {index + 1}
+                            </span>
+                            <p className="font-medium occ-blue-dark truncate flex-1">{file.name}</p>
+                          </div>
+                          <p className="text-xs occ-gray ml-7">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>

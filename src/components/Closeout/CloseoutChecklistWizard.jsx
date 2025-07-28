@@ -19,7 +19,7 @@ const CloseoutChecklistWizard = () => {
   const [aiChecksError, setAiChecksError] = useState(null);
   const [reportError, setReportError] = useState(null);
 
-  const API_BASE_URL = 'http://localhost:8000/api/closeout_report';
+  const API_BASE_URL = 'http://3.95.95.62:8006/api/closeout_report';
 
   // Fetch default checklist on component mount
   useEffect(() => {

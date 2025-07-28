@@ -9,7 +9,7 @@ import { X, Home, BarChart3, Download, Plus, FileText, Brain, Calendar, CheckSqu
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [expandedSections, setExpandedSections] = useState({
-    'contract-lifecycle': true,
+    'contract-lifecycle': false, // Changed from true to false
     'modifications': false,
     'closeout': false,
     'compliance': false,
@@ -28,6 +28,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const sidebarRef = useRef(null);
   const closeButtonRef = useRef(null);
   const shouldScrollToActive = useRef(false);
+  const isInitialLoad = useRef(true); // Track if this is the initial page load
 
   // Auto-expand sections and conditionally scroll to active item
   useEffect(() => {
@@ -36,6 +37,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     // Define which section each route belongs to
     const routeToSection = {
       '/new-contract-request': 'contract-lifecycle',
+      '/contract-request-list': 'contract-lifecycle', // Added new route
       '/solicitation-planner': 'contract-lifecycle',
       '/proposal-upload': 'contract-lifecycle',
       '/proposal-analysis': 'contract-lifecycle',
@@ -51,16 +53,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     // Define which subsection each route belongs to
     const routeToSubsection = {
       '/new-contract-request': 'contract-intake',
+      '/contract-request-list': 'contract-intake', // Added new route
       '/solicitation-planner': 'planning-solicitation',
       '/proposal-upload': 'proposal-evaluation',
       '/proposal-analysis': 'proposal-evaluation'
     };
 
-    // Auto-expand the section containing the active route
+    // Only auto-expand if we're not on the dashboard and it's not the initial load
+    // This allows manual navigation to expand sections but keeps them closed on page refresh
     const activeSection = routeToSection[currentPath];
     const activeSubsection = routeToSubsection[currentPath];
     
-    if (activeSection) {
+    if (activeSection && currentPath !== '/' && !isInitialLoad.current) {
       setExpandedSections(prev => {
         const wasExpanded = prev[activeSection];
         
@@ -120,6 +124,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           shouldScrollToActive.current = false;
         }, 100);
       }
+    }
+
+    // After the first useEffect run, mark that initial load is complete
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
     }
   }, [location.pathname]);
 
@@ -276,14 +285,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   </div>
                   
                   {expandedSubsections['contract-intake'] && (
-                    <SidebarItem
-                      icon={<Plus size={18} />}
-                      label="New Contract Request"
-                      href="/new-contract-request"
-                      indent={1}
-                      isActive={location.pathname === '/new-contract-request'}
-                      onClick={() => handleSidebarItemClick('/new-contract-request')}
-                    />
+                    <>
+                      <SidebarItem
+                        icon={<Plus size={18} />}
+                        label="New Contract Request"
+                        href="/new-contract-request"
+                        indent={1}
+                        isActive={location.pathname === '/new-contract-request'}
+                        onClick={() => handleSidebarItemClick('/new-contract-request')}
+                      />
+                      <SidebarItem
+                        icon={<ClipboardList size={18} />}
+                        label="Contract Request List"
+                        href="/contract-request-list"
+                        indent={1}
+                        isActive={location.pathname === '/contract-request-list'}
+                        onClick={() => handleSidebarItemClick('/contract-request-list')}
+                      />
+                    </>
                   )}
 
                   {/* Planning & Solicitation - Expandable Subsection */}
@@ -337,14 +356,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         isActive={location.pathname === '/proposal-upload'}
                         onClick={() => handleSidebarItemClick('/proposal-upload')}
                       />
-                      <SidebarItem
-                        icon={<Brain size={18} />}
-                        label="AI Evaluation Summary"
-                        indent={1}
-                        href="/proposal-analysis"
-                        isActive={location.pathname === '/proposal-analysis'}
-                        onClick={() => handleSidebarItemClick('/proposal-analysis')}
-                      />
+                    
                     </>
                   )}
                 </>

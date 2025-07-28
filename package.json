@@ -2,6 +2,7 @@
   "name": "occ_frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://3.95.95.62:8006",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

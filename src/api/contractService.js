@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://3.95.95.62:8006';
 
 // Contract API Service
 export const contractService = {
@@ -61,10 +61,10 @@ export const contractService = {
 
 // Default contract data (fallback/static data)
 export const defaultContractData = {
-  intake: 12,
-  evaluation: 5,
-  performance: 8,
-  closeout: 20
+  intake: 0,
+  evaluation: 0,
+  performance: 0,
+  closeout: 0
 };
 
 // Default cycle time data (fallback/static data)
