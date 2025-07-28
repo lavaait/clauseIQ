@@ -6,7 +6,7 @@ from transformers import pipeline, AutoTokenizer
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import TokenTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+from langchain.vectorstores import Chroma
 from langchain_huggingface import HuggingFacePipeline
 from langchain.chains import RetrievalQA
 from langchain_core.runnables import RunnableSequence
@@ -54,7 +54,8 @@ class ClauseValidation:
         doc_chunks = splitter.split_documents(docs)
 
         embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        vectorstore = FAISS.from_documents(doc_chunks, embedder)
+        # chroma_dir = os.path.join(self.output_folder, "chroma_db")
+        vectorstore = Chroma.from_documents(doc_chunks, embedder)
         retriever = vectorstore.as_retriever(search_type="similarity", k=3)
 
         self.qa_chain = RetrievalQA.from_chain_type(
@@ -191,7 +192,7 @@ if __name__ == "__main__":
     BASE_DIR = Path(__file__).resolve().parent
     clause_folder = BASE_DIR / "clause_output"
     regulation_path = BASE_DIR / "clause_compliance" / "far_dfars.txt"
-    output_folder = BASE_DIR / "clause_output"
+    output_folder = BASE_DIR / "chroma_db"
 
     validator = ClauseValidation(
     clause_folder=str(clause_folder),
