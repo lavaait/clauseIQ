@@ -15,7 +15,7 @@ import ContractRequestList from './components/Contract-Intake/ContractRequestLis
 const App = () => {
 
   return (
-    <Router>
+    <Router basename="/occai">
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/new-contract-request" element={<NewContractRequestForm />} />
