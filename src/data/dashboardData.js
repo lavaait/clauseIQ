@@ -1,19 +1,3 @@
-export const contractData = {
-  intake: 12,
-  performance: 8,
-  evaluation: 5,
-  closeout: 20
-};
-
-export const cycleTimeData = [
-  { month: 'Jun', value: 35 },
-  { month: 'May', value: 32 },
-  { month: 'Jun', value: 28 },
-  { month: 'Jul', value: 15 },
-  { month: 'Aug', value: 18 },
-  { month: 'Sep', value: 16 },
-  { month: 'Nov', value: 12 }
-];
 
 export const recentActivity = [
   { type: 'check', text: 'Clause check completed for Contract #3172', time: '18:45 AM' },

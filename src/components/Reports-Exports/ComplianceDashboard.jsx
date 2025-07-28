@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
 import { Download, FileText, BarChart3 } from 'lucide-react';
 import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
@@ -30,6 +30,28 @@ const ComplianceDashboard = () => {
     pendingReview: 8,
     fullyCompliant: 25,
     monthlyTrend: chartData
+  };
+
+  // Custom Tooltip Component
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800 mb-2">{`Month: ${label}`}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm font-medium">
+              {`${entry.dataKey}: ${entry.value}%`}
+            </p>
+          ))}
+          {payload.length === 2 && (
+            <p className="text-xs text-gray-500 mt-1 pt-1 border-t">
+              Difference: {Math.abs(payload[0].value - payload[1].value)}%
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
   };
 
   // PDF Export Function
@@ -334,7 +356,7 @@ const ComplianceDashboard = () => {
               {/* FAR Compliance Card */}
               <div className="bg-occ-secondary-white rounded-xl shadow-lg p-6 border-l-4 border-occ-blue hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold occ-gray uppercase tracking-wide">FAR Compliance</h3>
+                                    <h3 className="text-sm font-semibold occ-gray uppercase tracking-wide">FAR Compliance</h3>
                   <div className="w-3 h-3 rounded-full bg-occ-blue"></div>
                 </div>
                 <div className="text-4xl font-bold occ-blue mb-2">{complianceData.farCompliance}%</div>
@@ -438,36 +460,49 @@ const ComplianceDashboard = () => {
                 <div className="h-80 sm:h-96">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      {/* Add subtle grid lines for better readability */}
+                      <CartesianGrid 
+                        strokeDasharray="3 3" 
+                        stroke="#f0f0f0" 
+                        horizontal={true} 
+                        vertical={false} 
+                      />
+                      
                       <XAxis 
                         dataKey="month" 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: '#98999B' }}
+                        tick={{ fontSize: 14, fill: '#98999B', fontWeight: 500 }}
                         className="occ-gray"
                       />
                       <YAxis 
                         domain={[0, 100]}
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: '#98999B' }}
+                        tick={{ fontSize: 14, fill: '#98999B', fontWeight: 500 }}
                         tickFormatter={(value) => `${value}%`}
                         className="occ-gray"
+                        ticks={[0, 20, 40, 60, 80, 100]}
                       />
+                      
+                      {/* Custom Tooltip */}
+                      <Tooltip content={<CustomTooltip />} />
+                      
                       <Line 
                         type="monotone" 
                         dataKey="FAR" 
                         stroke="#005ACA" 
                         strokeWidth={4}
-                        dot={{ fill: '#005ACA', strokeWidth: 3, r: 5 }}
-                        activeDot={{ r: 7, stroke: '#005ACA', strokeWidth: 3, fill: '#FFFFFF' }}
+                        dot={{ fill: '#005ACA', strokeWidth: 3, r: 6 }}
+                        activeDot={{ r: 8, stroke: '#005ACA', strokeWidth: 3, fill: '#FFFFFF' }}
                       />
                       <Line 
                         type="monotone" 
                         dataKey="DFARS" 
                         stroke="#0072C6" 
                         strokeWidth={4}
-                        dot={{ fill: '#0072C6', strokeWidth: 3, r: 5 }}
-                        activeDot={{ r: 7, stroke: '#0072C6', strokeWidth: 3, fill: '#FFFFFF' }}
+                        dot={{ fill: '#0072C6', strokeWidth: 3, r: 6 }}
+                        activeDot={{ r: 8, stroke: '#0072C6', strokeWidth: 3, fill: '#FFFFFF' }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -480,7 +515,7 @@ const ComplianceDashboard = () => {
                     <div className="text-xs occ-gray uppercase tracking-wide">Total Contracts</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold occ-secondary-blue">{complianceData.nonCompliant}</div>
+                    <div className="text-2xl font-bold" style={{ color: '#dc2626' }}>{complianceData.nonCompliant}</div>
                     <div className="text-xs occ-gray uppercase tracking-wide">Non-Compliant</div>
                   </div>
                   <div className="text-center">
@@ -488,7 +523,7 @@ const ComplianceDashboard = () => {
                     <div className="text-xs occ-gray uppercase tracking-wide">Pending Review</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold occ-yellow">{complianceData.fullyCompliant}</div>
+                    <div className="text-2xl font-bold" style={{ color: '#16a34a' }}>{complianceData.fullyCompliant}</div>
                     <div className="text-xs occ-gray uppercase tracking-wide">Fully Compliant</div>
                   </div>
                 </div>

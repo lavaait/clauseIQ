@@ -1,48 +1,202 @@
-// Sidebar.jsx
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../occ-colors.css';
 
 import SidebarSection from './SidebarSection';
 import SidebarItem from './SidebarItem';
 
-import {
-  X, Home, BarChart3, Download, Plus, FolderOpen, FileText, Brain,
-  Calendar, Search, CheckSquare, Upload, Trophy, Activity, TrendingUp,
-  AlertTriangle, Settings, TrendingDown, Package, Receipt, Archive, Book,
-  ClipboardList, Shield, Bot, RotateCcw, BookmarkPlus, Users, Lock, Cog,
-  FileDown
-} from 'lucide-react';
+import { X, Home, BarChart3, Download, Plus, FileText, Brain, Calendar, CheckSquare, Upload, Settings, Package, Book, ClipboardList, Shield, Users, Lock, Cog, FileDown, ChevronDown, ChevronRight } from 'lucide-react';
 
-const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
-  const [setActiveItem] = useState('/');
+const Sidebar = ({ isOpen, setIsOpen }) => {
+  const [expandedSections, setExpandedSections] = useState({
+    'contract-lifecycle': true,
+    'modifications': false,
+    'closeout': false,
+    'compliance': false,
+    'reports': false,
+    'admin': false
+  });
+
+  // Add state for Contract Lifecycle subsections
+  const [expandedSubsections, setExpandedSubsections] = useState({
+    'contract-intake': false,
+    'planning-solicitation': false,
+    'proposal-evaluation': false
+  });
+
   const location = useLocation();
+  const sidebarRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const shouldScrollToActive = useRef(false);
+
+  // Auto-expand sections and conditionally scroll to active item
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    // Define which section each route belongs to
+    const routeToSection = {
+      '/new-contract-request': 'contract-lifecycle',
+      '/solicitation-planner': 'contract-lifecycle',
+      '/proposal-upload': 'contract-lifecycle',
+      '/proposal-analysis': 'contract-lifecycle',
+      '/contract-modification-tracker': 'modifications',
+      '/closeout-checklist-wizard': 'closeout',
+      '/clause-Checker': 'compliance',
+      '/checklist-generator': 'compliance',
+      '/report/dashboard': 'reports',
+      '/admin/user-management': 'admin',
+      '/admin/audit-logs': 'admin'
+    };
+
+    // Define which subsection each route belongs to
+    const routeToSubsection = {
+      '/new-contract-request': 'contract-intake',
+      '/solicitation-planner': 'planning-solicitation',
+      '/proposal-upload': 'proposal-evaluation',
+      '/proposal-analysis': 'proposal-evaluation'
+    };
+
+    // Auto-expand the section containing the active route
+    const activeSection = routeToSection[currentPath];
+    const activeSubsection = routeToSubsection[currentPath];
+    
+    if (activeSection) {
+      setExpandedSections(prev => {
+        const wasExpanded = prev[activeSection];
+        
+        // Only scroll if the section was previously collapsed
+        if (!wasExpanded) {
+          shouldScrollToActive.current = true;
+        }
+        
+        return {
+          ...prev,
+          [activeSection]: true
+        };
+      });
+
+      // Auto-expand the subsection containing the active route
+      if (activeSubsection) {
+        setExpandedSubsections(prev => ({
+          ...prev,
+          [activeSubsection]: true
+        }));
+      }
+
+      // Scroll to active item only if shouldScrollToActive is true
+      if (shouldScrollToActive.current) {
+        setTimeout(() => {
+          const activeElement = sidebarRef.current?.querySelector('[data-active="true"]');
+          if (activeElement && sidebarRef.current) {
+            const sidebarScrollContainer = sidebarRef.current.querySelector('.sidebar-scroll');
+            if (sidebarScrollContainer) {
+              // Get current scroll position
+              const currentScrollTop = sidebarScrollContainer.scrollTop;
+              const containerHeight = sidebarScrollContainer.clientHeight;
+              
+              // Get element position
+              const elementTop = activeElement.offsetTop;
+              const elementHeight = activeElement.offsetHeight;
+              
+              // Only scroll if the element is not fully visible
+              const elementBottom = elementTop + elementHeight;
+              const visibleTop = currentScrollTop;
+              const visibleBottom = currentScrollTop + containerHeight;
+              
+              // Check if element is not fully visible
+              if (elementTop < visibleTop || elementBottom > visibleBottom) {
+                // Calculate scroll position to center the element
+                const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
+                
+                sidebarScrollContainer.scrollTo({
+                  top: Math.max(0, scrollTop),
+                  behavior: 'smooth'
+                });
+              }
+            }
+          }
+          
+          // Reset the flag
+          shouldScrollToActive.current = false;
+        }, 100);
+      }
+    }
+  }, [location.pathname]);
+
+  // Focus management for mobile sidebar
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 1024) {
+      closeButtonRef.current?.focus();
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, setIsOpen]);
+
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  // Add toggle function for subsections
+  const toggleSubsection = (subsectionId) => {
+    setExpandedSubsections(prev => ({
+      ...prev,
+      [subsectionId]: !prev[subsectionId]
+    }));
+  };
+
+  // Close sidebar when navigating on mobile
+  const handleNavigation = () => {
+    if (window.innerWidth < 1024) {
+      setIsOpen(false);
+    }
+  };
+
+  // Handle sidebar item click - set flag to scroll to active item
+  const handleSidebarItemClick = (href) => {
+    // Only set scroll flag if we're navigating to a different page
+    if (href && href !== location.pathname) {
+      shouldScrollToActive.current = true;
+    }
+    handleNavigation();
+  };
 
   return (
     <>
       {/* Backdrop for mobile */}
       {isOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 cursor-pointer"
           onClick={() => setIsOpen(false)}
+          role="button"
+          aria-label="Close sidebar"
         />
       )}
 
       {/* Sidebar Container */}
-      <div
+      <aside
+        ref={sidebarRef}
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-80 bg-occ-blue-dark occ-secondary-white flex flex-col
+          w-80 bg-occ-blue-dark text-white flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
+        role="navigation"
+        aria-label="Main navigation"
       >
-
         {/* Header */}
         <div className="flex-shrink-0 p-4 border-b border-occ-blue flex items-center justify-between">
           <div className="flex items-center space-x-4">
-
             {/* Logo */}
             <div className="h-9 w-9 flex items-center justify-center bg-white shadow-lg rounded-lg">
               <img
@@ -65,15 +219,18 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
             {/* Company Name */}
             <div className="flex items-center h-12">
               <span className="font-bold text-4xl leading-none">Clause</span>
-              <span className="occ-secondary-blue font-bold text-4xl leading-none">IQ</span>
+              <span className="text-blue-300 font-bold text-4xl leading-none">IQ</span>
             </div>
           </div>
 
           {/* Close Button (Mobile Only) */}
           <button
+            ref={closeButtonRef}
             onClick={() => setIsOpen(false)}
-            className="lg:hidden p-2 hover:bg-occ-blue rounded-lg transition-colors duration-200"
+            className="lg:hidden p-2 hover:bg-occ-blue rounded-lg transition-colors duration-200 
+                     focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
             aria-label="Close sidebar"
+            type="button"
           >
             <X size={20} className="text-white" />
           </button>
@@ -81,118 +238,266 @@ const Sidebar = ({ userRole, isOpen, setIsOpen }) => {
 
         {/* Sidebar Navigation */}
         <div className="flex-1 overflow-y-auto sidebar-scroll">
-          <nav className="pb-8">
-            <SidebarSection>
-
-              {/* Dashboard */}
+          <nav className="pb-8" role="menu">
+            
+            {/* Main Dashboard */}
+            <SidebarSection title="Main">
               <SidebarItem
                 icon={<Home size={18} />}
                 label="Dashboard"
                 href="/"
                 isActive={location.pathname === '/'}
-                onClick={() => setActiveItem('/')}
+                onClick={() => handleSidebarItemClick('/')}
               />
+            </SidebarSection>
 
-              {/* Contract Lifecycle */}
-              <SidebarItem icon={<Download size={18} />} label="Contract Intake" />
-              <SidebarItem
-                icon={<Plus size={18} />}
-                label="New Contract Request"
-                href="/new-contract-request"
-                indent={1}
-                isActive={location.pathname === '/new-contract-request'}
-              />
-              <SidebarItem icon={<Brain size={18} />} label="Planning & Solicitation" />
-              <SidebarItem
-                icon={<Calendar size={18} />}
-                label="Solicitation Planner"
-                indent={1}
-                href="/solicitation-planner"
-                isActive={location.pathname === '/solicitation-planner'}
-              />
-              <SidebarItem icon={<ClipboardList size={18} />} label="Proposal Evaluation" />
-              <SidebarItem
-                icon={<Upload size={18} />}
-                label="Upload Proposals"
-                indent={1}
-                href="/proposal-upload"
-                isActive={location.pathname === '/proposal-upload'}
-              />
-              <SidebarItem
-                icon={<Brain size={18} />}
-                label="AI Evaluation Summary"
-                indent={1}
-                href="/proposal-analysis"
-                isActive={location.pathname === '/proposal-analysis'}
-              />
+            {/* Contract Lifecycle */}
+            <SidebarSection 
+              title="Contract Lifecycle"
+              expandable={true}
+              expanded={expandedSections['contract-lifecycle']}
+              onToggle={() => toggleSection('contract-lifecycle')}
+            >
+              {expandedSections['contract-lifecycle'] && (
+                <>
+                  {/* Contract Intake - Expandable Subsection */}
+                  <div 
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    onClick={() => toggleSubsection('contract-intake')}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Download size={18} />
+                      <span className="text-sm font-medium">Contract Intake</span>
+                    </div>
+                    {expandedSubsections['contract-intake'] ? 
+                      <ChevronDown size={16} className="text-gray-300" /> : 
+                      <ChevronRight size={16} className="text-gray-300" />
+                    }
+                  </div>
+                  
+                  {expandedSubsections['contract-intake'] && (
+                    <SidebarItem
+                      icon={<Plus size={18} />}
+                      label="New Contract Request"
+                      href="/new-contract-request"
+                      indent={1}
+                      isActive={location.pathname === '/new-contract-request'}
+                      onClick={() => handleSidebarItemClick('/new-contract-request')}
+                    />
+                  )}
 
-              {/* Modifications */}
-              <SidebarItem icon={<Settings size={18} />} label="Modifications" />
-              <SidebarItem
-                icon={<Cog size={18} />}
-                label="Log Modification"
-                indent={1}
-                href="/contract-modification-tracker"
-                isActive={location.pathname === '/contract-modification-tracker'}
-              />
+                  {/* Planning & Solicitation - Expandable Subsection */}
+                  <div 
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    onClick={() => toggleSubsection('planning-solicitation')}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Brain size={18} />
+                      <span className="text-sm font-medium">Planning & Solicitation</span>
+                    </div>
+                    {expandedSubsections['planning-solicitation'] ? 
+                      <ChevronDown size={16} className="text-gray-300" /> : 
+                      <ChevronRight size={16} className="text-gray-300" />
+                    }
+                  </div>
+                  
+                  {expandedSubsections['planning-solicitation'] && (
+                    <SidebarItem
+                      icon={<Calendar size={18} />}
+                      label="Solicitation Planner"
+                      indent={1}
+                      href="/solicitation-planner"
+                      isActive={location.pathname === '/solicitation-planner'}
+                      onClick={() => handleSidebarItemClick('/solicitation-planner')}
+                    />
+                  )}
 
-              {/* Closeout */}
-              <SidebarItem icon={<CheckSquare size={18} />} label="Closeout" />
-              <SidebarItem
-                icon={<Package size={18} />}
-                label="Closeout Wizard"
-                indent={1}
-                href="/closeout-checklist-wizard"
-                isActive={location.pathname === '/closeout-checklist-wizard'}
-              />
+                  {/* Proposal Evaluation - Expandable Subsection */}
+                  <div 
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    onClick={() => toggleSubsection('proposal-evaluation')}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <ClipboardList size={18} />
+                      <span className="text-sm font-medium">Proposal Evaluation</span>
+                    </div>
+                    {expandedSubsections['proposal-evaluation'] ? 
+                      <ChevronDown size={16} className="text-gray-300" /> : 
+                      <ChevronRight size={16} className="text-gray-300" />
+                    }
+                  </div>
+                  
+                  {expandedSubsections['proposal-evaluation'] && (
+                    <>
+                      <SidebarItem
+                        icon={<Upload size={18} />}
+                        label="Upload Proposals"
+                        indent={1}
+                        href="/proposal-upload"
+                        isActive={location.pathname === '/proposal-upload'}
+                        onClick={() => handleSidebarItemClick('/proposal-upload')}
+                      />
+                      <SidebarItem
+                        icon={<Brain size={18} />}
+                        label="AI Evaluation Summary"
+                        indent={1}
+                        href="/proposal-analysis"
+                        isActive={location.pathname === '/proposal-analysis'}
+                        onClick={() => handleSidebarItemClick('/proposal-analysis')}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+            </SidebarSection>
 
-              {/* Compliance Tools */}
-              <SidebarItem icon={<Shield size={18} />} label="Compliance Tools" />
-              <SidebarItem
-                icon={<Book size={18} />}
-                label="Clause Checker (FAR/DFARS)"
-                indent={1}
-                href="/clause-Checker"
-                isActive={location.pathname === '/clause-Checker'}
+            {/* Modifications */}
+            <SidebarSection 
+              title="Modifications"
+              expandable={true}
+              expanded={expandedSections['modifications']}
+              onToggle={() => toggleSection('modifications')}
+            >
+              {/* Category Header (not clickable) */}
+              <SidebarItem 
+                icon={<Settings size={18} />} 
+                label="Modifications"
               />
-              <SidebarItem
-                icon={<ClipboardList size={18} />}
-                label="Compliance Checklist Generator"
-                indent={1}
-                href="/checklist-generator"
-                isActive={location.pathname === '/checklist-generator'}
-              />
+              
+              {expandedSections['modifications'] && (
+                <SidebarItem
+                  icon={<Cog size={18} />}
+                  label="Log Modification"
+                  indent={1}
+                  href="/contract-modification-tracker"
+                  isActive={location.pathname === '/contract-modification-tracker'}
+                  onClick={() => handleSidebarItemClick('/contract-modification-tracker')}
+                />
+              )}
+            </SidebarSection>
 
-              {/* Reports & Exports */}
-              <SidebarItem icon={<BarChart3 size={18} />} label="Reports & Exports" />
-              <SidebarItem
-                icon={<FileText size={18} />}
-                label="Compliance Summary"
-                indent={1}
-                href="/report/dashboard"
-                isActive={location.pathname === '/report/dashboard'}
+            {/* Closeout */}
+            <SidebarSection 
+              title="Closeout"
+              expandable={true}
+              expanded={expandedSections['closeout']}
+              onToggle={() => toggleSection('closeout')}
+            >
+              {/* Category Header (not clickable) */}
+              <SidebarItem 
+                icon={<CheckSquare size={18} />} 
+                label="Closeout"
               />
+              
+              {expandedSections['closeout'] && (
+                <SidebarItem
+                  icon={<Package size={18} />}
+                  label="Closeout Wizard"
+                  indent={1}
+                  href="/closeout-checklist-wizard"
+                  isActive={location.pathname === '/closeout-checklist-wizard'}
+                  onClick={() => handleSidebarItemClick('/closeout-checklist-wizard')}
+                />
+              )}
+            </SidebarSection>
 
-              {/* Administration */}
-              <SidebarItem icon={<Lock size={18} />} label="Administration" />
-              <SidebarItem
-                icon={<Users size={18} />}
-                label="User & Role Management"
-                indent={1}
-                href="/admin/user-management"
-                isActive={location.pathname === '/admin/user-management'}
+            {/* Compliance Tools */}
+            <SidebarSection 
+              title="Compliance"
+              expandable={true}
+              expanded={expandedSections['compliance']}
+              onToggle={() => toggleSection('compliance')}
+            >
+              {/* Category Header (not clickable) */}
+              <SidebarItem 
+                icon={<Shield size={18} />} 
+                label="Compliance Tools"
               />
-              <SidebarItem
-                icon={<FileDown size={18} />}
-                label="Audit Export Logs"
-                indent={1}
-                href="/admin/audit-logs"
-                isActive={location.pathname === '/admin/audit-logs'}
+              
+              {expandedSections['compliance'] && (
+                <>
+                  <SidebarItem
+                    icon={<Book size={18} />}
+                    label="Clause Checker (FAR/DFARS)"
+                    indent={1}
+                    href="/clause-Checker"
+                    isActive={location.pathname === '/clause-Checker'}
+                    onClick={() => handleSidebarItemClick('/clause-Checker')}
+                  />
+                  <SidebarItem
+                    icon={<ClipboardList size={18} />}
+                    label="Compliance Checklist Generator"
+                    indent={1}
+                    href="/checklist-generator"
+                    isActive={location.pathname === '/checklist-generator'}
+                    onClick={() => handleSidebarItemClick('/checklist-generator')}
+                  />
+                </>
+              )}
+            </SidebarSection>
+
+            {/* Reports & Exports */}
+            <SidebarSection 
+              title="Reports"
+              expandable={true}
+              expanded={expandedSections['reports']}
+              onToggle={() => toggleSection('reports')}
+            >
+              {/* Category Header (not clickable) */}
+              <SidebarItem 
+                icon={<BarChart3 size={18} />} 
+                label="Reports & Exports"
               />
+              
+              {expandedSections['reports'] && (
+                <SidebarItem
+                  icon={<FileText size={18} />}
+                  label="Compliance Summary"
+                  indent={1}
+                  href="/report/dashboard"
+                  isActive={location.pathname === '/report/dashboard'}
+                  onClick={() => handleSidebarItemClick('/report/dashboard')}
+                />
+              )}
+            </SidebarSection>
+
+            {/* Administration */}
+            <SidebarSection 
+              title="Administration"
+              expandable={true}
+              expanded={expandedSections['admin']}
+              onToggle={() => toggleSection('admin')}
+            >
+              {/* Category Header (not clickable) */}
+              <SidebarItem 
+                icon={<Lock size={18} />} 
+                label="Administration"
+              />
+              
+              {expandedSections['admin'] && (
+                <>
+                  <SidebarItem
+                    icon={<Users size={18} />}
+                    label="User & Role Management"
+                    indent={1}
+                    href="/admin/user-management"
+                    isActive={location.pathname === '/admin/user-management'}
+                    onClick={() => handleSidebarItemClick('/admin/user-management')}
+                  />
+                  <SidebarItem
+                    icon={<FileDown size={18} />}
+                    label="Audit Export Logs"
+                    indent={1}
+                    href="/admin/audit-logs"
+                    isActive={location.pathname === '/admin/audit-logs'}
+                    onClick={() => handleSidebarItemClick('/admin/audit-logs')}
+                  />
+                </>
+              )}
             </SidebarSection>
           </nav>
         </div>
-      </div>
+      </aside>
     </>
   );
 };

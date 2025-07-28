@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Trash2, User, Bell, Shield, Users, Settings, UserPlus, ShieldCheck, X, Save, Plus, ArrowRight, GitBranch, CheckCircle, AlertCircle, Menu, Eye } from 'lucide-react';
+import { ChevronDown, Trash2, User, Bell, Shield, Users, Settings, UserPlus, ShieldCheck, X, Save, Menu } from 'lucide-react';
 import MainLayout from '../Mainlayout/MainLayout';
 
 const UserManagement = () => {
@@ -27,7 +27,6 @@ const UserManagement = () => {
   ]);
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showMobileTeamMenu, setShowMobileTeamMenu] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -35,38 +34,6 @@ const UserManagement = () => {
     email: '',
     role: 'Contract Manager',
     department: 'Procurement'
-  });
-
-  const [workflows, setWorkflows] = useState([
-    {
-      id: 1,
-      name: 'Standard Contract Approval',
-      description: 'For contracts under $50,000',
-      steps: [
-        { order: 1, role: 'Contract Manager', action: 'Create & Submit' },
-        { order: 2, role: 'Legal', action: 'Legal Review' },
-        { order: 3, role: 'Procurement Officer', action: 'Final Approval' }
-      ],
-      active: true
-    },
-    {
-      id: 2,
-      name: 'High-Value Contract Approval',
-      description: 'For contracts over $50,000',
-      steps: [
-        { order: 1, role: 'Contract Manager', action: 'Create & Submit' },
-        { order: 2, role: 'Legal', action: 'Legal Review' },
-        { order: 3, role: 'Procurement Officer', action: 'Initial Approval' },
-        { order: 4, role: 'Admin', action: 'Executive Approval' }
-      ],
-      active: true
-    }
-  ]);
-
-  const [newWorkflow, setNewWorkflow] = useState({
-    name: '',
-    description: '',
-    steps: [{ order: 1, role: 'Contract Manager', action: '' }]
   });
 
   const roles = ['Contract Manager', 'Legal', 'Procurement Officer', 'Admin'];
@@ -97,7 +64,7 @@ const UserManagement = () => {
 
   // Handle body scroll lock when modals are open
   useEffect(() => {
-    const modalOpen = showAddUserModal || showWorkflowModal || showRoleModal;
+    const modalOpen = showAddUserModal || showRoleModal;
     
     if (modalOpen) {
       document.body.style.overflow = 'hidden';
@@ -108,7 +75,7 @@ const UserManagement = () => {
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, [showAddUserModal, showWorkflowModal, showRoleModal]);
+  }, [showAddUserModal, showRoleModal]);
 
   const updateRole = (newRole) => {
     setSelectedUser({ ...selectedUser, role: newRole });
@@ -145,47 +112,6 @@ const UserManagement = () => {
 
   const removeUser = (userId) => {
     setUsers(users.filter(user => user.id !== userId));
-  };
-
-  const addWorkflow = () => {
-    if (newWorkflow.name && newWorkflow.steps.length > 0) {
-      const workflow = {
-        id: workflows.length + 1,
-        ...newWorkflow,
-        active: true
-      };
-      setWorkflows([...workflows, workflow]);
-      setNewWorkflow({ name: '', description: '', steps: [{ order: 1, role: 'Contract Manager', action: '' }] });
-      setShowWorkflowModal(false);
-    }
-  };
-
-  const addWorkflowStep = () => {
-    setNewWorkflow({
-      ...newWorkflow,
-      steps: [...newWorkflow.steps, { order: newWorkflow.steps.length + 1, role: 'Contract Manager', action: '' }]
-    });
-  };
-
-  const updateWorkflowStep = (index, field, value) => {
-    const updatedSteps = [...newWorkflow.steps];
-    updatedSteps[index][field] = value;
-    setNewWorkflow({ ...newWorkflow, steps: updatedSteps });
-  };
-
-  const removeWorkflowStep = (index) => {
-    const updatedSteps = newWorkflow.steps.filter((_, i) => i !== index);
-    // Reorder steps
-    updatedSteps.forEach((step, i) => {
-      step.order = i + 1;
-    });
-    setNewWorkflow({ ...newWorkflow, steps: updatedSteps });
-  };
-
-  const toggleWorkflow = (workflowId) => {
-    setWorkflows(workflows.map(w => 
-      w.id === workflowId ? { ...w, active: !w.active } : w
-    ));
   };
 
   const activeUsers = users.filter(u => u.status === 'active').length + 1;
@@ -243,16 +169,6 @@ const UserManagement = () => {
                     <Shield className="w-4 h-4 occ-blue" />
                     <span className="text-sm">Manage Roles</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      setShowWorkflowModal(true);
-                      setShowMobileTeamMenu(false);
-                    }}
-                    className="flex items-center gap-2 w-full p-2 hover:bg-occ-secondary-gray rounded-lg"
-                  >
-                    <GitBranch className="w-4 h-4 occ-blue" />
-                    <span className="text-sm">Manage Workflows</span>
-                  </button>
                   <div className="border-t border-occ-secondary-gray my-2 pt-2">
                     <div className="flex items-center justify-between text-xs text-occ-gray px-2">
                       <span>Users</span>
@@ -281,13 +197,6 @@ const UserManagement = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
-                <button 
-                  onClick={() => setShowWorkflowModal(true)}
-                  className="px-3 py-2 sm:px-4 sm:py-2 bg-occ-secondary-white occ-blue rounded-lg hover:bg-occ-secondary-gray transition-all shadow-md flex items-center gap-2 text-xs sm:text-sm font-medium"
-                >
-                  <GitBranch className="w-4 h-4" />
-                  <span className="hidden sm:inline">Manage</span> Workflows
-                </button>
                 <button 
                   onClick={() => setShowAddUserModal(true)}
                   className="px-3 py-2 sm:px-4 sm:py-2 bg-occ-yellow occ-blue-dark rounded-lg hover:opacity-90 transition-all shadow-md flex items-center gap-2 text-xs sm:text-sm font-medium"
@@ -410,7 +319,7 @@ const UserManagement = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {permissions[selectedUser.role]?.map((permission) => (
                       <div key={permission} className="flex items-center p-2 sm:p-3 bg-occ-secondary-gray rounded-lg">
-                        <CheckCircle className="w-4 h-4 occ-blue mr-2 flex-shrink-0" />
+                        <ShieldCheck className="w-4 h-4 occ-blue mr-2 flex-shrink-0" />
                         <span className="text-xs sm:text-sm text-occ-blue-dark capitalize">
                           {permission.replace(/_/g, ' ')}
                         </span>
@@ -467,78 +376,6 @@ const UserManagement = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Approval Workflows */}
-              <div className="bg-occ-secondary-white rounded-xl shadow-lg border-2 border-occ-secondary-gray p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <div className="flex items-center gap-2">
-                    <GitBranch className="w-5 h-5 occ-blue" />
-                    <h2 className="text-lg font-semibold occ-blue-dark">Approval Workflows</h2>
-                  </div>
-                  <button
-                    onClick={() => setShowWorkflowModal(true)}
-                    className="px-2 py-1 sm:px-3 sm:py-1 bg-occ-blue text-white text-xs font-medium rounded-lg hover:bg-occ-blue-dark transition-all"
-                  >
-                    + Add Workflow
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {workflows.map((workflow) => (
-                    <div key={workflow.id} className="border-2 border-occ-secondary-gray rounded-lg p-3 sm:p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-occ-blue-dark text-sm sm:text-base">{workflow.name}</h3>
-                          <p className="text-xs sm:text-sm text-occ-gray">{workflow.description}</p>
-                        </div>
-                        <button
-                          onClick={() => toggleWorkflow(workflow.id)}
-                          className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 items-center rounded-full transition-all duration-300 ${
-                            workflow.active ? 'bg-occ-blue' : 'bg-gray-300'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                              workflow.active ? 'translate-x-5 sm:translate-x-6' : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                      
-                      {/* Responsive workflow visualization */}
-                      <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-2">
-                        {workflow.steps.map((step, index) => (
-                          <React.Fragment key={index}>
-                            <div className="flex-shrink-0 p-2 bg-occ-secondary-gray rounded-lg text-xs">
-                              <div className="font-medium text-occ-blue-dark">{step.role}</div>
-                              <div className="text-occ-gray">{step.action}</div>
-                            </div>
-                            {index < workflow.steps.length - 1 && (
-                              <ArrowRight className="w-4 h-4 text-occ-gray flex-shrink-0" />
-                            )}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                      
-                      {/* Mobile compact workflow */}
-                      <div className="flex sm:hidden items-center justify-between mt-2 bg-occ-secondary-gray rounded-lg p-2">
-                        <div className="flex items-center">
-                          <span className="text-xs font-medium occ-blue-dark mr-1">{workflow.steps.length} steps:</span>
-                          <span className="text-xs text-occ-gray">{workflow.steps.map(s => s.role.split(' ')[0]).join(' → ')}</span>
-                        </div>
-                        <button
-                          onClick={() => {
-                            // Could open a modal to show workflow detail
-                          }}
-                          className="p-1 text-occ-blue hover:text-occ-blue-dark"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Right Column - Access Control & Stats */}
@@ -570,8 +407,8 @@ const UserManagement = () => {
                   </div>
                   <div className="p-3 sm:p-4 bg-occ-secondary-gray rounded-lg">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs sm:text-sm occ-gray">Active Workflows</span>
-                      <span className="text-xl sm:text-2xl font-bold occ-yellow">{workflows.filter(w => w.active).length}</span>
+                      <span className="text-xs sm:text-sm occ-gray">Roles</span>
+                      <span className="text-xl sm:text-2xl font-bold occ-yellow">{roles.length}</span>
                     </div>
                   </div>
                 </div>
@@ -720,7 +557,7 @@ const UserManagement = () => {
                 <div className="space-y-1 sm:space-y-2 max-h-24 sm:max-h-32 overflow-y-auto pr-1">
                   {permissions[newUser.role]?.map((permission) => (
                     <div key={permission} className="flex items-center text-xs">
-                      <CheckCircle className="w-3 h-3 occ-blue mr-2 flex-shrink-0" />
+                      <ShieldCheck className="w-3 h-3 occ-blue mr-2 flex-shrink-0" />
                       <span className="text-occ-gray capitalize">{permission.replace(/_/g, ' ')}</span>
                     </div>
                   ))}
@@ -741,144 +578,6 @@ const UserManagement = () => {
               >
                 <Save className="w-3 h-3 sm:w-4 sm:h-4" />
                 Add User
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Workflow Modal */}
-      {showWorkflowModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-2xl max-w-xl sm:max-w-2xl w-full p-4 sm:p-6 my-8 max-h-[95vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4 sm:mb-6 sticky top-0 bg-white z-10 pb-2">
-              <h3 className="text-lg sm:text-xl font-semibold text-occ-blue-dark flex items-center">
-                <GitBranch className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Create Approval Workflow
-              </h3>
-              <button
-                onClick={() => setShowWorkflowModal(false)}
-                className="text-occ-gray hover:text-occ-blue-dark"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-occ-blue-dark mb-1 sm:mb-2">
-                  Workflow Name
-                </label>
-                <input
-                  type="text"
-                  value={newWorkflow.name}
-                  onChange={(e) => setNewWorkflow({ ...newWorkflow, name: e.target.value })}
-                  className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-occ-secondary-gray rounded-lg focus:ring-2 focus:ring-occ-blue focus:border-occ-blue text-sm"
-                  placeholder="e.g., Emergency Contract Approval"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-occ-blue-dark mb-1 sm:mb-2">
-                  Description
-                </label>
-                <textarea
-                  value={newWorkflow.description}
-                  onChange={(e) => setNewWorkflow({ ...newWorkflow, description: e.target.value })}
-                  className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-occ-secondary-gray rounded-lg focus:ring-2 focus:ring-occ-blue focus:border-occ-blue text-sm"
-                  placeholder="Describe when this workflow should be used"
-                  rows="2"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <label className="text-xs sm:text-sm font-medium text-occ-blue-dark">
-                    Approval Steps
-                  </label>
-                  <button
-                    onClick={addWorkflowStep}
-                    className="px-2 py-1 sm:px-3 sm:py-1 bg-occ-blue text-white text-xs font-medium rounded-lg hover:bg-occ-blue-dark transition-all flex items-center gap-1"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Add Step
-                  </button>
-                </div>
-
-                <div className="space-y-2 sm:space-y-3">
-                  {newWorkflow.steps.map((step, index) => (
-                    <div key={index} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-occ-secondary-gray rounded-lg">
-                      <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 bg-occ-blue text-white rounded-full text-xs sm:text-sm font-medium flex-shrink-0">
-                        {step.order}
-                      </div>
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                        <select
-                          value={step.role}
-                          onChange={(e) => updateWorkflowStep(index, 'role', e.target.value)}
-                          className="px-2 py-1 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-occ-blue focus:border-occ-blue text-xs sm:text-sm"
-                        >
-                          {roles.map(role => (
-                            <option key={role} value={role}>{role}</option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          value={step.action}
-                          onChange={(e) => updateWorkflowStep(index, 'action', e.target.value)}
-                          className="px-2 py-1 sm:px-3 sm:py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-occ-blue focus:border-occ-blue text-xs sm:text-sm"
-                          placeholder="Action description"
-                        />
-                      </div>
-                      {newWorkflow.steps.length > 1 && (
-                        <button
-                          onClick={() => removeWorkflowStep(index)}
-                          className="text-red-500 hover:text-red-700 p-1"
-                        >
-                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Workflow Preview */}
-              {newWorkflow.steps.length > 0 && (
-                <div className="bg-occ-secondary-gray rounded-lg p-3 sm:p-4">
-                  <h4 className="text-xs sm:text-sm font-medium text-occ-blue-dark mb-2 sm:mb-3">Workflow Preview</h4>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                    {newWorkflow.steps.map((step, index) => (
-                      <React.Fragment key={index}>
-                        <div className="flex-shrink-0 text-center">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-occ-blue text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium mb-1">
-                            {step.order}
-                          </div>
-                          <div className="text-xs font-medium text-occ-blue-dark max-w-[60px] sm:max-w-[80px] truncate">{step.role}</div>
-                          <div className="text-xs text-occ-gray max-w-[60px] sm:max-w-[80px] truncate">{step.action || 'No action'}</div>
-                        </div>
-                        {index < newWorkflow.steps.length - 1 && (
-                          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-occ-gray flex-shrink-0" />
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3 mt-5 sm:mt-6 sticky bottom-0 bg-white pt-2">
-              <button
-                onClick={() => setShowWorkflowModal(false)}
-                className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border-2 border-occ-gray text-occ-gray rounded-lg hover:bg-gray-50 transition-all text-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={addWorkflow}
-                className="flex-1 px-3 py-2 sm:px-4 sm:py-2 bg-occ-blue text-white rounded-lg hover:bg-occ-blue-dark transition-all flex items-center justify-center gap-2 text-sm"
-              >
-                <Save className="w-3 h-3 sm:w-4 sm:h-4" />
-                Create Workflow
               </button>
             </div>
           </div>
@@ -915,7 +614,7 @@ const UserManagement = () => {
                   <div className="space-y-1 sm:space-y-2 max-h-32 overflow-y-auto pr-1">
                     {permissions[role]?.map((permission) => (
                       <div key={permission} className="flex items-center text-xs">
-                        <CheckCircle className="w-3 h-3 occ-blue mr-2 flex-shrink-0" />
+                        <ShieldCheck className="w-3 h-3 occ-blue mr-2 flex-shrink-0" />
                         <span className="text-occ-gray capitalize">{permission.replace(/_/g, ' ')}</span>
                       </div>
                     ))}

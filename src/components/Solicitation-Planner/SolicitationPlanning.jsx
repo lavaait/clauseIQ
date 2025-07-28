@@ -138,7 +138,7 @@ const SolicitationPlanning = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Header Section */}
           <div className="bg-occ-blue-gradient rounded-xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 shadow-lg">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold occ-secondary-white mb-1 sm:mb-2">Solicitation Planning</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold occ-secondary-white mb-1 sm:mb-2">Solicitation Planner</h1>
             <p className="occ-secondary-white opacity-90 text-sm sm:text-base">Plan and track solicitation milestones with AI-generated suggestions</p>
           </div>
 

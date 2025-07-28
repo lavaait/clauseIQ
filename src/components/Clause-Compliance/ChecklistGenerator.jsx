@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Check, ChevronDown, FileText, Settings, RefreshCw, CheckCircle, BarChart3, Target } from 'lucide-react';
+import { Download, Check, ChevronDown, FileText, Settings, RefreshCw, CheckCircle, BarChart3, Target, AlertTriangle } from 'lucide-react';
 import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
@@ -8,93 +8,93 @@ const ChecklistGenerator = () => {
   const [agencyPolicy, setAgencyPolicy] = useState('Agency A');
   const [checklist, setChecklist] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+  const [error, setError] = useState(null);
+  const [apiResponse, setApiResponse] = useState(null);
 
-  // Predefined checklists based on contract type and agency
-  const checklistData = {
-    'Firm-Fixed-Price': {
-      'Agency A': [
-        { id: 1, text: 'Correct contract structure', checked: true },
-        { id: 2, text: 'Specified contract period', checked: true },
-        { id: 3, text: 'Price includes all costs', checked: true },
-        { id: 4, text: 'Inspection and acceptance terms', checked: true },
-        { id: 5, text: 'Termination clauses', checked: true },
-        { id: 6, text: 'Certifications and representations', checked: true },
-        { id: 7, text: 'Payment and invoicing terms', checked: true },
-        { id: 8, text: 'Applicable FAR clauses', checked: true }
-      ],
-      'Agency B': [
-        { id: 1, text: 'Correct contract structure', checked: true },
-        { id: 2, text: 'Specified contract period', checked: true },
-        { id: 3, text: 'Price includes all costs', checked: true },
-        { id: 4, text: 'Performance work statement', checked: true },
-        { id: 5, text: 'Quality assurance surveillance plan', checked: true },
-        { id: 6, text: 'Security requirements', checked: true },
-        { id: 7, text: 'Data rights provisions', checked: true },
-        { id: 8, text: 'Applicable DFARS clauses', checked: true }
-      ]
-    },
-    'Cost-Plus-Fixed-Fee': {
-      'Agency A': [
-        { id: 1, text: 'Cost accounting standards compliance', checked: true },
-        { id: 2, text: 'Allowable cost provisions', checked: true },
-        { id: 3, text: 'Fee structure definition', checked: true },
-        { id: 4, text: 'Cost monitoring requirements', checked: true },
-        { id: 5, text: 'Audit and records access', checked: true },
-        { id: 6, text: 'Termination for convenience', checked: true },
-        { id: 7, text: 'Progress reporting requirements', checked: true },
-        { id: 8, text: 'Applicable cost accounting clauses', checked: true }
-      ],
-      'Agency B': [
-        { id: 1, text: 'Cost accounting standards compliance', checked: true },
-        { id: 2, text: 'Allowable cost provisions', checked: true },
-        { id: 3, text: 'Fee structure definition', checked: true },
-        { id: 4, text: 'Enhanced audit requirements', checked: true },
-        { id: 5, text: 'Security clearance provisions', checked: true },
-        { id: 6, text: 'Intellectual property rights', checked: true },
-        { id: 7, text: 'Export control compliance', checked: true },
-        { id: 8, text: 'DCAA audit readiness', checked: true }
-      ]
-    },
-    'Time-and-Materials': {
-      'Agency A': [
-        { id: 1, text: 'Labor hour limitations', checked: true },
-        { id: 2, text: 'Material cost controls', checked: true },
-        { id: 3, text: 'Ceiling price establishment', checked: true },
-        { id: 4, text: 'Labor category definitions', checked: true },
-        { id: 5, text: 'Invoicing procedures', checked: true },
-        { id: 6, text: 'Quality control measures', checked: true },
-        { id: 7, text: 'Government oversight provisions', checked: true },
-        { id: 8, text: 'T&M specific FAR clauses', checked: true }
-      ],
-      'Agency B': [
-        { id: 1, text: 'Labor hour limitations', checked: true },
-        { id: 2, text: 'Material cost controls', checked: true },
-        { id: 3, text: 'Ceiling price establishment', checked: true },
-        { id: 4, text: 'Security labor requirements', checked: true },
-        { id: 5, text: 'Contractor personnel screening', checked: true },
-        { id: 6, text: 'Government facility access', checked: true },
-        { id: 7, text: 'Subcontractor oversight', checked: true },
-        { id: 8, text: 'Performance metrics tracking', checked: true }
-      ]
-    }
-  };
+  // API Base URL
+  const API_BASE_URL = 'http://localhost:8000';
 
   const contractTypes = ['Firm-Fixed-Price', 'Cost-Plus-Fixed-Fee', 'Time-and-Materials'];
   const agencies = ['Agency A', 'Agency B', 'Agency C'];
+
+  // API service functions
+  const fetchChecklist = async (contractType, agencyPolicy) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/checklist_validation/checklist_validation?contract_type=${encodeURIComponent(contractType)}&agency_policy=${encodeURIComponent(agencyPolicy)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          const errorData = await response.json();
+          throw new Error(`Validation Error: ${errorData.detail?.[0]?.msg || 'Invalid parameters'}`);
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching checklist:', error);
+      throw error;
+    }
+  };
+
+  const downloadChecklistPDF = async (contractType, agencyPolicy) => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/checklist_validation/checklist/pdf?contract_type=${encodeURIComponent(contractType)}&agency_policy=${encodeURIComponent(agencyPolicy)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/pdf',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          const errorData = await response.json();
+          throw new Error(`Validation Error: ${errorData.detail?.[0]?.msg || 'Invalid parameters'}`);
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Get the PDF content as blob
+      const blob = await response.blob();
+      return blob;
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
     generateChecklist();
   }, [contractType, agencyPolicy]);
 
-  const generateChecklist = () => {
+  const generateChecklist = async () => {
     setIsGenerating(true);
+    setError(null);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      const newChecklist = checklistData[contractType]?.[agencyPolicy] || checklistData[contractType]?.['Agency A'] || [];
-      setChecklist(newChecklist);
+    try {
+      const data = await fetchChecklist(contractType, agencyPolicy);
+      setApiResponse(data);
+      setChecklist(data.items || []);
+    } catch (error) {
+      setError(`Failed to fetch checklist: ${error.message}`);
+      setChecklist([]);
+      setApiResponse(null);
+    } finally {
       setIsGenerating(false);
-    }, 800);
+    }
   };
 
   const toggleChecklistItem = (id) => {
@@ -105,7 +105,30 @@ const ChecklistGenerator = () => {
     );
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
+    setIsDownloadingPDF(true);
+    setError(null);
+
+    try {
+      const blob = await downloadChecklistPDF(contractType, agencyPolicy);
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `compliance-checklist-${contractType.toLowerCase().replace(/\s+/g, '-')}-${agencyPolicy.toLowerCase().replace(/\s+/g, '-')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setError(`Failed to download PDF: ${error.message}`);
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
+
+  const generateTextFile = () => {
     const checklistText = checklist.map((item, index) => 
       `${index + 1}. [${item.checked ? 'X' : ' '}] ${item.text}`
     ).join('\n');
@@ -114,6 +137,7 @@ const ChecklistGenerator = () => {
 Contract Type: ${contractType}
 Agency Policy: ${agencyPolicy}
 Generated: ${new Date().toLocaleDateString()}
+API Source: ${API_BASE_URL}
 
 ${checklistText}`;
 
@@ -128,12 +152,28 @@ ${checklistText}`;
     URL.revokeObjectURL(url);
   };
 
+  const testAPIConnection = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/docs`);
+      if (response.ok) {
+        console.log('API connection successful');
+      }
+    } catch (error) {
+      console.error('API connection failed:', error);
+    }
+  };
+
+  // Test API connection on component mount
+  useEffect(() => {
+    testAPIConnection();
+  }, []);
+
   const completedItems = checklist.filter(item => item.checked).length;
   const completionPercentage = checklist.length > 0 ? Math.round((completedItems / checklist.length) * 100) : 0;
 
   return (
     <MainLayout title="Compliance Checklist Generator" userRole="Checklist Generator">
-      <div className="min-h-screen  pb-12">
+      <div className="min-h-screen pb-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Modern Header Section */}
           <div className="bg-occ-blue-gradient rounded-xl p-6 sm:p-8 mb-6 shadow-lg">
@@ -145,6 +185,7 @@ ${checklistText}`;
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold occ-secondary-white">Compliance Checklist Generator</h1>
                   <p className="occ-secondary-white opacity-90 text-sm sm:text-base">Generate tailored compliance checklists for contract types and agency policies</p>
+                  
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -159,6 +200,16 @@ ${checklistText}`;
               </div>
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-occ-secondary-orange rounded-lg border border-occ-secondary-orange">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 occ-secondary-white" />
+                <span className="text-sm font-medium occ-secondary-white">{error}</span>
+              </div>
+            </div>
+          )}
 
           {/* Modern Configuration Form */}
           <div className="bg-occ-secondary-white rounded-xl shadow-lg border-2 border-occ-secondary-gray p-6 mb-6">
@@ -177,6 +228,7 @@ ${checklistText}`;
                     value={contractType}
                     onChange={(e) => setContractType(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-occ-secondary-gray rounded-lg bg-occ-secondary-white occ-blue-dark focus:ring-2 focus:ring-occ-blue focus:border-occ-blue appearance-none transition-all shadow-sm"
+                    disabled={isGenerating}
                   >
                     {contractTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
@@ -195,6 +247,7 @@ ${checklistText}`;
                     value={agencyPolicy}
                     onChange={(e) => setAgencyPolicy(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-occ-secondary-gray rounded-lg bg-occ-secondary-white occ-blue-dark focus:ring-2 focus:ring-occ-blue focus:border-occ-blue appearance-none transition-all shadow-sm"
+                    disabled={isGenerating}
                   >
                     {agencies.map(agency => (
                       <option key={agency} value={agency}>{agency}</option>
@@ -226,6 +279,19 @@ ${checklistText}`;
                 </div>
               </div>
             </div>
+
+            {/* API Response Info */}
+            {apiResponse && (
+              <div className="mt-4 p-3 bg-occ-blue rounded-lg">
+                <div className="text-xs occ-secondary-white">
+                  <div className="font-medium mb-1">✓ API Response Received:</div>
+                  <div>Contract Type: {apiResponse.contract_type}</div>
+                  <div>Agency Policy: {apiResponse.agency_policy}</div>
+                  <div>Items Retrieved: {apiResponse.items?.length || 0}</div>
+                  <div>API Endpoint: /api/checklist_validation/checklist_validation</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Modern Compliance Checklist */}
@@ -236,7 +302,7 @@ ${checklistText}`;
                   <CheckCircle className="w-6 h-6 occ-secondary-white" />
                   <h2 className="text-lg font-semibold occ-secondary-white">Compliance Checklist</h2>
                 </div>
-                {completionPercentage === 100 && (
+                {completionPercentage === 100 && checklist.length > 0 && (
                   <div className="flex items-center gap-2 px-3 py-1 bg-occ-yellow rounded-full">
                     <Check className="w-4 h-4 occ-blue-dark" />
                     <span className="text-sm font-medium occ-blue-dark">Complete</span>
@@ -245,18 +311,20 @@ ${checklistText}`;
               </div>
               
               {/* Modern Progress Bar */}
-              <div className="mt-4">
-                <div className="flex items-center justify-between text-sm occ-secondary-white mb-2">
-                  <span>Completion Progress</span>
-                  <span className="font-medium">{completionPercentage}%</span>
+              {checklist.length > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-sm occ-secondary-white mb-2">
+                    <span>Completion Progress</span>
+                    <span className="font-medium">{completionPercentage}%</span>
+                  </div>
+                  <div className="w-full bg-occ-blue-dark rounded-full h-3 border border-occ-blue-dark">
+                    <div 
+                      className="bg-occ-yellow h-3 rounded-full transition-all duration-500 shadow-sm" 
+                      style={{ width: `${completionPercentage}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-occ-blue-dark rounded-full h-3 border border-occ-blue-dark">
-                  <div 
-                    className="bg-occ-yellow h-3 rounded-full transition-all duration-500 shadow-sm" 
-                    style={{ width: `${completionPercentage}%` }}
-                  ></div>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="p-6">
@@ -264,11 +332,14 @@ ${checklistText}`;
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 occ-blue mb-6 p-4 bg-occ-secondary-gray rounded-lg border border-occ-blue">
                     <RefreshCw className="w-5 h-5 animate-spin" />
-                    <span className="text-sm font-medium">Generating checklist based on {contractType} and {agencyPolicy}...</span>
+                    <span className="text-sm font-medium">Fetching checklist from API: {API_BASE_URL}/api/checklist_validation/checklist_validation</span>
+                  </div>
+                  <div className="text-xs occ-gray mb-4">
+                    Parameters: contract_type={contractType}, agency_policy={agencyPolicy}
                   </div>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                     <div key={i} className="animate-pulse flex items-center gap-4 p-3">
-                                            <div className="w-6 h-6 bg-occ-secondary-gray rounded-lg"></div>
+                      <div className="w-6 h-6 bg-occ-secondary-gray rounded-lg"></div>
                       <div className="h-4 bg-occ-secondary-gray rounded-lg flex-1"></div>
                     </div>
                   ))}
@@ -305,13 +376,14 @@ ${checklistText}`;
                     </div>
                   ))}
 
-                  {checklist.length === 0 && !isGenerating && (
+                  {checklist.length === 0 && !isGenerating && !error && (
                     <div className="text-center py-12">
                       <div className="p-4 bg-occ-secondary-gray rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                         <FileText className="w-10 h-10 occ-gray" />
                       </div>
                       <h3 className="text-lg font-medium occ-blue-dark mb-2">No Checklist Available</h3>
                       <p className="occ-gray">No checklist items available for this configuration</p>
+                      <p className="text-xs occ-gray mt-2">API: {API_BASE_URL}/api/checklist_validation/checklist_validation</p>
                     </div>
                   )}
                 </div>
@@ -341,12 +413,35 @@ ${checklistText}`;
                     Print Checklist
                   </button>
                   <button
-                    onClick={generatePDF}
-                    className="px-6 py-2 bg-occ-blue occ-secondary-white rounded-lg hover:bg-occ-blue-dark transition-all font-medium shadow-md flex items-center gap-2"
+                    onClick={generateTextFile}
+                    className="px-4 py-2 occ-blue border-2 border-occ-blue rounded-lg hover:bg-occ-blue hover:occ-secondary-white transition-all font-medium shadow-sm"
                   >
-                    <Download className="w-4 h-4" />
-                    Download PDF
+                    Download TXT
                   </button>
+                  <button
+                    onClick={generatePDF}
+                    disabled={isDownloadingPDF}
+                    className="px-6 py-2 bg-occ-blue occ-secondary-white rounded-lg hover:bg-occ-blue-dark transition-all font-medium shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDownloadingPDF ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        Download PDF
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* API Status */}
+              <div className="mt-4 pt-4 border-t-2 border-occ-secondary-gray">
+                <div className="text-xs occ-gray">
+                  PDF Endpoint: {API_BASE_URL}/api/checklist_validation/checklist/pdf
                 </div>
               </div>
 

@@ -4,28 +4,91 @@ import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
 const CloseoutChecklistWizard = () => {
-  const [checklist, setChecklist] = useState([
-    { id: 1, text: 'All deliverables verified', checked: false, required: true },
-    { id: 2, text: 'Final invoices received', checked: false, required: true },
-    { id: 3, text: 'Outstanding obligations resolved', checked: false, required: true },
-    { id: 4, text: 'Property disposition completed', checked: false, required: true },
-    { id: 5, text: 'Final acceptance documented', checked: false, required: true },
-    { id: 6, text: 'Contractor performance evaluated', checked: false, required: false }
-  ]);
-
-  const [aiChecks, setAiChecks] = useState([
-    {
-      id: 1,
-      type: 'warning',
-      title: 'Subcontractor payment still pending',
-      description: 'Review necessary for final closeout',
-      status: 'pending'
-    }
-  ]);
-
+  const [checklist, setChecklist] = useState([]);
+  const [aiChecks, setAiChecks] = useState([]);
+  const [validationData, setValidationData] = useState(null);
   const [isRunningChecks, setIsRunningChecks] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  
+  // Individual component loading and error states
+  const [checklistLoading, setChecklistLoading] = useState(true);
+  const [checklistError, setChecklistError] = useState(null);
+  const [validationLoading, setValidationLoading] = useState(false);
+  const [validationError, setValidationError] = useState(null);
+  const [aiChecksError, setAiChecksError] = useState(null);
+  const [reportError, setReportError] = useState(null);
+
+  const API_BASE_URL = 'http://localhost:8000/api/closeout_report';
+
+  // Fetch default checklist on component mount
+  useEffect(() => {
+    fetchDefaultChecklist();
+  }, []);
+
+  // Validate checklist whenever it changes
+  useEffect(() => {
+    if (checklist.length > 0) {
+      validateChecklist();
+    }
+  }, [checklist, aiChecks]);
+
+  const fetchDefaultChecklist = async () => {
+    try {
+      setChecklistLoading(true);
+      setChecklistError(null);
+      
+      const response = await fetch(`${API_BASE_URL}/checklist/default`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch checklist: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setChecklist(data.checklist || []);
+    } catch (err) {
+      console.error('Error fetching default checklist:', err);
+      setChecklistError(`Failed to load checklist: ${err.message}`);
+    } finally {
+      setChecklistLoading(false);
+    }
+  };
+
+  const validateChecklist = async () => {
+    try {
+      setValidationLoading(true);
+      setValidationError(null);
+      
+      const payload = {
+        checklist: checklist,
+        ai_checks: aiChecks
+      };
+
+      const response = await fetch(`${API_BASE_URL}/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        if (response.status === 422) {
+          const errorData = await response.json();
+          throw new Error(`Validation error: ${errorData.detail?.[0]?.msg || 'Invalid data'}`);
+        }
+        throw new Error(`Validation failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setValidationData(data);
+    } catch (err) {
+      console.error('Error validating checklist:', err);
+      setValidationError(`Validation failed: ${err.message}`);
+    } finally {
+      setValidationLoading(false);
+    }
+  };
 
   const toggleChecklistItem = (id) => {
     setChecklist(prev => 
@@ -35,91 +98,89 @@ const CloseoutChecklistWizard = () => {
     );
   };
 
-  const runAIChecks = () => {
+  const runAIChecks = async () => {
     setIsRunningChecks(true);
+    setAiChecksError(null);
     
-    // Simulate AI analysis
-    setTimeout(() => {
-      const newChecks = [
-        {
-          id: 1,
-          type: 'warning',
-          title: 'Subcontractor payment still pending',
-          description: 'Review necessary for final closeout',
-          status: 'pending'
-        },
-        {
-          id: 2,
-          type: 'info',
-          title: 'Performance evaluation period ending soon',
-          description: 'Consider completing contractor performance evaluation',
-          status: 'pending'
-        }
-      ];
-      
-      setAiChecks(newChecks);
+    try {
+      // Since AI checks come from validation, we'll trigger validation
+      await validateChecklist();
+    } catch (err) {
+      console.error('Error running AI checks:', err);
+      setAiChecksError(`AI checks failed: ${err.message}`);
+    } finally {
       setIsRunningChecks(false);
-    }, 2000);
+    }
   };
 
-  const generateCloseoutReport = () => {
-    setIsGeneratingReport(true);
-    
-    setTimeout(() => {
-      const completedItems = checklist.filter(item => item.checked);
-      const pendingItems = checklist.filter(item => !item.checked);
+  const generateCloseoutReport = async () => {
+    try {
+      setIsGeneratingReport(true);
+      setReportError(null);
       
-      const reportContent = `CONTRACT CLOSEOUT REPORT
-Generated: ${new Date().toLocaleDateString()}
+      const payload = {
+        checklist: checklist,
+        ai_checks: aiChecks
+      };
 
-CHECKLIST STATUS:
-${checklist.map(item => `${item.checked ? '✓' : '○'} ${item.text}${item.required ? ' (Required)' : ''}`).join('\n')}
+      const response = await fetch(`${API_BASE_URL}/report/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
 
-SUMMARY:
-- Total Items: ${checklist.length}
-- Completed: ${completedItems.length}
-- Pending: ${pendingItems.length}
-- Required Items Complete: ${checklist.filter(item => item.required && item.checked).length}/${checklist.filter(item => item.required).length}
+      if (!response.ok) {
+        if (response.status === 422) {
+          const errorData = await response.json();
+          throw new Error(`Report generation error: ${errorData.detail?.[0]?.msg || 'Invalid data'}`);
+        }
+        throw new Error(`Report generation failed: ${response.status} ${response.statusText}`);
+      }
 
-AI AUTO-CHECKS:
-${aiChecks.map(check => `${check.type.toUpperCase()}: ${check.title} - ${check.description}`).join('\n')}
-
-RECOMMENDATIONS:
-${pendingItems.length > 0 ? '- Complete all pending checklist items before final closeout' : '- All checklist items completed successfully'}
-${aiChecks.filter(check => check.status === 'pending').length > 0 ? '- Address all AI-identified issues' : '- No outstanding issues identified'}
-
-Contract ready for closeout: ${pendingItems.filter(item => item.required).length === 0 && aiChecks.filter(check => check.type === 'error').length === 0 ? 'YES' : 'NO'}`;
-
-      // Create and download the report
-      const blob = new Blob([reportContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `closeout-report-${new Date().toISOString().split('T')[0]}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const data = await response.json();
       
+      // Handle the PDF response - API returns a string
+      if (typeof data === 'string') {
+        // If it's a base64 data URL
+        if (data.startsWith('data:application/pdf')) {
+          const link = document.createElement('a');
+          link.href = data;
+          link.download = `closeout-report-${new Date().toISOString().split('T')[0]}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } 
+        // If it's a regular URL
+        else if (data.startsWith('http')) {
+          window.open(data, '_blank');
+        }
+        // If it's base64 without data URL prefix
+        else {
+          const link = document.createElement('a');
+          link.href = `data:application/pdf;base64,${data}`;
+          link.download = `closeout-report-${new Date().toISOString().split('T')[0]}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      }
+      
+    } catch (err) {
+      console.error('Error generating report:', err);
+      setReportError(`Report generation failed: ${err.message}`);
+    } finally {
       setIsGeneratingReport(false);
-    }, 1500);
+    }
   };
 
   const completeCloseout = () => {
-    const requiredItemsComplete = checklist.filter(item => item.required).every(item => item.checked);
-    const noBlockingIssues = aiChecks.filter(check => check.type === 'error').length === 0;
-    
-    if (requiredItemsComplete && noBlockingIssues) {
+    if (validationData?.ready_for_closeout) {
       setShowComplete(true);
       setTimeout(() => setShowComplete(false), 3000);
     }
   };
-
-  const completedItems = checklist.filter(item => item.checked).length;
-  const requiredItems = checklist.filter(item => item.required);
-  const completedRequiredItems = requiredItems.filter(item => item.checked).length;
-  const completionPercentage = Math.round((completedItems / checklist.length) * 100);
-  const canComplete = requiredItems.every(item => item.checked) && aiChecks.filter(check => check.type === 'error').length === 0;
 
   const getAICheckIcon = (type) => {
     switch (type) {
@@ -139,10 +200,17 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
     }
   };
 
-  // Auto-run AI checks on component mount
-  useEffect(() => {
-    runAIChecks();
-  }, []);
+  // Calculate local values for display when API data is not available
+  const completedItems = checklist.filter(item => item.checked).length;
+  const requiredItems = checklist.filter(item => item.required);
+  const completedRequiredItems = requiredItems.filter(item => item.checked).length;
+  const completionPercentage = validationData 
+    ? Math.round((validationData.completed_items / validationData.total_items) * 100)
+    : checklist.length > 0 ? Math.round((completedItems / checklist.length) * 100) : 0;
+  
+  const canComplete = validationData 
+    ? validationData.ready_for_closeout 
+    : requiredItems.every(item => item.checked) && aiChecks.filter(check => check.type === 'error').length === 0;
 
   return (
     <MainLayout title="Closeout Wizard" userRole="Closeout Wizard">
@@ -174,7 +242,7 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
             </div>
           </div>
 
-          {/*  Progress Overview */}
+          {/* Progress Overview */}
           <div className="bg-occ-secondary-white rounded-xl shadow-lg border-2 border-occ-secondary-gray mb-4 sm:mb-6 overflow-hidden">
             <div className="p-4 sm:p-6 border-b-2 border-occ-secondary-gray bg-occ-blue">
               <div className="flex items-center gap-2">
@@ -184,6 +252,19 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
             </div>
 
             <div className="p-4 sm:p-6">
+              {validationError && (
+                <div className="bg-occ-secondary-orange occ-secondary-white p-3 rounded-lg mb-4 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm">{validationError}</span>
+                  <button 
+                    onClick={() => setValidationError(null)}
+                    className="ml-auto p-1 hover:bg-occ-secondary-white hover:occ-secondary-orange rounded"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
                 <span className="text-sm font-medium occ-blue-dark">Overall Progress</span>
                 <span className="text-lg sm:text-xl font-bold occ-blue">{completionPercentage}%</span>
@@ -197,24 +278,30 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div className="text-center p-3 sm:p-4 bg-occ-secondary-gray rounded-lg border border-occ-secondary-gray">
-                  <div className="text-xl sm:text-2xl font-bold occ-blue-dark">{completedItems}/{checklist.length}</div>
+                  <div className="text-xl sm:text-2xl font-bold occ-blue-dark">
+                    {validationData ? `${validationData.completed_items}/${validationData.total_items}` : `${completedItems}/${checklist.length}`}
+                  </div>
                   <div className="text-xs sm:text-sm occ-gray">Total Items</div>
                 </div>
                 <div className="text-center p-3 sm:p-4 bg-occ-secondary-gray rounded-lg border border-occ-secondary-gray">
-                  <div className="text-xl sm:text-2xl font-bold occ-blue">{completedRequiredItems}/{requiredItems.length}</div>
+                  <div className="text-xl sm:text-2xl font-bold occ-blue">
+                    {validationData ? `${validationData.completed_required_items}/${validationData.required_items}` : `${completedRequiredItems}/${requiredItems.length}`}
+                  </div>
                   <div className="text-xs sm:text-sm occ-gray">Required Items</div>
                 </div>
                 <div className="text-center p-3 sm:p-4 bg-occ-secondary-gray rounded-lg border border-occ-secondary-gray">
-                  <div className="text-xl sm:text-2xl font-bold occ-secondary-orange">{aiChecks.filter(check => check.status === 'pending').length}</div>
+                  <div className="text-xl sm:text-2xl font-bold occ-secondary-orange">
+                    {validationData ? validationData.ai_issues : aiChecks.filter(check => check.status === 'pending').length}
+                  </div>
                   <div className="text-xs sm:text-sm occ-gray">AI Issues</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/*  Main Content Grid */}
+          {/* Main Content Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-            {/*  Checklist */}
+            {/* Checklist */}
             <div className="xl:col-span-2 bg-occ-secondary-white rounded-xl shadow-lg border-2 border-occ-secondary-gray">
               <div className="p-4 sm:p-6 border-b-2 border-occ-secondary-gray bg-occ-blue">
                 <h2 className="text-base sm:text-lg font-semibold occ-secondary-white flex items-center gap-2">
@@ -224,48 +311,71 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
               </div>
               
               <div className="p-3 sm:p-6 space-y-2 sm:space-y-3">
-                {checklist.map(item => (
-                  <div key={item.id} className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg hover:bg-occ-secondary-gray transition-all duration-200 border-2 border-transparent hover:border-occ-blue">
-                    <button
-                      onClick={() => toggleChecklistItem(item.id)}
-                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 shadow-sm flex-shrink-0 ${
-                        item.checked
-                          ? 'bg-occ-blue border-occ-blue occ-secondary-white'
-                          : 'border-occ-gray hover:border-occ-blue bg-occ-secondary-white'
-                      }`}
-                    >
-                      {item.checked && <Check className="w-3 h-3 sm:w-4 sm:h-4" />}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <label 
-                        className={`text-xs sm:text-sm cursor-pointer transition-all duration-200 font-medium block ${
-                          item.checked ? 'occ-gray line-through' : 'occ-blue-dark group-hover:occ-blue'
-                        }`}
-                        onClick={() => toggleChecklistItem(item.id)}
-                      >
-                        {item.text}
-                      </label>
-                      {item.required && (
-                        <span className="inline-block mt-1 text-xs occ-secondary-white font-medium px-2 py-0.5 bg-occ-secondary-orange rounded-full">
-                          Required
-                        </span>
-                      )}
-                    </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
-                      item.checked 
-                        ? 'bg-occ-blue occ-secondary-white' 
-                        : 'bg-occ-secondary-gray occ-gray'
-                    }`}>
-                      {item.checked ? 'Complete' : 'Pending'}
-                    </div>
+                {checklistLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                                        <RefreshCw className="w-6 h-6 animate-spin occ-blue mr-3" />
+                    <span className="occ-gray">Loading checklist...</span>
                   </div>
-                ))}
+                ) : checklistError ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="w-8 h-8 mx-auto mb-3 occ-secondary-orange" />
+                    <p className="occ-gray text-sm mb-3">{checklistError}</p>
+                    <button
+                      onClick={fetchDefaultChecklist}
+                      className="px-4 py-2 bg-occ-blue occ-secondary-white rounded-lg hover:bg-occ-blue-dark transition-colors text-sm"
+                    >
+                      Retry Loading
+                    </button>
+                  </div>
+                ) : checklist.length > 0 ? (
+                  checklist.map(item => (
+                    <div key={item.id} className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg hover:bg-occ-secondary-gray transition-all duration-200 border-2 border-transparent hover:border-occ-blue">
+                      <button
+                        onClick={() => toggleChecklistItem(item.id)}
+                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 shadow-sm flex-shrink-0 ${
+                          item.checked
+                            ? 'bg-occ-blue border-occ-blue occ-secondary-white'
+                            : 'border-occ-gray hover:border-occ-blue bg-occ-secondary-white'
+                        }`}
+                      >
+                        {item.checked && <Check className="w-3 h-3 sm:w-4 sm:h-4" />}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <label 
+                          className={`text-xs sm:text-sm cursor-pointer transition-all duration-200 font-medium block ${
+                            item.checked ? 'occ-gray line-through' : 'occ-blue-dark group-hover:occ-blue'
+                          }`}
+                          onClick={() => toggleChecklistItem(item.id)}
+                        >
+                          {item.text}
+                        </label>
+                        {item.required && (
+                          <span className="inline-block mt-1 text-xs occ-secondary-white font-medium px-2 py-0.5 bg-occ-secondary-orange rounded-full">
+                            Required
+                          </span>
+                        )}
+                      </div>
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
+                        item.checked 
+                          ? 'bg-occ-blue occ-secondary-white' 
+                          : 'bg-occ-secondary-gray occ-gray'
+                      }`}>
+                        {item.checked ? 'Complete' : 'Pending'}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle className="w-8 h-8 mx-auto mb-3 occ-gray" />
+                    <p className="occ-gray text-sm">No checklist items available</p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* AI Auto-checks & Actions */}           
             <div className="space-y-4 sm:space-y-6">
-              {/*  AI Auto-checks */}
+              {/* AI Auto-checks */}
               <div className="bg-occ-secondary-white rounded-xl shadow-lg border-2 border-occ-secondary-gray">
                 <div className="p-3 sm:p-4 border-b-2 border-occ-secondary-gray bg-occ-blue-dark">
                   <div className="flex items-center justify-between">
@@ -275,8 +385,8 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                     </h3>
                     <button
                       onClick={runAIChecks}
-                      disabled={isRunningChecks}
-                      className="p-1.5 sm:p-2 occ-secondary-white hover:bg-occ-blue rounded-lg transition-colors"
+                      disabled={isRunningChecks || checklist.length === 0}
+                      className="p-1.5 sm:p-2 occ-secondary-white hover:bg-occ-blue rounded-lg transition-colors disabled:opacity-50"
                     >
                       <RefreshCw className={`w-3 h-3 sm:w-4 sm:h-4 ${isRunningChecks ? 'animate-spin' : ''}`} />
                     </button>
@@ -284,6 +394,19 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                 </div>
                 
                 <div className="p-3 sm:p-4">
+                  {aiChecksError && (
+                    <div className="bg-occ-secondary-orange occ-secondary-white p-3 rounded-lg mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">{aiChecksError}</span>
+                      <button 
+                        onClick={() => setAiChecksError(null)}
+                        className="ml-auto p-1 hover:bg-occ-secondary-white hover:occ-secondary-orange rounded"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+
                   {isRunningChecks ? (
                     <div className="flex items-center gap-2 sm:gap-3 occ-blue p-3 sm:p-4 bg-occ-secondary-gray rounded-lg border border-occ-blue">
                       <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin flex-shrink-0" />
@@ -291,21 +414,21 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                     </div>
                   ) : (
                     <div className="space-y-2 sm:space-y-3">
-                      {aiChecks.map(check => (
-                        <div key={check.id} className={`p-3 sm:p-4 rounded-lg border-2 ${getAICheckColor(check.type)}`}>
-                          <div className="flex items-start gap-2 sm:gap-3">
-                            <div className="flex-shrink-0 mt-0.5">
-                              {getAICheckIcon(check.type)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-xs sm:text-sm mb-1">{check.title}</div>
-                              <div className="text-xs opacity-90 leading-relaxed">{check.description}</div>
+                      {aiChecks.length > 0 ? (
+                        aiChecks.map(check => (
+                          <div key={check.id} className={`p-3 sm:p-4 rounded-lg border-2 ${getAICheckColor(check.type)}`}>
+                            <div className="flex items-start gap-2 sm:gap-3">
+                              <div className="flex-shrink-0 mt-0.5">
+                                {getAICheckIcon(check.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-xs sm:text-sm mb-1">{check.title}</div>
+                                <div className="text-xs opacity-90 leading-relaxed">{check.description}</div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      
-                      {aiChecks.length === 0 && (
+                        ))
+                      ) : (
                         <div className="text-center py-4 sm:py-6">
                           <div className="p-2 sm:p-3 bg-occ-blue rounded-full w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 flex items-center justify-center">
                             <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 occ-secondary-white" />
@@ -329,9 +452,22 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                 </div>
                 
                 <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                  {reportError && (
+                    <div className="bg-occ-secondary-orange occ-secondary-white p-3 rounded-lg mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">{reportError}</span>
+                      <button 
+                        onClick={() => setReportError(null)}
+                        className="ml-auto p-1 hover:bg-occ-secondary-white hover:occ-secondary-orange rounded"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+
                   <button
                     onClick={generateCloseoutReport}
-                    disabled={isGeneratingReport}
+                    disabled={isGeneratingReport || checklist.length === 0}
                     className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-occ-blue occ-secondary-white rounded-lg hover:bg-occ-blue-dark transition-all font-medium shadow-md flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
                   >
                     {isGeneratingReport ? (
@@ -351,7 +487,8 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                   
                   <button
                     onClick={() => window.print()}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 occ-blue border-2 border-occ-blue rounded-lg hover:bg-occ-blue hover:occ-secondary-white transition-all font-medium flex items-center justify-center gap-2 text-sm sm:text-base"
+                    disabled={checklist.length === 0}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 occ-blue border-2 border-occ-blue rounded-lg hover:bg-occ-blue hover:occ-secondary-white transition-all font-medium flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50"
                   >
                     <Download className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span className="hidden sm:inline">Print Checklist</span>
@@ -377,14 +514,28 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                     </div>
                     <div className="flex justify-between">
                       <span className="text-xs occ-gray">Required Items:</span>
-                      <span className={`text-xs font-medium ${completedRequiredItems === requiredItems.length ? 'occ-blue' : 'occ-secondary-orange'}`}>
-                        {completedRequiredItems}/{requiredItems.length}
+                      <span className={`text-xs font-medium ${
+                        validationData 
+                          ? (validationData.completed_required_items === validationData.required_items ? 'occ-blue' : 'occ-secondary-orange')
+                          : (completedRequiredItems === requiredItems.length ? 'occ-blue' : 'occ-secondary-orange')
+                      }`}>
+                        {validationData 
+                          ? `${validationData.completed_required_items}/${validationData.required_items}`
+                          : `${completedRequiredItems}/${requiredItems.length}`
+                        }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-xs occ-gray">AI Issues:</span>
-                      <span className={`text-xs font-medium ${aiChecks.filter(check => check.status === 'pending').length === 0 ? 'occ-blue' : 'occ-secondary-orange'}`}>
-                        {aiChecks.filter(check => check.status === 'pending').length}
+                      <span className={`text-xs font-medium ${
+                        validationData 
+                          ? (validationData.ai_issues === 0 ? 'occ-blue' : 'occ-secondary-orange')
+                          : (aiChecks.filter(check => check.status === 'pending').length === 0 ? 'occ-blue' : 'occ-secondary-orange')
+                      }`}>
+                        {validationData 
+                          ? validationData.ai_issues
+                          : aiChecks.filter(check => check.status === 'pending').length
+                        }
                       </span>
                     </div>
                   </div>
@@ -402,7 +553,9 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                       <div className="text-xs opacity-90">
                         {canComplete 
                           ? 'All requirements met' 
-                          : `${requiredItems.length - completedRequiredItems} items pending`
+                          : validationData
+                            ? `${validationData.required_items - validationData.completed_required_items} items pending`
+                            : `${requiredItems.length - completedRequiredItems} items pending`
                         }
                       </div>
                     </div>
@@ -414,11 +567,13 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="bg-occ-secondary-white p-2 sm:p-3 rounded-lg shadow-md border border-occ-secondary-gray">
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                    <div className="p-0.5 sm:p-1 bg-occ-blue rounded flex-shrink-0">
+                                        <div className="p-0.5 sm:p-1 bg-occ-blue rounded flex-shrink-0">
                       <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 occ-secondary-white" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs sm:text-sm font-bold occ-blue-dark">{checklist.length - completedItems}</div>
+                      <div className="text-xs sm:text-sm font-bold occ-blue-dark">
+                        {validationData ? validationData.pending_items : (checklist.length - completedItems)}
+                      </div>
                       <div className="text-xs occ-gray">Remaining</div>
                     </div>
                   </div>
@@ -430,7 +585,9 @@ Contract ready for closeout: ${pendingItems.filter(item => item.required).length
                       <AlertCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 occ-secondary-white" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs sm:text-sm font-bold occ-blue-dark">{aiChecks.filter(check => check.type === 'warning' || check.type === 'error').length}</div>
+                      <div className="text-xs sm:text-sm font-bold occ-blue-dark">
+                        {aiChecks.filter(check => check.type === 'warning' || check.type === 'error').length}
+                      </div>
                       <div className="text-xs occ-gray">Issues</div>
                     </div>
                   </div>
