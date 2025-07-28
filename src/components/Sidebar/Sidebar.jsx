@@ -208,18 +208,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           <div className="flex items-center space-x-4">
             {/* Logo */}
             <div className="h-9 w-9 flex items-center justify-center bg-white shadow-lg rounded-lg">
-              <img
-                src="/logo192.png"
-                alt="ClauseIQ Icon"
-                className="w-full h-full object-contain"
-                style={{
-                  filter: 'contrast(1.2) saturate(1.1) brightness(1.1)'
-                }}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
+              <img src={`${process.env.PUBLIC_URL}/logo192.png`}  />
               <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-sm hidden">
                 <FileText size={20} />
               </div>
