@@ -3,6 +3,10 @@ import { Check, AlertCircle, Download, FileText, RefreshCw, ChevronRight, Info, 
 import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
+// Properly access the environment variable with fallback
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://3.95.95.62:8006';
+const CLOSEOUT_API_ENDPOINT = `${API_BASE_URL}/api/closeout_report`;
+
 const CloseoutChecklistWizard = () => {
   const [checklist, setChecklist] = useState([]);
   const [aiChecks, setAiChecks] = useState([]);
@@ -18,8 +22,6 @@ const CloseoutChecklistWizard = () => {
   const [validationError, setValidationError] = useState(null);
   const [aiChecksError, setAiChecksError] = useState(null);
   const [reportError, setReportError] = useState(null);
-
-  const API_BASE_URL = 'http://3.95.95.62:8006/api/closeout_report';
 
   // Fetch default checklist on component mount
   useEffect(() => {
@@ -38,7 +40,7 @@ const CloseoutChecklistWizard = () => {
       setChecklistLoading(true);
       setChecklistError(null);
       
-      const response = await fetch(`${API_BASE_URL}/checklist/default`);
+      const response = await fetch(`${CLOSEOUT_API_ENDPOINT}/checklist/default`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch checklist: ${response.status} ${response.statusText}`);
@@ -64,7 +66,7 @@ const CloseoutChecklistWizard = () => {
         ai_checks: aiChecks
       };
 
-      const response = await fetch(`${API_BASE_URL}/validate`, {
+      const response = await fetch(`${CLOSEOUT_API_ENDPOINT}/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +125,7 @@ const CloseoutChecklistWizard = () => {
         ai_checks: aiChecks
       };
 
-      const response = await fetch(`${API_BASE_URL}/report/pdf`, {
+      const response = await fetch(`${CLOSEOUT_API_ENDPOINT}/report/pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -313,7 +315,7 @@ const CloseoutChecklistWizard = () => {
               <div className="p-3 sm:p-6 space-y-2 sm:space-y-3">
                 {checklistLoading ? (
                   <div className="flex items-center justify-center py-8">
-                                        <RefreshCw className="w-6 h-6 animate-spin occ-blue mr-3" />
+                    <RefreshCw className="w-6 h-6 animate-spin occ-blue mr-3" />
                     <span className="occ-gray">Loading checklist...</span>
                   </div>
                 ) : checklistError ? (
@@ -567,7 +569,7 @@ const CloseoutChecklistWizard = () => {
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="bg-occ-secondary-white p-2 sm:p-3 rounded-lg shadow-md border border-occ-secondary-gray">
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                                        <div className="p-0.5 sm:p-1 bg-occ-blue rounded flex-shrink-0">
+                    <div className="p-0.5 sm:p-1 bg-occ-blue rounded flex-shrink-0">
                       <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 occ-secondary-white" />
                     </div>
                     <div className="min-w-0">

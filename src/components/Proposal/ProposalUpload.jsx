@@ -4,7 +4,7 @@ import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
 // API configuration
-const API_BASE_URL = 'http://3.95.95.62:8006';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const API_ENDPOINTS = {
   uploadAndSummarize: '/api/proposal_summary/upload-and-summarize/'
 };

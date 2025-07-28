@@ -3,6 +3,9 @@ import { Download, Check, ChevronDown, FileText, Settings, RefreshCw, CheckCircl
 import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
+  // API Base URL
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const ChecklistGenerator = () => {
   const [contractType, setContractType] = useState('Firm-Fixed-Price');
   const [agencyPolicy, setAgencyPolicy] = useState('Agency A');
@@ -12,8 +15,8 @@ const ChecklistGenerator = () => {
   const [error, setError] = useState(null);
   const [apiResponse, setApiResponse] = useState(null);
 
-  // API Base URL
-  const API_BASE_URL = 'http://localhost:8000';
+
+  
 
   const contractTypes = ['Firm-Fixed-Price', 'Cost-Plus-Fixed-Fee', 'Time-and-Materials'];
   const agencies = ['Agency A', 'Agency B', 'Agency C'];

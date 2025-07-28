@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://3.95.95.62:8006';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Contract API Service
 export const contractService = {
