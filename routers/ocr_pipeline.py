@@ -5,6 +5,8 @@ import numpy as np
 from pdf2image import convert_from_path
 from pathlib import Path
 from PIL import Image
+from dotenv import load_dotenv
+load_dotenv()
 
 class DocumentOCR:
     def __init__(self, tesseract_path=None, poppler_path=None, output_dir="ocr_output"):
@@ -83,11 +85,16 @@ class DocumentOCR:
                 print(f"Error processing {file}: {e}")
         
 if __name__ == "__main__":
+    tesseract_path = os.getenv("TESSERACT_PATH")
+    poppler_path = os.getenv("POPPLER_PATH")
+
     ocr = DocumentOCR(
-        tesseract_path = r"C:\Users\lavan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
-        poppler_path = r"C:\Program Files\poppler-24.07.0\Library\bin" 
+        tesseract_path=tesseract_path,
+        poppler_path=poppler_path
     )
+
     SCRIPT_DIR = Path(__file__).resolve().parent
-    folder_path = SCRIPT_DIR/"data"
+    folder_path = SCRIPT_DIR / "data"
     os.makedirs(folder_path, exist_ok=True)
+
     ocr.extract_from_folder(folder_path)

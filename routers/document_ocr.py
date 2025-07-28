@@ -5,11 +5,19 @@ import shutil, uuid, os
 from routers.ocr_pipeline import DocumentOCR   # <-- your class file
 
 # --- single, long-lived OCR helper ------------------------
+# ocr = DocumentOCR(
+#     tesseract_path=r"C:\Users\lavan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
+#     poppler_path=r"C:\Program Files\poppler-24.07.0\Library\bin",
+#     output_dir="ocr_output",
+# )
+tesseract_path = os.getenv("TESSERACT_PATH")
+poppler_path = os.getenv("POPPLER_PATH")
+
 ocr = DocumentOCR(
-    tesseract_path=r"C:\Users\lavan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe",
-    poppler_path=r"C:\Program Files\poppler-24.07.0\Library\bin",
-    output_dir="ocr_output",
-)
+        tesseract_path=tesseract_path,
+        poppler_path=poppler_path,
+        output_dir="ocr_output"
+    )
 
 router = APIRouter(prefix="/OCR", tags=["OCR"])
 

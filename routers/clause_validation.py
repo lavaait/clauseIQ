@@ -35,13 +35,13 @@ class ClauseValidation:
         # 1) Text-generation LLM (Flan-T5) for RetrievalQA & risk prompts
         gen_pipe = pipeline("text2text-generation",
                             model="google/flan-t5-base",
-                            max_length=256, device_map="auto")
+                            max_length=256, device=-1)
         self.llm = HuggingFacePipeline(pipeline=gen_pipe)
 
         # 2) Confidence QA pipeline + tokenizer
         self.qa_conf_pipe = pipeline("question-answering",
                                      model="deepset/roberta-base-squad2",
-                                     device_map="auto")
+                                     device=-1)
         self.qa_tokenizer = AutoTokenizer.from_pretrained("deepset/roberta-base-squad2")
 
         # 3) Build semantic retriever over FAR/DFARS
