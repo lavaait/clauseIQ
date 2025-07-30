@@ -94,7 +94,7 @@ if __name__ == "__main__":
     )
 
     SCRIPT_DIR = Path(__file__).resolve().parent
-    folder_path = SCRIPT_DIR / "data"
+    folder_path = SCRIPT_DIR / "new_contract_uploads"
     os.makedirs(folder_path, exist_ok=True)
 
     ocr.extract_from_folder(folder_path)

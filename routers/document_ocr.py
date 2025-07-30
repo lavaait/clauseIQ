@@ -22,7 +22,7 @@ ocr = DocumentOCR(
 router = APIRouter(prefix="/OCR", tags=["OCR"])
 
 ALLOWED_EXTS = {".pdf", ".jpg", ".jpeg", ".png", ".bmp", ".tiff"}
-TMP_UPLOADS   = Path("data")
+TMP_UPLOADS   = Path("new_contract_uploads")
 TMP_UPLOADS.mkdir(exist_ok=True)
 # ----------------------------------------------------------
 

@@ -5,6 +5,7 @@ from fastapi import FastAPI, APIRouter,Query
 from typing import List
 from pydantic import BaseModel
 from typing import List, Optional
+from fastapi import Query, HTTPException
 from config import DB_PATH, CLAUSE_FILE
 
 router = APIRouter()
@@ -162,20 +163,39 @@ def get_all_clauses():
 
 # --- Optional Endpoint: Compliance Summary ---
 @router.get("/api/contract/compliance/summary")
-def get_compliance_summary():
+def get_contract_compliance_summary(contract_id: Optional[int] = Query(None)):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT
-            SUM(CASE WHEN LOWER(compliance_summary) = 'compliant' THEN 1 ELSE 0 END) AS compliant_contracts,
-            COUNT(*) AS total_contracts
-        FROM contract_compliance
-    """)
-    compliant_contracts, total_contracts = cursor.fetchone()
+
+    # Apply filter by contract_id if provided
+    if contract_id is not None:
+        cursor.execute("""
+            SELECT
+                SUM(CASE WHEN LOWER(compliance_summary) = 'compliant' THEN 1 ELSE 0 END) AS compliant_count,
+                COUNT(*) AS total_count
+            FROM contract_compliance
+            WHERE contract_id = ?
+        """, (contract_id,))
+    else:
+        cursor.execute("""
+            SELECT
+                SUM(CASE WHEN LOWER(compliance_summary) = 'compliant' THEN 1 ELSE 0 END) AS compliant_count,
+                COUNT(*) AS total_count
+            FROM contract_compliance
+        """)
+
+    result = cursor.fetchone()
     conn.close()
 
-    non_compliant_contracts = total_contracts - compliant_contracts
-    compliance_percentage = int((compliant_contracts / total_contracts) * 100) if total_contracts > 0 else 0
+    compliant_count = result[0] or 0
+    total_count = result[1] or 0
+
+    if total_count == 0:
+        raise HTTPException(status_code=404, detail="No compliance data found for the given contract ID" if contract_id else "No compliance data found.")
+
+    non_compliant_count = total_count - compliant_count
+    compliance_percentage = int((compliant_count / total_count) * 100)
+    non_compliance_percentage = 100 - compliance_percentage
 
     if compliance_percentage >= 90:
         status = "excellent"
@@ -187,15 +207,16 @@ def get_compliance_summary():
         status = "poor"
 
     return {
+        "scope": f"contract_id: {contract_id}" if contract_id is not None else "overall",
         "compliance_percentage": compliance_percentage,
+        "non_compliance_percentage": non_compliance_percentage,
         "status": status,
         "details": {
-            "compliant_contracts": compliant_contracts,
-            "total_contracts": total_contracts,
-            "non_compliant_contracts": non_compliant_contracts
+            "compliant_clauses": compliant_count,
+            "non_compliant_clauses": non_compliant_count,
+            "total_clauses": total_count
         }
     }
-
 
 # ----- seed clause activity data ------
 @router.post("/api/dashboard/activity/seed")
@@ -398,6 +419,7 @@ def seed_tasks():
             priority TEXT,
             due_date TEXT,
             assigned_to TEXT,
+            assigned_by TEXT, 
             contract_id TEXT,
             created_at TEXT
         )
@@ -410,6 +432,7 @@ def seed_tasks():
             "pending",
             "high",
             "2024-01-20T17:00:00Z",
+            "Phani"
             "John Doe",
             "ABC-123",
             "2024-01-10T09:00:00Z"
@@ -420,6 +443,7 @@ def seed_tasks():
             "in_progress",
             "medium",
             "2024-01-25T12:00:00Z",
+            "Phani"
             "Jane Smith",
             "XYZ-456",
             "2024-01-12T14:30:00Z"
@@ -428,7 +452,7 @@ def seed_tasks():
 
     cursor.executemany("""
         INSERT INTO tasks (
-            title, description, status, priority, due_date, assigned_to, contract_id, created_at
+            title, description, status, priority, due_date, assigned_to, assigned_by, contract_id, created_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, sample_tasks)
 

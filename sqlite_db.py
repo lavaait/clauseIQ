@@ -18,6 +18,16 @@ def init_db():
         )
         """)
 
+        #________ Draft template ___________
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS contract_drafts (
+            contract_id INTEGER PRIMARY KEY,
+            draft TEXT,
+            rationale TEXT,
+            FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+        )""")
+
+
         #______ contracts complaince table ________
         cursor.execute("""
             CREATE TABLE if not exists contract_compliance (
