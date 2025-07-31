@@ -14,7 +14,7 @@ load_dotenv()
 
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 router = APIRouter()
 
@@ -68,14 +68,15 @@ def compute_diff(original: str, modified: str) -> str:
 # -----------------------------
 def get_llm():
     temperature = float(os.getenv("LLM_TEMPERATURE", 0.3))
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY environment variable not set")
+    api_key = os.getenv("OPENAI_API_KEY")  # Use OpenAI key
 
-    return ChatGroq(
-        model_name="llama3-70b-8192",
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable not set")
+
+    return ChatOpenAI(
+        model_name="gpt-3.5-turbo",  # Or "gpt-4" if preferred
         temperature=temperature,
-        api_key=api_key
+        openai_api_key=api_key
     )
 
 # -----------------------------

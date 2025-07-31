@@ -5,7 +5,6 @@ import os
 
 # Load from .env file
 load_dotenv()
-
 # Access env vars
 DB_PATH = Path(os.getenv("DB_PATH", "contracts.db"))
 UPLOAD_FOLDER = Path(os.getenv("UPLOAD_FOLDER", "./new_contract_uploads"))

@@ -12,6 +12,8 @@ from datetime import datetime
 from routers.template_engine import generate_contract_from_template
 from fastapi.responses import FileResponse
 from fastapi import HTTPException
+import uuid
+from fpdf import FPDF
 
 class ContractStatus(str, Enum):
     intake = "intake"
@@ -106,10 +108,9 @@ def get_contract_request_list():
             status=row[6],
             date=row[7]
         ))
-
     return contract_items
 
-#-- endpoint to create the contract draft 
+#----- endpoint to create the contract draft -----
 @router.post("/contract/draft")
 def generate_contract_draft(request: DraftRequest):
     metadata = {
@@ -123,25 +124,39 @@ def generate_contract_draft(request: DraftRequest):
     if not draft:
         return {"message": "Draft generation failed", "error": rationale}, 500
 
+    # Save draft as PDF
+    draft_id = str(uuid.uuid4())
+    pdf_filename = f"contract_{draft_id}.pdf"
+    pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_font("Arial", size=12)
+    for line in draft.split('\n'):
+        pdf.multi_cell(0, 10, txt=line)
+
+    pdf.output(pdf_path)
+
     return {
-        "message": "Draft generated successfully",
-        "draft": draft,
-        "rationale": rationale
-    }
+    "draft_id": draft_id,
+    "download_url": f"/contracts/pdf/{draft_id}",
+    "draft": draft,
+    "rationale": rationale
+}
         
         
-@router.get("/contracts/pdf/{contract_id}")
-def download_contract_pdf(contract_id: int):
-    pdf_filename = f"contract_{contract_id}.pdf"
-    pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename) 
+@router.get("/contracts/pdf/{draft_id}")
+def download_contract_pdf(draft_id: str):
+    pdf_filename = f"contract_{draft_id}.pdf"
+    pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
 
     if os.path.exists(pdf_path):
         return FileResponse(
             path=pdf_path,
             media_type="application/pdf",
             filename=pdf_filename
-        )   
-    # 🔴 Fallback if not found
+        )
     raise HTTPException(status_code=404, detail="PDF not found")
 
 

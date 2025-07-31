@@ -27,6 +27,17 @@ def init_db():
             FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
         )""")
 
+        #________ Clause playbook ___________
+        # Drop and recreate for clean dev testing
+        cursor.execute("DROP TABLE IF EXISTS clause_playbook")
+        cursor.execute("""
+            CREATE TABLE clause_playbook (
+        id INTEGER PRIMARY KEY,
+        clause_type TEXT,
+        standard_clause TEXT,
+        risk_guidance TEXT
+        )""")
+
 
         #______ contracts complaince table ________
         cursor.execute("""
