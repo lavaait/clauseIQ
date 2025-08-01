@@ -96,6 +96,7 @@ class Task(BaseModel):
     priority: str
     due_date: str
     assigned_to: str
+    assigned_by: str
     contract_id: str
     created_at: str
 
@@ -315,6 +316,7 @@ def seed_ai_recommendations():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    cursor.execute("DROP TABLE IF EXISTS ai_recommendations")
     # ✅ Create table with correct schema
     cursor.execute("""
         CREATE TABLE ai_recommendations (
@@ -432,7 +434,7 @@ def seed_tasks():
             "pending",
             "high",
             "2024-01-20T17:00:00Z",
-            "Phani"
+            "Phani",
             "John Doe",
             "ABC-123",
             "2024-01-10T09:00:00Z"
@@ -443,7 +445,7 @@ def seed_tasks():
             "in_progress",
             "medium",
             "2024-01-25T12:00:00Z",
-            "Phani"
+            "Phani",
             "Jane Smith",
             "XYZ-456",
             "2024-01-12T14:30:00Z"
@@ -451,9 +453,8 @@ def seed_tasks():
     ]
 
     cursor.executemany("""
-        INSERT INTO tasks (
-            title, description, status, priority, due_date, assigned_to, assigned_by, contract_id, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tasks (title, description, status, priority, due_date, assigned_to,assigned_by, contract_id, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, sample_tasks)
 
     conn.commit()
@@ -475,7 +476,7 @@ def get_active_tasks(
 
     # Build WHERE filters
     base_query = """
-        SELECT id, title, description, status, priority, due_date, assigned_to, contract_id, created_at
+        SELECT id, title, description, status, priority, due_date, assigned_to, assigned_by, contract_id, created_at
         FROM tasks
         WHERE 1=1
     """
@@ -520,8 +521,9 @@ def get_active_tasks(
                 priority=row[4],
                 due_date=row[5],
                 assigned_to=row[6],
-                contract_id=row[7],
-                created_at=row[8]
+                assigned_by=row[7],
+                contract_id=row[8],
+                created_at=row[9]
             ) for row in task_rows
         ],
         "summary": {

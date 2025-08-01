@@ -64,7 +64,7 @@ def compute_diff(original: str, modified: str) -> str:
     return "\n".join(diff)
 
 # -----------------------------
-# LLM: Groq (LLaMA3-70B by default)
+# LLM: openai
 # -----------------------------
 def get_llm():
     temperature = float(os.getenv("LLM_TEMPERATURE", 0.3))

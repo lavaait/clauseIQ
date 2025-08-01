@@ -12,6 +12,7 @@ from routers.dashboard_router import router as dashboard_router
 from routers.export_router import router as export_router
 from routers.third_party_clause_generator import router as third_party_clause_router
 from routers.redline_ai_model import router as redline_ai_router
+from routers.renewal_recommender import router as renewal_recommender_router
 from routers.admin import router as admin_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -45,6 +46,7 @@ app.include_router(dashboard_router,prefix="/api/dashboard",tags=["Compliance_Da
 app.include_router(export_router,prefix="/api/export_pdf",tags=["Export_Pdf"])
 app.include_router(third_party_clause_router,prefix="/api/third_party_analyzer",tags=["Third_party_clause_analyzer"])
 app.include_router(redline_ai_router,prefix="/api/redline_ai_router",tags=["Redline_ai_model"])
+app.include_router(renewal_recommender_router,prefix="/api/renewal/recommend",tags=["Renewal_recommender"])
 app.include_router(admin_router,prefix="/api/admin",tags=['admin'])
 
 
