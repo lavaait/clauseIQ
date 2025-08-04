@@ -38,11 +38,12 @@ class ContractEditRequest(BaseModel):
     value: float
     status: str
 
-class DraftRequest(BaseModel):
-    contract_type: str
-    template: str
-    agency: str
-    effective_date: str
+# class DraftRequest(BaseModel):
+#     contract_type: str
+#     template: str
+#     agency: str
+#     effective_date: str
+#     purpose: str
 
 router = APIRouter()
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -110,54 +111,55 @@ def get_contract_request_list():
         ))
     return contract_items
 
-#----- endpoint to create the contract draft -----
-@router.post("/contract/draft")
-def generate_contract_draft(request: DraftRequest):
-    metadata = {
-        "agency": request.agency,
-        "effective_date": request.effective_date,
-        "contract_type": request.contract_type
-    }
+# #----- endpoint to create the contract draft -----
+# @router.post("/contract/draft")
+# def generate_contract_draft(request: DraftRequest):
+#     metadata = {
+#         "agency": request.agency,
+#         "effective_date": request.effective_date,
+#         "contract_type": request.contract_type,
+#         "purpose": request.purpose 
+#     }
 
-    draft, rationale = generate_contract_from_template(request.template, metadata)
+#     draft, rationale = generate_contract_from_template(request.template, metadata)
 
-    if not draft:
-        return {"message": "Draft generation failed", "error": rationale}, 500
+#     if not draft:
+#         return {"message": "Draft generation failed", "error": rationale}, 500
 
-    # Save draft as PDF
-    draft_id = str(uuid.uuid4())
-    pdf_filename = f"contract_{draft_id}.pdf"
-    pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
+#     # Save draft as PDF
+#     draft_id = str(uuid.uuid4())
+#     pdf_filename = f"contract_{draft_id}.pdf"
+#     pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", size=12)
-    for line in draft.split('\n'):
-        pdf.multi_cell(0, 10, txt=line)
+#     pdf = FPDF()
+#     pdf.add_page()
+#     pdf.set_auto_page_break(auto=True, margin=15)
+#     pdf.set_font("Arial", size=12)
+#     for line in draft.split('\n'):
+#         pdf.multi_cell(0, 10, txt=line)
 
-    pdf.output(pdf_path)
+#     pdf.output(pdf_path)
 
-    return {
-    "draft_id": draft_id,
-    "download_url": f"/contracts/pdf/{draft_id}",
-    "draft": draft,
-    "rationale": rationale
-}
+#     return {
+#     "draft_id": draft_id,
+#     "download_url": f"/contracts/pdf/{draft_id}",
+#     "draft": draft,
+#     "rationale": rationale
+# }
         
         
-@router.get("/contracts/pdf/{draft_id}")
-def download_contract_pdf(draft_id: str):
-    pdf_filename = f"contract_{draft_id}.pdf"
-    pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
+# @router.get("/contracts/pdf/{draft_id}")
+# def download_contract_pdf(draft_id: str):
+#     pdf_filename = f"contract_{draft_id}.pdf"
+#     pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
 
-    if os.path.exists(pdf_path):
-        return FileResponse(
-            path=pdf_path,
-            media_type="application/pdf",
-            filename=pdf_filename
-        )
-    raise HTTPException(status_code=404, detail="PDF not found")
+#     if os.path.exists(pdf_path):
+#         return FileResponse(
+#             path=pdf_path,
+#             media_type="application/pdf",
+#             filename=pdf_filename
+#         )
+#     raise HTTPException(status_code=404, detail="PDF not found")
 
 
 @router.put("/api/contracts/{contract_id}/edit")

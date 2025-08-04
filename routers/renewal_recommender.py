@@ -113,32 +113,42 @@ def recommend_action(rag: Dict[str, str]) -> str:
         return "renegotiate"
     else:
         return "renew"
+    
+# ------------------------------
+# 5. Confidence Score Calculator
+# ------------------------------
+def compute_confidence_score(rag: Dict[str, str]) -> float:
+    weights = {"Green": 1.0, "Amber": 0.6, "Red": 0.2}
+    weighted = [weights[color] for color in rag.values()]
+    avg_score = sum(weighted) / len(weighted)
+    return round(avg_score * 100, 2)
 
 # ------------------------------
-# 5. API Endpoint
+# 6. API Endpoint
 # ------------------------------
 @router.get("/api/renewal/recommend/{contract_id}")
 def recommend_from_db(contract_id: str):
     kpis = compute_kpis_from_sqlite(contract_id)
 
-    # Placeholder — replace with actual DB call if needed
+    # Placeholder vendor and summary (replace with real data if needed)
     vendor_name = "Vendor for " + contract_id
     contract_summary = f"Contract {contract_id} involves delivery of services/tasks as per timeline."
 
     rag = rag_status(kpis["term_length"], kpis["usage_percent"], kpis["delivery_score"])
     action = recommend_action(rag)
+    confidence = compute_confidence_score(rag)
 
     status_text = (
-    f"- Term: {rag['Term']}\n"
-    f"- Usage: {rag['Usage']}\n"
-    f"- Delivery: {rag['Delivery']}"
+        f"- Term: {rag['Term']}\n"
+        f"- Usage: {rag['Usage']}\n"
+        f"- Delivery: {rag['Delivery']}"
     )
 
     llm_response = chain.run(
-    status_text=status_text,
-    vendor_name=vendor_name,
-    contract_summary=contract_summary,
-    action=action.upper()  # Optional: uppercase for clarity
+        status_text=status_text,
+        vendor_name=vendor_name,
+        contract_summary=contract_summary,
+        action=action.upper()
     )
 
     return {
@@ -146,5 +156,16 @@ def recommend_from_db(contract_id: str):
         "kpis": kpis,
         "rag_status": rag,
         "recommended_action": action,
+        "confidence_score": confidence,
         "llm_response": llm_response
     }
+
+# 90–100%: High confidence in recommended action (all KPIs Green) - renew
+# 60–80%: Medium confidence (some Amber) - renegotiate
+# <50%: Low confidence (one or more Red flags) - terminate
+
+# RAG Status	                                            Score	Action
+# {"Term": "Green", "Usage": "Green", "Delivery": "Green"}	100.0	- renew
+# {"Term": "Amber", "Usage": "Amber", "Delivery": "Amber"}	60.0	 - renegotiate
+# {"Term": "Red", "Usage": "Red", "Delivery": "Red"}	    20.0	 - terminate
+# {"Term": "Green", "Usage": "Amber", "Delivery": "Red"}	60.0	- renegotiate
