@@ -282,57 +282,76 @@
 #         "llm_clause": llm_clause
 #     }
 
+
 import os
 import uuid
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Tuple
+from typing import Dict
+from fastapi import FastAPI, APIRouter, Form, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from jinja2 import Environment, FileSystemLoader
 from fpdf import FPDF
 from openai import OpenAI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.exceptions import HTTPException
 
-# --- Initialization ---
+# ----------- Initialization -----------
+router = APIRouter()
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 env = Environment(loader=FileSystemLoader("templates"))
 UPLOAD_FOLDER = "generated_contracts"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-router = APIRouter()
+# ----------- Dropdown Constants -----------
+CONTRACT_TYPES = [
+    "Non-Disclosure Agreement",
+    "Service Agreement",
+    "Employment Contract",
+    "Purchase Agreement",
+    "Lease Agreement"
+]
 
-# --- Clause Mapping ---
-TEMPLATE_TO_CLAUSE = {
-    "NDA": "nda_standard",
-    "GDPR": "gdpr",
-    "Service Agreement": "service_level_agreement",
-    "Termination": "termination",
-    "Payment": "payment",
-    "Dispute Resolution": "dispute_resolution",
-    "Governing Law": "governing_law"
+TEMPLATE_MAPPING = {
+    "NDA Template - Standard": "nda_standard",
+    "NDA Template - Mutual": "nda_mutual",
+    "Service Agreement Template": "service_standard",
+    "Employment Contract Template": "employment_standard",
+    "Purchase Agreement Template": "purchase_standard",
+    "Lease Agreement Template": "lease_standard"
 }
 
-# --- Request Model ---
-class DraftRequest(BaseModel):
-    template: str         # e.g., "NDA"
-    agency: str
-    effective_date: str
-    purpose: str
+TEMPLATES = {
+    "Non-Disclosure Agreement": ["NDA Template - Standard", "NDA Template - Mutual"],
+    "Service Agreement": ["Service Agreement Template"],
+    "Employment Contract": ["Employment Contract Template"],
+    "Purchase Agreement": ["Purchase Agreement Template"],
+    "Lease Agreement": ["Lease Agreement Template"]
+}
 
-# --- Utility: Classify Purpose ---
+AGENCIES = [
+    "Department of Commerce",
+    "Department of Defense",
+    "Department of Justice",
+    "Department of Treasury"
+]
+
+# ----------- Utility Functions -----------
+
 def get_purpose_category(purpose: str) -> str:
-    purpose = purpose.lower()
-    if "data" in purpose:
+    p = purpose.lower()
+    if "data" in p:
         return "Data Sharing"
-    elif "research" in purpose or "r&d" in purpose:
+    elif "research" in p or "r&d" in p:
         return "Research Collaboration"
-    elif "subcontract" in purpose:
+    elif "subcontract" in p:
         return "Subcontracting"
-    elif "partnership" in purpose:
+    elif "partnership" in p:
         return "Strategic Partnership"
     else:
         return "General Purpose"
 
-# --- Utility: Generate LLM Clause ---
 def generate_llm_clause(purpose: str, category: str, agency: str) -> str:
     prompt = (
         f"Based on the following, write a concise 2-3 sentence legal clause for a contract.\n"
@@ -340,8 +359,8 @@ def generate_llm_clause(purpose: str, category: str, agency: str) -> str:
         f"- Agency Name: {agency}\n"
         f"- Purpose: {purpose}\n"
         f"- Category: {category}\n"
-        f"The clause should be legally sound, clear, and relevant to the purpose."
-        f"**Response must be a single paragraph.**"
+        f"The clause should be legally sound, clear, and relevant to the purpose.\n"
+        f"**Response must be brief.**"
     )
     try:
         response = client.chat.completions.create(
@@ -354,85 +373,97 @@ def generate_llm_clause(purpose: str, category: str, agency: str) -> str:
     except Exception as e:
         return f"(LLM clause generation failed: {str(e)})"
 
-# --- Utility: Render Clause Template ---
-def render_clause(clause_name: str, metadata: dict) -> str:
+def render_clause(clause_name: str, metadata: Dict) -> str:
     try:
         template = env.get_template(f"clauses/{clause_name}.jinja")
         return template.render(**metadata)
     except Exception as e:
         return f"[Error rendering clause '{clause_name}': {str(e)}]"
 
-# --- Utility: Build Final Draft (1 Clause + LLM) ---
-def build_single_clause_draft(template_key: str, metadata: dict) -> Tuple[str, str]:
-    clause_name = TEMPLATE_TO_CLAUSE.get(template_key)
-    if not clause_name:
-        return "", f"No clause mapping found for template '{template_key}'"
+def build_single_clause_draft(template_key: str, metadata: Dict) -> str:
+    clause_text = render_clause(template_key, metadata)
+    return (
+        f"Contract Draft - {template_key}\n\n"
+        f"Effective Date: {metadata['effective_date']}\n"
+        f"Agency: {metadata['agency']}\n\n"
+        f"-------------------------------\n"
+        f"{template_key}\n"
+        f"-------------------------------\n"
+        f"{clause_text}\n\n"
+        f"-------------------------------\n"
+        f"Custom Clause (LLM Generated)\n"
+        f"-------------------------------\n"
+        f"{metadata['llm_clause']}"
+    )
 
-    try:
-        clause_text = render_clause(clause_name, metadata)
-        draft = (
-            f"Contract Draft - {template_key}\n\n"
-            f"Effective Date: {metadata['effective_date']}\n"
-            f"Agency: {metadata['agency']}\n\n"
-            f"-------------------------------\n"
-            f"{template_key}\n"
-            f"-------------------------------\n"
-            f"{clause_text}\n\n"
-            f"-------------------------------\n"
-            f"Custom Clause (LLM Generated)\n"
-            f"-------------------------------\n"
-            f"{metadata['llm_clause']}"
-        )
-        return draft, "Rendered single-clause draft"
-    except Exception as e:
-        return "", f"Error rendering clause: {str(e)}"
-
-# --- Utility: Export to PDF ---
 def save_draft_as_pdf(draft: str, draft_id: str) -> str:
     pdf_filename = f"contract_{draft_id}.pdf"
     pdf_path = os.path.join(UPLOAD_FOLDER, pdf_filename)
 
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
+    pdf.set_auto_page_break(auto=True, margin=15)
     for line in draft.split('\n'):
         pdf.multi_cell(0, 10, txt=line)
 
     pdf.output(pdf_path)
     return pdf_path
 
-# --- API Endpoint ---
-@router.post("/contract/draft")
-def generate_contract_draft(request: DraftRequest):
-    # Classify and Enhance
-    category = get_purpose_category(request.purpose)
-    llm_clause = generate_llm_clause(request.purpose, category,request.agency)
+# ----------- API Endpoints -----------
+
+@router.get("/contract/defaults")
+def get_contract_form_defaults():
+    return {
+        "contract_types": CONTRACT_TYPES,
+        "templates": TEMPLATES,
+        "template_mapping": TEMPLATE_MAPPING,
+        "agencies": AGENCIES
+    }
+
+@router.post("/contracts/ai-draft/submit", response_class=JSONResponse)
+def submit_ai_draft_form(
+    request: Request,
+    contract_type: str = Form(...),
+    template: str = Form(...),
+    agency: str = Form(...),
+    effective_date: str = Form(...),
+    purpose: str = Form(...)
+):
+    category = get_purpose_category(purpose)
+    llm_clause = generate_llm_clause(purpose, category, agency)
 
     metadata = {
-        "template": request.template,
-        "agency": request.agency,
-        "effective_date": request.effective_date,
-        "purpose": request.purpose,
+        "template": template,
+        "agency": agency,
+        "effective_date": effective_date,
+        "purpose": purpose,
         "llm_clause": llm_clause
     }
 
-    # Generate Final Draft
-    draft, rationale = build_single_clause_draft(request.template, metadata)
-    if not draft:
-        raise HTTPException(status_code=500, detail=f"Draft generation failed: {rationale}")
+    metadata.update({
+        "available_contract_types": CONTRACT_TYPES,
+        "available_templates": TEMPLATES,
+        "template_mapping": TEMPLATE_MAPPING,
+        "available_agencies": AGENCIES
+    })
 
-    # Save as PDF
+    draft = build_single_clause_draft(template, metadata)
     draft_id = str(uuid.uuid4())
-    save_draft_as_pdf(draft, draft_id)
+    pdf_path = save_draft_as_pdf(draft, draft_id)
 
-    # Respond
     return {
         "draft_id": draft_id,
         "download_url": f"/contracts/pdf/{draft_id}",
         "draft": draft,
-        "rationale": rationale,
-        "selected_clause": TEMPLATE_TO_CLAUSE.get(request.template),
-        "purpose_category": category,
-        "llm_clause": llm_clause
+        "llm_clause": llm_clause,
+        "category": category,
+        "metadata": metadata
     }
+
+@router.get("/contracts/pdf/{draft_id}")
+def download_pdf(draft_id: str):
+    path = os.path.join(UPLOAD_FOLDER, f"contract_{draft_id}.pdf")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="PDF not found")
+    return FileResponse(path, media_type="application/pdf", filename=f"contract_{draft_id}.pdf")

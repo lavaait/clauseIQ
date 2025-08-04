@@ -18,6 +18,19 @@ To develop a cloud-native, AI-powered Contract Management Solution (CMS) that:
  New Contract Request Backend API
  Checklist Generation Logic + PDF Export
  Closeout Final Report Generator
+ AI Draft Generator backend engine
+ Third party clause extraction and risk scoring engine
+ Redline AI Model and Cause Fallback
+ AI Powered Renewal Strategy generation
  Admin Log Viewer & CSV Export
- Azure Deployment with Secure Blob, DB, and CI/CD
+ Azure Deployment with Secure Blob, DB, and CI/CD$
+
+# Tech Stack
+Backend APIs : Python FastAPI
+Libraries: Pandas, Langchain, Huggingface, openai, tessaract, spacy, jinja2, uvicorn, Sqlite, PDFkit,transformer
+
+# getting started
+To run locally, enter commands in the terminal 
+    cd OCC_Backend
+    uvicorn app:app --reload --host 127.0.0.1 --port 8000
   

@@ -1,0 +1,34 @@
+<form method="post" action="/contracts/ai-draft/submit">
+  <label for="contract_type">Contract Type</label>
+  <select name="contract_type" required>
+    {% for ct in contract_types %}
+      <option value="{{ ct }}">{{ ct }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="template">Template</label>
+  <select name="template" required>
+    {% for group, options in templates.items() %}
+      <optgroup label="{{ group }}">
+        {% for opt in options %}
+          <option value="{{ template_mapping[opt] }}">{{ opt }}</option>
+        {% endfor %}
+      </optgroup>
+    {% endfor %}
+  </select>
+
+  <label for="agency">Agency</label>
+  <select name="agency" required>
+    {% for agency in agencies %}
+      <option value="{{ agency }}">{{ agency }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="effective_date">Effective Date</label>
+  <input type="date" name="effective_date" required>
+
+  <label for="purpose">Purpose</label>
+  <textarea name="purpose" rows="4" required></textarea>
+
+  <button type="submit">Generate AI Draft</button>
+</form>
