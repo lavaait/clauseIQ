@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, Edit2, Trash2, AlertTriangle, Users, X, ChevronDown, ChevronUp } from 'lucide-react';
-import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
 import { milestoneTypes, defaultFormData, projectTimelineConfig, milestonesApi } from '../../data/milestoneData';
@@ -133,7 +132,6 @@ const SolicitationPlanning = () => {
   const todayPosition = calculateTodayPosition(projectTimelineConfig.startDate, projectTimelineConfig.endDate);
 
   return (
-    <MainLayout title='Solicitation-Planner'>
       <div className="min-h-screen pb-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Header Section */}
@@ -721,7 +719,6 @@ const SolicitationPlanning = () => {
           )}
         </div>
       </div>
-    </MainLayout>
   );
 };
 

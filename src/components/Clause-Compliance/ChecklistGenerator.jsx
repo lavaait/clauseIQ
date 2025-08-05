@@ -175,7 +175,6 @@ ${checklistText}`;
   const completionPercentage = checklist.length > 0 ? Math.round((completedItems / checklist.length) * 100) : 0;
 
   return (
-    <MainLayout title="Compliance Checklist Generator" userRole="Checklist Generator">
       <div className="min-h-screen pb-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Modern Header Section */}
@@ -522,7 +521,6 @@ ${checklistText}`;
           )}
         </div>
       </div>
-    </MainLayout>
   );
 };
 

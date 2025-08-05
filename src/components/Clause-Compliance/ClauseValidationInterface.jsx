@@ -125,7 +125,6 @@ const ClauseValidationInterface = () => {
   };
 
   return (
-    <MainLayout title="Clause Checker" userRole="Legal Reviewer">
       <div className="min-h-screen  pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
      
@@ -452,7 +451,6 @@ const ClauseValidationInterface = () => {
           )}
         </div>
       </div>
-    </MainLayout>
   );
 };
 

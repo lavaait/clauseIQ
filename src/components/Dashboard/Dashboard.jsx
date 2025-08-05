@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MainLayout from '../Mainlayout/MainLayout';
 import ContractTile from '../Contract/ContractTile';
 import LineChart from '../Charts/LineChart';
 import ComplianceOverview from '../Metrics/ComplianceOverview';
@@ -20,10 +19,11 @@ import {
 } from 'lucide-react';
 
 import { contractService, defaultContractData, defaultCycleTimeData } from '../../api/contractService';
+import { complianceService, defaultComplianceData, complianceUtils } from '../../api/complianceService';
+import { taskService, defaultTaskData } from '../../api/taskService';
 import {
   recentActivity,
   aiRecommendations,
-  tasks
 } from '../../data/dashboardData';
 import '../occ-colors.css'; 
 
@@ -36,6 +36,17 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [cycleTimeError, setCycleTimeError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+
+  // State for tasks data from API
+  const [tasksData, setTasksData] = useState(defaultTaskData.tasks);
+  const [tasksSummary, setTasksSummary] = useState(defaultTaskData.summary);
+  const [tasksLoading, setTasksLoading] = useState(true);
+  const [tasksError, setTasksError] = useState(null);
+
+  // State for compliance data from API
+  const [complianceData, setComplianceData] = useState(defaultComplianceData);
+  const [complianceLoading, setComplianceLoading] = useState(true);
+  const [complianceError, setComplianceError] = useState(null);
 
   // Function to fetch contract summary from API service
   const fetchContractSummary = async () => {
@@ -66,11 +77,54 @@ const Dashboard = () => {
     }
   };
 
+  // Function to fetch tasks from API service
+  const fetchTasks = async () => {
+    try {
+      setTasksError(null);
+      const data = await taskService.fetchActiveTasks({ limit: 20 });
+      setTasksData(data.tasks || defaultTaskData.tasks);
+      setTasksSummary(data.summary || defaultTaskData.summary);
+      console.log('Tasks updated:', data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      setTasksError(error.message);
+      // Keep existing data on error
+      setTasksData(defaultTaskData.tasks);
+      setTasksSummary(defaultTaskData.summary);
+    }
+  };
+
+  // Function to fetch compliance data from API service
+  const fetchComplianceData = async () => {
+    try {
+      setComplianceError(null);
+      const data = await complianceService.fetchComplianceData();
+      
+      // FIX: Add unique identifiers to compliance data to prevent duplicate key errors
+      const processedData = (data || defaultComplianceData).map((item, index) => ({
+        ...item,
+        uniqueId: `${item.contract_id}-${item.clause_id}-${index}`,
+        // Also add a composite key for safer identification
+        compositeKey: `${item.contract_id}_${item.clause_id}_${item.title || ''}_${index}`
+      }));
+      
+      setComplianceData(processedData);
+      console.log('Compliance data updated:', processedData);
+    } catch (error) {
+      console.error('Error fetching compliance data:', error);
+      setComplianceError(error.message);
+      // Keep existing data on error
+      setComplianceData(defaultComplianceData);
+    }
+  };
+
   // Function to fetch all data
   const fetchAllData = async () => {
     await Promise.all([
       fetchContractSummary(),
-      fetchCycleTimeMetrics()
+      fetchCycleTimeMetrics(),
+      fetchTasks(),
+      fetchComplianceData()
     ]);
   };
 
@@ -79,12 +133,20 @@ const Dashboard = () => {
     const loadInitialData = async () => {
       setLoading(true);
       setCycleTimeLoading(true);
+      setTasksLoading(true);
+      setComplianceLoading(true);
       
       await fetchContractSummary();
       setLoading(false);
       
       await fetchCycleTimeMetrics();
       setCycleTimeLoading(false);
+      
+      await fetchTasks();
+      setTasksLoading(false);
+
+      await fetchComplianceData();
+      setComplianceLoading(false);
     };
 
     loadInitialData();
@@ -103,46 +165,75 @@ const Dashboard = () => {
   const handleRefresh = async () => {
     setLoading(true);
     setCycleTimeLoading(true);
+    setTasksLoading(true);
+    setComplianceLoading(true);
     
     await fetchContractSummary();
     setLoading(false);
     
     await fetchCycleTimeMetrics();
     setCycleTimeLoading(false);
+    
+    await fetchTasks();
+    setTasksLoading(false);
+
+    await fetchComplianceData();
+    setComplianceLoading(false);
   };
 
-  // Loading state for initial load
+  // FIXED: Keep original loading logic
   if (loading && !contractData.intake && !contractData.evaluation && !contractData.performance && !contractData.closeout) {
     return (
-      <MainLayout title="Dashboard" userRole="Contract Manager">
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
             <p className="text-gray-600">Loading dashboard data...</p>
           </div>
         </div>
-      </MainLayout>
     );
   }
 
+  // Filter tasks by status and priority
+  const pendingTasks = tasksData.filter(task => task.status === 'pending');
+  const highPriorityTasks = tasksData.filter(task => task.priority === 'high');
+
+  // Calculate compliance metrics using utility functions
+  const compliancePercentage = complianceUtils.calculateCompliancePercentage(complianceData);
+  const criticalIssues = complianceUtils.countCriticalIssues(complianceData);
+
+  // FIX: Process all map operations to ensure unique keys
+  const processedRecentActivity = recentActivity.map((activity, index) => ({
+    ...activity,
+    uniqueKey: `activity-${index}-${Date.now()}`
+  }));
+
+  const processedAiRecommendations = aiRecommendations.map((recommendation, index) => ({
+    text: recommendation,
+    uniqueKey: `recommendation-${index}-${Date.now()}`
+  }));
+
   return (
-    <MainLayout title="Dashboard" userRole="Contract Manager">
       <div className="min-h-screen pb-6 sm:pb-12">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 space-y-6 sm:space-y-8">
           
           {/* Error Banner */}
-          {(error || cycleTimeError) && (
+          {(error || cycleTimeError || tasksError || complianceError) && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
-                <span>{error || cycleTimeError}</span>
+                <span className="text-sm">
+                  {error && "Contract data error. "}
+                  {cycleTimeError && "Cycle time error. "}
+                  {tasksError && "Tasks error. "}
+                  {complianceError && "Compliance data error."}
+                </span>
               </div>
               <button 
                 onClick={handleRefresh}
                 className="flex items-center gap-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-sm transition-colors"
-                disabled={loading || cycleTimeLoading}
+                disabled={loading || cycleTimeLoading || tasksLoading || complianceLoading}
               >
-                <RefreshCw className={`w-4 h-4 ${(loading || cycleTimeLoading) ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${(loading || cycleTimeLoading || tasksLoading || complianceLoading) ? 'animate-spin' : ''}`} />
                 Retry
               </button>
             </div>
@@ -171,10 +262,10 @@ const Dashboard = () => {
                 <button 
                   onClick={handleRefresh}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  disabled={loading || cycleTimeLoading}
+                  disabled={loading || cycleTimeLoading || tasksLoading || complianceLoading}
                   title="Refresh data"
                 >
-                  <RefreshCw className={`w-4 h-4 ${(loading || cycleTimeLoading) ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-4 h-4 ${(loading || cycleTimeLoading || tasksLoading || complianceLoading) ? 'animate-spin' : ''}`} />
                   <span className="hidden sm:inline">Refresh</span>
                 </button>
               </div>
@@ -232,7 +323,7 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Compliance Overview */}
+            {/* Compliance Overview - PASSING PROCESSED DATA */}
             <div className="bg-occ-secondary-white rounded-lg sm:rounded-xl shadow-lg border border-occ-secondary-gray sm:border-2 p-4 sm:p-6">
               <div className="flex items-center gap-3 mb-4 sm:mb-6">
                 <div className="p-2 bg-occ-blue rounded-lg">
@@ -243,7 +334,10 @@ const Dashboard = () => {
                   <p className="text-xs sm:text-sm occ-gray">Overall compliance monitoring</p>
                 </div>
               </div>
-              <ComplianceOverview percentage={83} />
+              <ComplianceOverview 
+                complianceData={complianceData}
+                loading={complianceLoading}
+              />
             </div>
           </div>
 
@@ -265,10 +359,10 @@ const Dashboard = () => {
               
               <div className="p-4 sm:p-6">
                 <div className="space-y-3 sm:space-y-4 max-h-80 overflow-y-auto">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="group">
+                  {processedRecentActivity.map((activity, index) => (
+                    <div key={activity.uniqueKey || `activity-${index}`} className="group">
                       <ActivityItem {...activity} />
-                      {index < recentActivity.length - 1 && (
+                      {index < processedRecentActivity.length - 1 && (
                         <div className="mt-3 sm:mt-4 border-b border-occ-secondary-gray"></div>
                       )}
                     </div>
@@ -300,10 +394,10 @@ const Dashboard = () => {
               
               <div className="p-4 sm:p-6">
                 <div className="space-y-3 sm:space-y-4 max-h-80 overflow-y-auto">
-                  {aiRecommendations.map((recommendation, index) => (
-                    <div key={index} className="group">
-                      <RecommendationItem text={recommendation} />
-                      {index < aiRecommendations.length - 1 && (
+                  {processedAiRecommendations.map((recommendation, index) => (
+                    <div key={recommendation.uniqueKey || `recommendation-${index}`} className="group">
+                      <RecommendationItem text={recommendation.text} />
+                      {index < processedAiRecommendations.length - 1 && (
                         <div className="mt-3 sm:mt-4 border-b border-occ-secondary-gray"></div>
                       )}
                     </div>
@@ -346,8 +440,14 @@ const Dashboard = () => {
                   <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 occ-secondary-white" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold occ-blue-dark">12.5%</div>
-                  <div className="text-xs occ-gray">Avg. Growth</div>
+                  <div className="text-sm sm:text-base font-bold occ-blue-dark">
+                    {complianceLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-4 w-8 rounded"></div>
+                    ) : (
+                      `${compliancePercentage}%`
+                    )}
+                  </div>
+                  <div className="text-xs occ-gray">Compliance Rate</div>
                 </div>
               </div>
             </div>
@@ -358,8 +458,14 @@ const Dashboard = () => {
                   <Clock className="w-3 h-3 sm:w-4 sm:h-4 occ-blue-dark" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold occ-blue-dark">24h</div>
-                  <div className="text-xs occ-gray">Avg. Response</div>
+                  <div className="text-sm sm:text-base font-bold occ-blue-dark">
+                    {complianceLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-4 w-8 rounded"></div>
+                    ) : (
+                      criticalIssues
+                    )}
+                  </div>
+                  <div className="text-xs occ-gray">Critical Issues</div>
                 </div>
               </div>
             </div>
@@ -370,8 +476,14 @@ const Dashboard = () => {
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 occ-secondary-white" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold occ-blue-dark">98.2%</div>
-                  <div className="text-xs occ-gray">Success Rate</div>
+                  <div className="text-sm sm:text-base font-bold occ-blue-dark">
+                    {complianceLoading ? (
+                      <div className="animate-pulse bg-gray-200 h-4 w-8 rounded"></div>
+                    ) : (
+                      complianceData.length
+                    )}
+                  </div>
+                  <div className="text-xs occ-gray">Total Controls</div>
                 </div>
               </div>
             </div>
@@ -391,18 +503,27 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-occ-blue occ-secondary-white text-xs font-medium rounded-full">
-                    {tasks.filter(task => task.status === 'pending').length} Pending
-                  </span>
-                  <span className="px-2 py-1 bg-occ-yellow occ-blue-dark text-xs font-medium rounded-full">
-                    {tasks.filter(task => task.priority === 'high').length} High Priority
-                  </span>
+                  {tasksLoading ? (
+                    <div className="animate-pulse flex gap-2">
+                      <div className="bg-gray-200 h-6 w-16 rounded-full"></div>
+                      <div className="bg-gray-200 h-6 w-20 rounded-full"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="px-2 py-1 bg-occ-blue occ-secondary-white text-xs font-medium rounded-full">
+                        {pendingTasks.length} Pending
+                      </span>
+                      <span className="px-2 py-1 bg-occ-yellow occ-blue-dark text-xs font-medium rounded-full">
+                        {highPriorityTasks.length} High Priority
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="p-0 sm:p-0">
-              <TaskTable tasks={tasks} />
+              <TaskTable tasks={tasksData} loading={tasksLoading} />
             </div>
           </div>
 
@@ -427,7 +548,11 @@ const Dashboard = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold occ-secondary-white mb-1">
-                  {tasks.length}
+                  {tasksLoading ? (
+                    <div className="animate-pulse bg-white bg-opacity-20 h-8 w-8 rounded mx-auto"></div>
+                  ) : (
+                    tasksData.length
+                  )}
                 </div>
                 <div className="text-xs sm:text-sm occ-secondary-white opacity-90">
                   Active Tasks
@@ -437,7 +562,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
   );
 };
 

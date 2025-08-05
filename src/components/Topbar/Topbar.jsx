@@ -1,10 +1,10 @@
 import React from 'react';
 import { Search, User, Menu } from 'lucide-react';
-import './occ-colors.css';
+import '../occ-colors.css';
 
-const Header = ({ title, isOpen, setIsOpen }) => {
+const Topbar = ({ title, isOpen, setIsOpen }) => {
   return (
-    <header className="bg-occ-secondary-white border-b border-occ-secondary-gray shadow-sm">
+    <header className="sticky top-0 z-40 bg-occ-secondary-white border-b border-occ-secondary-gray shadow-sm backdrop-blur-sm bg-opacity-95">
       <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-5">
         <div className="flex items-center justify-between gap-2 sm:gap-3">
           {/* Left Section - Menu + Title */}
@@ -32,7 +32,7 @@ const Header = ({ title, isOpen, setIsOpen }) => {
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
             {/* Search Button */}
             <button className="group p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl bg-occ-secondary-gray hover:bg-occ-blue transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-occ-blue focus:ring-offset-1 sm:focus:ring-offset-2 touch-manipulation">
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 occ-gray group-hover:text-white transition-colors duration-200" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-occ-gray group-hover:text-white transition-colors duration-200" />
             </button>
             
             {/* User Button */}
@@ -46,4 +46,4 @@ const Header = ({ title, isOpen, setIsOpen }) => {
   );
 };
 
-export default Header;
+export default Topbar;

@@ -1,112 +1,112 @@
 import '../occ-colors.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload, X, FileText, DollarSign, FileCheck, Calendar, Building, FileSpreadsheet, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import MainLayout from '../Mainlayout/MainLayout';
 
 // Toast Notification Component
 const Toast = ({ show, message, type = 'success', onClose }) => {
-  useEffect(() => {
+  React.useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
         onClose();
-      }, 5000); // Auto close after 5 seconds
-
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [show, onClose]);
 
   if (!show) return null;
 
-return (
-  <>
-    {/* Backdrop for mobile */}
-    <div className="fixed inset-0 z-50 pointer-events-none">
-      <div className={`
-        fixed top-4 left-4 right-4 sm:right-4 sm:left-auto sm:w-96 
-        transform transition-all duration-500 ease-out
-        ${show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-      `}>
+  return (
+    <>
+      <div className="fixed inset-0 z-50 pointer-events-none">
         <div className={`
-          rounded-lg shadow-lg border-r-4 p-4 pointer-events-auto
-          ${type === 'success' 
-            ? 'bg-green-50 border-green-400 text-green-800' 
-            : 'bg-red-50 border-red-400 text-red-800'
-          }
-          backdrop-blur-sm bg-opacity-95
+          fixed top-4 left-4 right-4 sm:right-4 sm:left-auto sm:w-96 
+          transform transition-all duration-500 ease-out
+          ${show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
         `}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`
-                flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-                ${type === 'success' ? 'bg-green-100' : 'bg-red-100'}
-              `}>
-                {type === 'success' ? (
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">
-                  {type === 'success' ? 'Success!' : 'Error!'}
-                </p>
-                <p className="text-sm opacity-90 mt-1">
-                  {message}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className={`
-                flex-shrink-0 ml-4 p-1 rounded-full transition-colors
-                ${type === 'success' 
-                  ? 'text-green-600 hover:bg-green-100' 
-                  : 'text-red-600 hover:bg-red-100'
-                }
-              `}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          
-          {/* Progress bar */}
           <div className={`
-            mt-3 h-1 bg-opacity-20 rounded-full overflow-hidden
-            ${type === 'success' ? 'bg-green-200' : 'bg-red-200'}
+            rounded-lg shadow-lg border-r-4 p-4 pointer-events-auto
+            ${type === 'success' 
+              ? 'bg-green-50 border-green-400 text-green-800' 
+              : 'bg-red-50 border-red-400 text-red-800'
+            }
+            backdrop-blur-sm bg-opacity-95
           `}>
-            <div 
-              className={`
-                h-full transition-all duration-5000 ease-linear
-                ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}
-                ${show ? 'w-0' : 'w-full'}
-              `}
-              style={{
-                animation: show ? 'shrink 5s linear forwards' : 'none'
-              }}
-            />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className={`
+                  flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+                  ${type === 'success' ? 'bg-green-100' : 'bg-red-100'}
+                `}>
+                  {type === 'success' ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {type === 'success' ? 'Success!' : 'Error!'}
+                  </p>
+                  <div className="text-sm opacity-90 mt-1">
+                    {/* Support HTML content for structured messages */}
+                    <div dangerouslySetInnerHTML={{ __html: message }} />
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className={`
+                  flex-shrink-0 ml-4 p-1 rounded-full transition-colors
+                  ${type === 'success' 
+                    ? 'text-green-600 hover:bg-green-100' 
+                    : 'text-red-600 hover:bg-red-100'
+                  }
+                `}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className={`
+              mt-3 h-1 bg-opacity-20 rounded-full overflow-hidden
+              ${type === 'success' ? 'bg-green-200' : 'bg-red-200'}
+            `}>
+              <div 
+                className={`
+                  h-full transition-all duration-5000 ease-linear
+                  ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}
+                  ${show ? 'w-0' : 'w-full'}
+                `}
+                style={{
+                  animation: show ? 'shrink 5s linear forwards' : 'none'
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    {/* Add keyframes for progress bar animation */}
-    <style jsx>{`
-      @keyframes shrink {
-        from { width: 100%; }
-        to { width: 0%; }
-      }
-    `}</style>
-  </>
-);
+      
+      <style jsx>{`
+        @keyframes shrink {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+      `}</style>
+    </>
+  );
 };
 
 // API configuration
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const API_ENDPOINTS = {
   submitContract: '/api/new_contract_request/contracts/submit'
 };
 
 const NewContractRequestForm = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: '',
     agency: '',
@@ -120,8 +120,6 @@ const NewContractRequestForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
-  
-  // Toast notification states
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -133,7 +131,6 @@ const NewContractRequestForm = () => {
       [name]: value
     }));
    
-    // Clear errors when user starts typing
     if (submitError) setSubmitError(null);
     if (validationErrors[name]) {
       setValidationErrors(prev => ({
@@ -146,14 +143,12 @@ const NewContractRequestForm = () => {
   const handleFileUpload = (files) => {
     const file = files[0];
     if (file) {
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         setSubmitError('File size must be less than 10MB');
         return;
       }
 
-      // Validate file type
       const allowedTypes = [
         'application/pdf',
         'application/msword',
@@ -178,7 +173,6 @@ const NewContractRequestForm = () => {
         }
       }));
 
-      // Clear any previous errors
       if (submitError) setSubmitError(null);
     }
   };
@@ -217,7 +211,6 @@ const NewContractRequestForm = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Client-side validation
   const validateForm = () => {
     const errors = {};
 
@@ -249,11 +242,9 @@ const NewContractRequestForm = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // API submission function
   const submitContractRequest = async (data) => {
     const formDataToSend = new FormData();
     
-    // Append all required fields according to API documentation
     formDataToSend.append('title', data.title.trim());
     formDataToSend.append('agency', data.agency.trim());
     formDataToSend.append('contract_type', data.contractType);
@@ -273,9 +264,6 @@ const NewContractRequestForm = () => {
       if (!response.ok) {
         if (response.status === 422) {
           const errorData = await response.json();
-          console.error('Detailed validation errors:', errorData);
-          
-          // Create user-friendly error message
           if (errorData.detail && Array.isArray(errorData.detail)) {
             const errorMessages = errorData.detail.map(err => {
               const field = err.loc ? err.loc[err.loc.length - 1] : 'unknown field';
@@ -303,22 +291,33 @@ const NewContractRequestForm = () => {
     }
   };
 
-  // Show success toast
   const showSuccessNotification = (message) => {
     setToastMessage(message);
     setShowSuccessToast(true);
   };
 
-  // Show error toast
   const showErrorNotification = (message) => {
     setToastMessage(message);
     setShowErrorToast(true);
   };
 
+  // Helper function to create personalized success message
+  const createSuccessMessage = (title, contractType) => {
+    return `
+      <div>
+        <div class="font-medium mb-1">
+          "${title}" (${contractType}) has been submitted successfully!
+        </div>
+        <div class="text-sm opacity-90">
+          It is now under review.
+        </div>
+      </div>
+    `;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form before submission
     if (!validateForm()) {
       setSubmitError('Please correct the errors below and try again.');
       return;
@@ -332,10 +331,15 @@ const NewContractRequestForm = () => {
       
       console.log('Contract request submitted successfully:', result);
       
-      // Show success toast notification
-      showSuccessNotification('Your contract request has been submitted successfully and is now under review.');
+      // Create personalized success message with contract title and type
+      const successMessage = createSuccessMessage(
+        formData.title, 
+        formData.contractType
+      );
       
-      // Reset form
+      showSuccessNotification(successMessage);
+      
+      // Reset form for new submissions
       setFormData({
         title: '',
         agency: '',
@@ -357,8 +361,7 @@ const NewContractRequestForm = () => {
   };
 
   return (
-    <MainLayout title="New Contract Request" userRole="Contract Intake">
-      {/* Toast Notifications */}
+    <>
       <Toast 
         show={showSuccessToast} 
         message={toastMessage}
@@ -376,16 +379,15 @@ const NewContractRequestForm = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Header Card */}
           <div className="bg-occ-blue-gradient rounded-t-xl p-6 shadow-lg">
-            <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold occ-secondary-white flex items-center gap-3">
+            <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold text-white flex items-center gap-3">
               <FileCheck className="w-7 h-7" />
               New Contract Request
             </h2>
-            <p className="occ-secondary-white mt-2">
+            <p className="text-white mt-2">
               Fill out the form below to submit a new contract request for review.
             </p>
           </div>
 
-          {/* Error Alert - Keep this for form validation errors */}
           {submitError && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mt-4 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
@@ -401,8 +403,8 @@ const NewContractRequestForm = () => {
                 {/* Contract Title */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <FileSpreadsheet className="w-4 h-4 occ-blue" />
-                    Contract Title <span className="occ-secondary-orange">*</span>
+                    <FileSpreadsheet className="w-4 h-4 text-blue-600" />
+                    Contract Title <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -412,7 +414,7 @@ const NewContractRequestForm = () => {
                     placeholder="Enter contract title"
                     required
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 border-occ-blue transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
                       validationErrors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   />
@@ -427,8 +429,8 @@ const NewContractRequestForm = () => {
                 {/* Agency */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Building className="w-4 h-4 occ-blue" />
-                    Agency/Organization <span className="occ-secondary-orange">*</span>
+                    <Building className="w-4 h-4 text-blue-600" />
+                    Agency/Organization <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -438,7 +440,7 @@ const NewContractRequestForm = () => {
                     placeholder="Enter agency or organization name"
                     required
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 border-occ-blue transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
                       validationErrors.agency ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   />
@@ -456,8 +458,8 @@ const NewContractRequestForm = () => {
                 {/* Contract Type */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 occ-blue" />
-                    Contract Type <span className="occ-secondary-orange">*</span>
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    Contract Type <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="contractType"
@@ -465,7 +467,7 @@ const NewContractRequestForm = () => {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 border-occ-blue transition-all shadow-sm appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
                       validationErrors.contractType ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   >
@@ -489,8 +491,8 @@ const NewContractRequestForm = () => {
                 {/* Contract Value */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 occ-blue" />
-                    Contract Value <span className="occ-secondary-orange">*</span>
+                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    Contract Value <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-3.5 w-4 h-4 text-gray-500" />
@@ -504,7 +506,7 @@ const NewContractRequestForm = () => {
                       step="0.01"
                       required
                       disabled={isSubmitting}
-                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 border-occ-blue transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
                         validationErrors.value ? 'border-red-300 bg-red-50' : 'border-gray-300'
                       }`}
                     />
@@ -520,8 +522,8 @@ const NewContractRequestForm = () => {
                 {/* Status Field */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <FileCheck className="w-4 h-4 occ-blue" />
-                    Status <span className="occ-secondary-orange">*</span>
+                    <FileCheck className="w-4 h-4 text-blue-600" />
+                    Status <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="status"
@@ -529,7 +531,7 @@ const NewContractRequestForm = () => {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 border-occ-blue transition-all shadow-sm appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed ${
                       validationErrors.status ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                   >
@@ -551,17 +553,17 @@ const NewContractRequestForm = () => {
               {/* File Upload Section */}
               <div className="pt-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2 mb-4">
-                  <Upload className="w-5 h-5 occ-blue" />
+                  <Upload className="w-5 h-5 text-blue-600" />
                   Document Upload <span className="text-sm font-normal text-gray-500">(Required)</span>
                 </h3>
 
                 <div
                   className={`border-2 border-dashed rounded-xl p-10 text-center transition-all ${
                     dragActive 
-                      ? 'border-occ-blue bg-occ-secondary-gray' 
+                      ? 'border-blue-500 bg-blue-50' 
                       : validationErrors.attachment 
                       ? 'border-red-300 bg-red-50'
-                      : 'border-gray-300 hover:border-occ-blue hover:bg-gray-50'
+                      : 'border-gray-300 hover:border-blue-500 hover:bg-gray-50'
                   } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
@@ -570,7 +572,7 @@ const NewContractRequestForm = () => {
                   <Upload className="w-14 h-14 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-700 mb-2 font-medium">
                     Drag and drop a file here, or{' '}
-                    <label className={`occ-blue hover:text-occ-blue-dark cursor-pointer underline ${isSubmitting ? 'pointer-events-none' : ''}`}>
+                    <label className={`text-blue-600 hover:text-blue-700 cursor-pointer underline ${isSubmitting ? 'pointer-events-none' : ''}`}>
                       browse
                       <input
                         type="file"
@@ -597,25 +599,29 @@ const NewContractRequestForm = () => {
                 {formData.attachment && (
                   <div className="mt-6 space-y-3">
                     <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <FileText className="w-4 h-4 occ-blue" />
+                      <FileText className="w-4 h-4 text-blue-600" />
                       Uploaded File
                     </h4>
                     
                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-all">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-occ-secondary-gray rounded-md">
-                          <FileText className="w-5 h-5 occ-blue" />
+                        <div className="p-2 bg-blue-100 rounded-md">
+                          <FileText className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{formData.attachment.name}</p>
-                          <p className="text-xs text-gray-500">{formatFileSize(formData.attachment.size)}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {formData.attachment.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(formData.attachment.size)}
+                          </p>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={removeFile}
                         disabled={isSubmitting}
-                        className="p-1.5 bg-white text-gray-500 hover:occ-secondary-orange rounded-full border border-gray-200 hover:border-occ-secondary-orange transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 bg-white text-gray-500 hover:text-red-500 rounded-full border border-gray-200 hover:border-red-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -629,7 +635,7 @@ const NewContractRequestForm = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-8 py-3 bg-occ-blue occ-secondary-white font-medium rounded-lg hover:bg-occ-blue-dark focus:ring-4 focus:ring-occ-blue focus:ring-opacity-50 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -645,7 +651,7 @@ const NewContractRequestForm = () => {
           </form>
         </div>
       </div>
-    </MainLayout>
+    </>
   );
 };
 

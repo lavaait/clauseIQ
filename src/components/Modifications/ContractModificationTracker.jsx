@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, AlertTriangle, TrendingUp, Calendar, DollarSign, Clock, FileText, Target, BarChart3, ChevronDown, Save, X, CheckCircle, TrendingDown, AlertCircle, Info, Upload, User, ArrowUp, ArrowDown, Menu, RefreshCw, Eye, ChevronRight, Activity } from 'lucide-react';
-import MainLayout from '../Mainlayout/MainLayout';
 import '../occ-colors.css';
 
 const ContractModificationTracker = () => {
@@ -46,7 +45,6 @@ const ContractModificationTracker = () => {
   };
 
   return (
-    <MainLayout title='Contract Modifications' userRole='Contract Manager'>
       <div className="min-h-screen  p-3 sm:p-6">
         <div className="max-w-7xl mx-auto">
           {/* Modern Header */}
@@ -380,7 +378,6 @@ const ContractModificationTracker = () => {
           )}
         </div>
       </div>
-    </MainLayout>
   );
 };
 

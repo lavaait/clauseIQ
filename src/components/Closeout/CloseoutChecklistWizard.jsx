@@ -215,7 +215,6 @@ const CloseoutChecklistWizard = () => {
     : requiredItems.every(item => item.checked) && aiChecks.filter(check => check.type === 'error').length === 0;
 
   return (
-    <MainLayout title="Closeout Wizard" userRole="Closeout Wizard">
       <div className="min-h-screen pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
@@ -626,7 +625,6 @@ const CloseoutChecklistWizard = () => {
           )}
         </div>
       </div>
-    </MainLayout>
   );
 };
 

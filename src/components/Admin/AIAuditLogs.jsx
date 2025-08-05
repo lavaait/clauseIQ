@@ -186,7 +186,7 @@ const AIAuditLogs = () => {
   ];
 
   return (
-    <MainLayout title='Audit Export Logs'>
+
       <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
        
         <div className="block lg:hidden sticky top-0 z-20 bg-white shadow-md border-b border-gray-200 p-4">
@@ -543,7 +543,6 @@ const AIAuditLogs = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
   );
 };
 

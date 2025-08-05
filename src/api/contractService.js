@@ -68,26 +68,4 @@ export const defaultContractData = {
 };
 
 // Default cycle time data (fallback/static data)
-export const defaultCycleTimeData = [
-  {
-    month: "Jun",
-    intake: 35,
-    evaluation: 32,
-    performance: 28,
-    closeout: 15
-  },
-  {
-    month: "Jul",
-    intake: 18,
-    evaluation: 16,
-    performance: 12,
-    closeout: 10
-  },
-  {
-    month: "Aug",
-    intake: 25,
-    evaluation: 22,
-    performance: 18,
-    closeout: 14
-  }
-];
+export const defaultCycleTimeData = [];

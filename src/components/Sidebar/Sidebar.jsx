@@ -5,11 +5,11 @@ import '../occ-colors.css';
 import SidebarSection from './SidebarSection';
 import SidebarItem from './SidebarItem';
 
-import { X, Home, BarChart3, Download, Plus, FileText, Brain, Calendar, CheckSquare, Upload, Settings, Package, Book, ClipboardList, Shield, Users, Lock, Cog, FileDown, ChevronDown, ChevronRight } from 'lucide-react';
+import { X, Home, BarChart3, Download, Plus, FileText, Brain, Calendar, CheckSquare, Upload, Settings, Package, Book, ClipboardList, Shield, Users, Lock, Cog, FileDown, ChevronDown, ChevronRight, Scale } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const [expandedSections, setExpandedSections] = useState({
-    'contract-lifecycle': false, // Changed from true to false
+    'contract-lifecycle': false, 
     'modifications': false,
     'closeout': false,
     'compliance': false,
@@ -17,7 +17,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     'admin': false
   });
 
-  // Add state for Contract Lifecycle subsections
   const [expandedSubsections, setExpandedSubsections] = useState({
     'contract-intake': false,
     'planning-solicitation': false,
@@ -28,7 +27,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const sidebarRef = useRef(null);
   const closeButtonRef = useRef(null);
   const shouldScrollToActive = useRef(false);
-  const isInitialLoad = useRef(true); // Track if this is the initial page load
+  const isInitialLoad = useRef(true);
 
   // Auto-expand sections and conditionally scroll to active item
   useEffect(() => {
@@ -37,10 +36,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     // Define which section each route belongs to
     const routeToSection = {
       '/new-contract-request': 'contract-lifecycle',
-      '/contract-request-list': 'contract-lifecycle', // Added new route
+      '/contract-request-list': 'contract-lifecycle',
+      '/contract-draft-generator': 'contract-lifecycle',
       '/solicitation-planner': 'contract-lifecycle',
       '/proposal-upload': 'contract-lifecycle',
       '/proposal-analysis': 'contract-lifecycle',
+      '/contract-analyzer': 'contract-lifecycle', 
+      '/renewal-intelligence' : 'contract-lifecycle',
+       '/redlining-coach': 'contract-lifecycle',
+
       '/contract-modification-tracker': 'modifications',
       '/closeout-checklist-wizard': 'closeout',
       '/clause-Checker': 'compliance',
@@ -53,14 +57,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     // Define which subsection each route belongs to
     const routeToSubsection = {
       '/new-contract-request': 'contract-intake',
-      '/contract-request-list': 'contract-intake', // Added new route
+      '/contract-request-list': 'contract-intake',
+      '/contract-draft-generator': 'contract-intake',
       '/solicitation-planner': 'planning-solicitation',
       '/proposal-upload': 'proposal-evaluation',
-      '/proposal-analysis': 'proposal-evaluation'
+      '/proposal-analysis': 'proposal-evaluation',
+      '/contract-analyzer': 'proposal-evaluation', 
+      '/renewal-intelligence': 'proposal-evaluation',
+      '/redlining-coach': 'proposal-evaluation',
     };
 
     // Only auto-expand if we're not on the dashboard and it's not the initial load
-    // This allows manual navigation to expand sections but keeps them closed on page refresh
     const activeSection = routeToSection[currentPath];
     const activeSubsection = routeToSubsection[currentPath];
     
@@ -68,7 +75,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       setExpandedSections(prev => {
         const wasExpanded = prev[activeSection];
         
-        // Only scroll if the section was previously collapsed
         if (!wasExpanded) {
           shouldScrollToActive.current = true;
         }
@@ -79,7 +85,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         };
       });
 
-      // Auto-expand the subsection containing the active route
       if (activeSubsection) {
         setExpandedSubsections(prev => ({
           ...prev,
@@ -87,29 +92,23 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         }));
       }
 
-      // Scroll to active item only if shouldScrollToActive is true
       if (shouldScrollToActive.current) {
         setTimeout(() => {
           const activeElement = sidebarRef.current?.querySelector('[data-active="true"]');
           if (activeElement && sidebarRef.current) {
             const sidebarScrollContainer = sidebarRef.current.querySelector('.sidebar-scroll');
             if (sidebarScrollContainer) {
-              // Get current scroll position
               const currentScrollTop = sidebarScrollContainer.scrollTop;
               const containerHeight = sidebarScrollContainer.clientHeight;
               
-              // Get element position
               const elementTop = activeElement.offsetTop;
               const elementHeight = activeElement.offsetHeight;
               
-              // Only scroll if the element is not fully visible
               const elementBottom = elementTop + elementHeight;
               const visibleTop = currentScrollTop;
               const visibleBottom = currentScrollTop + containerHeight;
               
-              // Check if element is not fully visible
               if (elementTop < visibleTop || elementBottom > visibleBottom) {
-                // Calculate scroll position to center the element
                 const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2);
                 
                 sidebarScrollContainer.scrollTo({
@@ -120,13 +119,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             }
           }
           
-          // Reset the flag
           shouldScrollToActive.current = false;
         }, 100);
       }
     }
 
-    // After the first useEffect run, mark that initial load is complete
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
     }
@@ -155,7 +152,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     }));
   };
 
-  // Add toggle function for subsections
   const toggleSubsection = (subsectionId) => {
     setExpandedSubsections(prev => ({
       ...prev,
@@ -163,16 +159,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     }));
   };
 
-  // Close sidebar when navigating on mobile
   const handleNavigation = () => {
     if (window.innerWidth < 1024) {
       setIsOpen(false);
     }
   };
 
-  // Handle sidebar item click - set flag to scroll to active item
   const handleSidebarItemClick = (href) => {
-    // Only set scroll flag if we're navigating to a different page
     if (href && href !== location.pathname) {
       shouldScrollToActive.current = true;
     }
@@ -191,40 +184,48 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container - Now always fixed and sticky */}
       <aside
         ref={sidebarRef}
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
+          fixed inset-y-0 left-0 z-50
           w-80 bg-occ-blue-dark text-white flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          h-screen
         `}
         role="navigation"
         aria-label="Main navigation"
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          height: '100vh',
+          overflowY: 'hidden'
+        }}
       >
-        {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-occ-blue flex items-center justify-between">
+        {/* Header - Fixed at top */}
+        <div className="flex-shrink-0 p-4 border-b border-occ-blue flex items-center justify-between bg-occ-blue-dark sticky top-0 z-10">
           <div className="flex items-center space-x-4">
             {/* Logo */}
-           
-<div className="h-9 w-9 flex items-center justify-center bg-white shadow-lg rounded-lg">
-  <img
-    src={`${process.env.PUBLIC_URL}/logo192.png`}
-    alt="ClauseIQ Icon"
-    className="w-full h-full object-contain"
-    style={{
-      filter: 'contrast(1.2) saturate(1.1) brightness(1.1)'
-    }}
-    onError={(e) => {
-      e.target.style.display = 'none';
-      e.target.nextSibling.style.display = 'flex';
-    }}
-  />
-  <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-sm hidden">
-    <FileText size={20} />
-  </div>
-</div>
+            <div className="h-9 w-9 flex items-center justify-center bg-white shadow-lg rounded-lg">
+              <img
+                src={`${process.env.PUBLIC_URL}/logo192.png`}
+                alt="ClauseIQ Icon"
+                className="w-full h-full object-contain"
+                style={{
+                  filter: 'contrast(1.2) saturate(1.1) brightness(1.1)'
+                }}
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-sm hidden">
+                <FileText size={20} />
+              </div>
+            </div>
 
             {/* Company Name */}
             <div className="flex items-center h-12">
@@ -246,9 +247,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           </button>
         </div>
 
-        {/* Sidebar Navigation */}
-        <div className="flex-1 overflow-y-auto sidebar-scroll">
-          <nav className="pb-8" role="menu">
+        {/* Sidebar Navigation - Scrollable content */}
+        <div 
+          className="flex-1 overflow-y-auto sidebar-scroll scrollbar-thin scrollbar-thumb-occ-blue scrollbar-track-occ-blue-dark"
+          style={{
+            maxHeight: 'calc(100vh - 80px)', // Subtract header height
+            overflowY: 'auto',
+            scrollBehavior: 'smooth'
+          }}
+        >
+          <nav className="pb-8 px-2" role="menu">
             
             {/* Main Dashboard */}
             <SidebarSection title="Main">
@@ -272,7 +280,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <>
                   {/* Contract Intake - Expandable Subsection */}
                   <div 
-                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200 mx-2"
                     onClick={() => toggleSubsection('contract-intake')}
                   >
                     <div className="flex items-center space-x-3">
@@ -303,12 +311,20 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         isActive={location.pathname === '/contract-request-list'}
                         onClick={() => handleSidebarItemClick('/contract-request-list')}
                       />
+                      <SidebarItem
+                        icon={<FileText size={18} />}
+                        label="Contract Draft Generator"
+                        href="/contract-draft-generator"
+                        indent={1}
+                        isActive={location.pathname === '/contract-draft-generator'}
+                        onClick={() => handleSidebarItemClick('/contract-draft-generator')}
+                      />
                     </>
                   )}
 
                   {/* Planning & Solicitation - Expandable Subsection */}
                   <div 
-                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200 mx-2"
                     onClick={() => toggleSubsection('planning-solicitation')}
                   >
                     <div className="flex items-center space-x-3">
@@ -334,7 +350,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
                   {/* Proposal Evaluation - Expandable Subsection */}
                   <div 
-                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200"
+                    className="flex items-center justify-between px-4 py-2 hover:bg-occ-blue rounded-lg cursor-pointer transition-colors duration-200 mx-2"
                     onClick={() => toggleSubsection('proposal-evaluation')}
                   >
                     <div className="flex items-center space-x-3">
@@ -357,7 +373,30 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         isActive={location.pathname === '/proposal-upload'}
                         onClick={() => handleSidebarItemClick('/proposal-upload')}
                       />
-                    
+                      <SidebarItem
+                        icon={<Scale size={18} />}
+                        label="Third-Party Analyzer"
+                        indent={1}
+                        href="/contract-analyzer"
+                        isActive={location.pathname === '/contract-analyzer'}
+                        onClick={() => handleSidebarItemClick('/contract-analyzer')}
+                      />
+                      <SidebarItem
+                        icon={<Scale size={18} />}
+                        label="Renewal Intelligence"
+                        indent={1}
+                        href="/renewal-intelligence"
+                        isActive={location.pathname === '/renewal-intelligence'}
+                        onClick={() => handleSidebarItemClick('/renewal-intelligence')}
+                      />
+                       <SidebarItem
+                        icon={<Scale size={18} />}
+                        label="Redlining Coach"
+                        indent={1}
+                        href="/redlining-coach"
+                        isActive={location.pathname === '/redlining-coach'}
+                        onClick={() => handleSidebarItemClick('/redlining-coach')}
+                      />
                     </>
                   )}
                 </>
@@ -371,7 +410,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               expanded={expandedSections['modifications']}
               onToggle={() => toggleSection('modifications')}
             >
-              {/* Category Header (not clickable) */}
               <SidebarItem 
                 icon={<Settings size={18} />} 
                 label="Modifications"
@@ -396,7 +434,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               expanded={expandedSections['closeout']}
               onToggle={() => toggleSection('closeout')}
             >
-              {/* Category Header (not clickable) */}
               <SidebarItem 
                 icon={<CheckSquare size={18} />} 
                 label="Closeout"
@@ -421,7 +458,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               expanded={expandedSections['compliance']}
               onToggle={() => toggleSection('compliance')}
             >
-              {/* Category Header (not clickable) */}
               <SidebarItem 
                 icon={<Shield size={18} />} 
                 label="Compliance Tools"
@@ -456,7 +492,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               expanded={expandedSections['reports']}
               onToggle={() => toggleSection('reports')}
             >
-              {/* Category Header (not clickable) */}
               <SidebarItem 
                 icon={<BarChart3 size={18} />} 
                 label="Reports & Exports"
@@ -481,7 +516,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               expanded={expandedSections['admin']}
               onToggle={() => toggleSection('admin')}
             >
-              {/* Category Header (not clickable) */}
               <SidebarItem 
                 icon={<Lock size={18} />} 
                 label="Administration"
@@ -499,7 +533,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   />
                   <SidebarItem
                     icon={<FileDown size={18} />}
-                    label="Audit Export Logs"
+                    label="Audit Logs"
                     indent={1}
                     href="/admin/audit-logs"
                     isActive={location.pathname === '/admin/audit-logs'}

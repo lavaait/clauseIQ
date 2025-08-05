@@ -10,8 +10,3 @@ export const aiRecommendations = [
   'Consider evaluation criteria adjustment for Contract #1477',
   'Review flagged clauses in submitted document for Contract #1276'
 ];
-
-export const tasks = [
-  { task: 'Review contract draft', dueDate: 'Novem 29, 2023', assignedTo: 'David S.', assignedBy: 'David S.' },
-  { task: 'Generate evaluation report', dueDate: 'Novem 27, 2023', assignedTo: 'Jane L.', assignedBy: 'Jane L.' }
-];
