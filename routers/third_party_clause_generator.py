@@ -6,6 +6,8 @@ from transformers import pipeline
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import warnings
 warnings.warn("This feature will be removed soon.", PendingDeprecationWarning)
@@ -15,7 +17,7 @@ router = APIRouter()
 # ───────────────────────── NLP/ML MODELS ─────────────────────────
 nlp = spacy.load("en_core_web_sm")
 classifier = pipeline("text-classification", model="typeform/distilbert-base-uncased-mnli")
-llm = ChatOpenAI(temperature=0)
+llm = ChatOpenAI(temperature=0,openai_api_key=os.getenv("OPENAI_API_KEY"))
 
 prompt = PromptTemplate.from_template(
     "Given this clause: \"{clause}\", and standard: \"{standard}\", does the clause meet expectations? Return YES or NO and briefly justify."
