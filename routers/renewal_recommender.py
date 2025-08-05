@@ -126,46 +126,55 @@ def compute_confidence_score(rag: Dict[str, str]) -> float:
 # ------------------------------
 # 6. API Endpoint
 # ------------------------------
-@router.get("/api/renewal/recommend/{contract_id}")
-def recommend_from_db(contract_id: str):
-    kpis = compute_kpis_from_sqlite(contract_id)
+@router.get("/api/renewal/recommend/all")
+def recommend_for_all_from_tasks():
+    conn = sqlite3.connect("contracts.db")
+    cursor = conn.cursor()
 
-    # Placeholder vendor and summary (replace with real data if needed)
-    vendor_name = "Vendor for " + contract_id
-    contract_summary = f"Contract {contract_id} involves delivery of services/tasks as per timeline."
+    # Get distinct contract_ids from the tasks table
+    cursor.execute("SELECT DISTINCT contract_id FROM tasks")
+    contract_ids = cursor.fetchall()
+    conn.close()
 
-    rag = rag_status(kpis["term_length"], kpis["usage_percent"], kpis["delivery_score"])
-    action = recommend_action(rag)
-    confidence = compute_confidence_score(rag)
+    if not contract_ids:
+        return {"message": "No contract tasks found in the database."}
 
-    status_text = (
-        f"- Term: {rag['Term']}\n"
-        f"- Usage: {rag['Usage']}\n"
-        f"- Delivery: {rag['Delivery']}"
-    )
+    results = []
 
-    llm_response = chain.run(
-        status_text=status_text,
-        vendor_name=vendor_name,
-        contract_summary=contract_summary,
-        action=action.upper()
-    )
+    for (contract_id,) in contract_ids:
+        # Get KPIs from tasks table
+        kpis = compute_kpis_from_sqlite(contract_id)
+        rag = rag_status(kpis["term_length"], kpis["usage_percent"], kpis["delivery_score"])
+        action = recommend_action(rag)
+        confidence = compute_confidence_score(rag)
 
-    return {
-        "contract_id": contract_id,
-        "kpis": kpis,
-        "rag_status": rag,
-        "recommended_action": action,
-        "confidence_score": confidence,
-        "llm_response": llm_response
-    }
+        vendor_name = f"Vendor for {contract_id}"  # placeholder; replace if needed
+        contract_summary = f"Contract {contract_id} involves delivery of services/tasks as per timeline."
 
-# 90–100%: High confidence in recommended action (all KPIs Green) - renew
-# 60–80%: Medium confidence (some Amber) - renegotiate
-# <50%: Low confidence (one or more Red flags) - terminate
+        status_text = (
+            f"- Term: {rag['Term']}\n"
+            f"- Usage: {rag['Usage']}\n"
+            f"- Delivery: {rag['Delivery']}"
+        )
 
-# RAG Status	                                            Score	Action
-# {"Term": "Green", "Usage": "Green", "Delivery": "Green"}	100.0	- renew
-# {"Term": "Amber", "Usage": "Amber", "Delivery": "Amber"}	60.0	 - renegotiate
-# {"Term": "Red", "Usage": "Red", "Delivery": "Red"}	    20.0	 - terminate
-# {"Term": "Green", "Usage": "Amber", "Delivery": "Red"}	60.0	- renegotiate
+        try:
+            llm_response = chain.run(
+                status_text=status_text,
+                vendor_name=vendor_name,
+                contract_summary=contract_summary,
+                action=action.upper()
+            )
+        except Exception as e:
+            llm_response = f"(LLM failed: {str(e)})"
+
+        results.append({
+            "contract_id": contract_id,
+            "vendor": vendor_name,
+            "kpis": kpis,
+            "rag_status": rag,
+            "recommended_action": action,
+            "confidence_score": confidence,
+            "llm_response": llm_response
+        })
+
+    return {"contracts": results}

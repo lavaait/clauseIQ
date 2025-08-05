@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File
 import pdfplumber, pytesseract, io, sqlite3
+import os
 from docx import Document
 import spacy
 from transformers import pipeline
@@ -8,7 +9,6 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
 load_dotenv()
-import os
 import warnings
 warnings.warn("This feature will be removed soon.", PendingDeprecationWarning)
 
