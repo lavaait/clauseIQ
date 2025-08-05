@@ -290,6 +290,7 @@ from fastapi import FastAPI, APIRouter, Form, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from jinja2 import Environment, FileSystemLoader
 from fpdf import FPDF
+from enum import Enum
 from openai import OpenAI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -304,38 +305,26 @@ env = Environment(loader=FileSystemLoader("templates"))
 UPLOAD_FOLDER = "generated_contracts"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ----------- Dropdown Constants -----------
-CONTRACT_TYPES = [
-    "Non-Disclosure Agreement",
-    "Service Agreement",
-    "Employment Contract",
-    "Purchase Agreement",
-    "Lease Agreement"
-]
+class ContractType(str, Enum):
+    nda = "Non-Disclosure Agreement"
+    service = "Service Agreement"
+    employment = "Employment Contract"
+    purchase = "Purchase Agreement"
+    lease = "Lease Agreement"
 
-TEMPLATE_MAPPING = {
-    "NDA Template - Standard": "nda_standard",
-    "NDA Template - Mutual": "nda_mutual",
-    "Service Agreement Template": "service_standard",
-    "Employment Contract Template": "employment_standard",
-    "Purchase Agreement Template": "purchase_standard",
-    "Lease Agreement Template": "lease_standard"
-}
+class Template(str, Enum):
+    nda_standard = "NDA Template - Standard"
+    nda_mutual = "NDA Template - Mutual"
+    service_standard = "Service Agreement Template"
+    employment_standard = "Employment Contract Template"
+    purchase_standard = "Purchase Agreement Template"
+    lease_standard = "Lease Agreement Template"
 
-TEMPLATES = {
-    "Non-Disclosure Agreement": ["NDA Template - Standard", "NDA Template - Mutual"],
-    "Service Agreement": ["Service Agreement Template"],
-    "Employment Contract": ["Employment Contract Template"],
-    "Purchase Agreement": ["Purchase Agreement Template"],
-    "Lease Agreement": ["Lease Agreement Template"]
-}
-
-AGENCIES = [
-    "Department of Commerce",
-    "Department of Defense",
-    "Department of Justice",
-    "Department of Treasury"
-]
+class Agency(str, Enum):
+    commerce = "Department of Commerce"
+    defense = "Department of Defense"
+    justice = "Department of Justice"
+    treasury = "Department of Treasury"
 
 # ----------- Utility Functions -----------
 
@@ -411,22 +400,12 @@ def save_draft_as_pdf(draft: str, draft_id: str) -> str:
     return pdf_path
 
 # ----------- API Endpoints -----------
-
-@router.get("/contract/defaults")
-def get_contract_form_defaults():
-    return {
-        "contract_types": CONTRACT_TYPES,
-        "templates": TEMPLATES,
-        "template_mapping": TEMPLATE_MAPPING,
-        "agencies": AGENCIES
-    }
-
 @router.post("/contracts/ai-draft/submit", response_class=JSONResponse)
 def submit_ai_draft_form(
     request: Request,
-    contract_type: str = Form(...),
-    template: str = Form(...),
-    agency: str = Form(...),
+    contract_type: ContractType = Form(...),
+    template: Template = Form(...),
+    agency: Agency = Form(...),
     effective_date: str = Form(...),
     purpose: str = Form(...)
 ):
@@ -441,12 +420,12 @@ def submit_ai_draft_form(
         "llm_clause": llm_clause
     }
 
-    metadata.update({
-        "available_contract_types": CONTRACT_TYPES,
-        "available_templates": TEMPLATES,
-        "template_mapping": TEMPLATE_MAPPING,
-        "available_agencies": AGENCIES
-    })
+    # metadata.update({
+    #     "available_contract_types": CONTRACT_TYPES,
+    #     "available_templates": TEMPLATES,
+    #     "template_mapping": TEMPLATE_MAPPING,
+    #     "available_agencies": AGENCIES
+    # })
 
     draft = build_single_clause_draft(template, metadata)
     draft_id = str(uuid.uuid4())
