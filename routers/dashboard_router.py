@@ -282,7 +282,79 @@ def seed_sample_activities():
             "System",
             "XYZ-456",
             "high"
-        )
+        ),
+         (
+        "compliance_flag",
+        "Compliance issue flagged for Contract JKL-987",
+        "Missing required audit trail documentation",
+        "2024-02-01T14:45:00Z",
+        "Compliance Bot",
+        "JKL-987",
+        "critical"
+    ),
+    (
+        "milestone_achieved",
+        "Phase 1 completed for Contract DEF-789",
+        "Vendor submitted deliverables ahead of schedule",
+        "2024-01-28T11:00:00Z",
+        "Alice Johnson",
+        "DEF-789",
+        "normal"
+    ),
+    (
+        "contract_update",
+        "Contract MNO-112 updated with Amendment #2",
+        "Extension granted through Q3 2024",
+        "2024-02-10T13:20:00Z",
+        "Michael Lee",
+        "MNO-112",
+        "normal"
+    ),
+    (
+        "risk_alert",
+        "High-risk vendor identified for Contract GHI-654",
+        "Contract flagged for financial instability",
+        "2024-02-05T08:40:00Z",
+        "Risk Engine",
+        "GHI-654",
+        "high"
+    ),
+    (
+        "deadline_missed",
+        "Compliance documentation overdue for Contract EFG-321",
+        "Task assigned to Jane Smith remains incomplete",
+        "2024-02-12T16:30:00Z",
+        "System",
+        "EFG-321",
+        "critical"
+    ),
+    (
+        "contract_renewed",
+        "Contract TUV-555 successfully renewed",
+        "Renewal approved through 2026",
+        "2024-03-01T09:00:00Z",
+        "Priya Patel",
+        "TUV-555",
+        "normal"
+    ),
+    (
+        "payment_received",
+        "Payment received for Contract PQR-808",
+        "Invoice #INV-20240101 settled",
+        "2024-02-20T12:00:00Z",
+        "Finance Bot",
+        "PQR-808",
+        "low"
+    ),
+    (
+        "escalation_notice",
+        "Escalation triggered for Contract LMN-321",
+        "Multiple missed deadlines in Q1",
+        "2024-02-15T15:10:00Z",
+        "System",
+        "LMN-321",
+        "high"
+    )
     ]
 
     cursor.executemany("""
@@ -374,7 +446,79 @@ def seed_ai_recommendations():
             0.72,
             "DEF-789",
             "2024-01-15T07:30:00Z"
-        )
+        ),
+        (
+        "risk_warning",
+        "Contract XYZ-456 Shows Elevated Risk",
+        "Unusual payment schedule could indicate risk of non-fulfillment",
+        "high",
+        0.91,
+        "XYZ-456",
+        "2024-02-10T10:00:00Z"
+    ),
+    (
+        "recommendation",
+        "Add AI Clauses to Contract LMN-321",
+        "Recommend including AI governance clauses to meet new regulations",
+        "low",
+        0.65,
+        "LMN-321",
+        "2024-03-22T11:15:00Z"
+    ),
+    (
+        "performance_optimization",
+        "Reduce Cost in Contract GHI-654",
+        "Suggest shifting deliverables to fixed-fee model",
+        "medium",
+        0.78,
+        "GHI-654",
+        "2024-04-01T09:30:00Z"
+    ),
+    (
+        "compliance_alert",
+        "Contract JKL-987 Missing Clauses",
+        "Missing required FAR clauses for small business participation",
+        "high",
+        0.88,
+        "JKL-987",
+        "2024-05-10T13:45:00Z"
+    ),
+    (
+        "renewal_notice",
+        "Contract TUV-555 Nearing Expiry",
+        "Prepare documentation and evaluations ahead of renewal",
+        "low",
+        0.60,
+        "TUV-555",
+        "2024-06-05T08:45:00Z"
+    ),
+    (
+        "amendment_suggestion",
+        "Update Milestones in Contract MNO-112",
+        "Project delays necessitate timeline updates in milestone section",
+        "medium",
+        0.74,
+        "MNO-112",
+        "2024-07-19T14:30:00Z"
+    ),
+    (
+        "audit_flag",
+        "Audit Contract PQR-808",
+        "Audit team flagged inconsistencies in invoicing data",
+        "high",
+        0.92,
+        "PQR-808",
+        "2024-08-01T12:00:00Z"
+    ),
+    (
+        "data_quality",
+        "Validate Contract EFG-321 Metadata",
+        "Inconsistent values found in contract type and signature date",
+        "medium",
+        0.69,
+        "EFG-321",
+        "2024-08-03T10:20:00Z"
+    )
     ]
 
     cursor.executemany("""
@@ -473,8 +617,97 @@ def seed_tasks():
             "Jane Smith",
             "XYZ-456",
             "2024-01-12T14:30:00Z"
-        )
-    ]
+        ),
+        (
+        "Schedule Vendor Review Meeting",
+        "Set up a meeting with vendor for Contract DEF-789",
+        "completed",
+        "low",
+        "2024-02-01T10:00:00Z",
+        "Phani",
+        "Alice Johnson",
+        "DEF-789",
+        "2024-01-18T08:00:00Z"
+    ),
+    (
+        "Renew Contract Terms",
+        "Initiate contract renewal process for Contract GHI-654",
+        "pending",
+        "high",
+        "2024-02-15T16:00:00Z",
+        "Phani",
+        "Michael Lee",
+        "GHI-654",
+        "2024-01-20T13:00:00Z"
+    ),
+    (
+        "Perform Risk Assessment",
+        "Evaluate risk factors for Contract JKL-987",
+        "in_progress",
+        "high",
+        "2024-02-05T09:30:00Z",
+        "Phani",
+        "Priya Patel",
+        "JKL-987",
+        "2024-01-22T11:15:00Z"
+    ),
+    (
+        "Conduct Clause Review",
+        "Legal review of critical clauses in Contract LMN-321",
+        "completed",
+        "medium",
+        "2024-01-28T15:45:00Z",
+        "Phani",
+        "Daniel Kim",
+        "LMN-321",
+        "2024-01-14T10:20:00Z"
+    ),
+    (
+        "Finalize Budget Allocation",
+        "Review and finalize budget for Contract TUV-555",
+        "pending",
+        "medium",
+        "2024-02-10T14:00:00Z",
+        "Phani",
+        "Rachel Green",
+        "TUV-555",
+        "2024-01-25T09:50:00Z"
+    ),
+    (
+        "Draft Amendment",
+        "Create draft for upcoming amendment to Contract MNO-112",
+        "in_progress",
+        "high",
+        "2024-02-12T11:00:00Z",
+        "Phani",
+        "Chris Wang",
+        "MNO-112",
+        "2024-01-28T08:40:00Z"
+    ),
+    (
+        "Verify Invoice Records",
+        "Audit invoice submissions for Contract PQR-808",
+        "completed",
+        "low",
+        "2024-01-30T13:30:00Z",
+        "Phani",
+        "Nina Brown",
+        "PQR-808",
+        "2024-01-16T10:10:00Z"
+    ),
+    (
+        "Prepare Termination Report",
+        "Compile findings for early termination of Contract EFG-321",
+        "pending",
+        "high",
+        "2024-02-20T17:00:00Z",
+        "Phani",
+        "Tom Harris",
+        "EFG-321",
+        "2024-01-29T12:25:00Z"
+    )
+]
+
 
     cursor.executemany("""
         INSERT INTO tasks (title, description, status, priority, due_date, assigned_to,assigned_by, contract_id, created_at)
