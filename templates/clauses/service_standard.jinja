@@ -1,5 +1,35 @@
-## Service Level Agreement
+Contract Draft - Service Agreement Template
 
-This SLA is effective from {{ effective_date }} and applies to the services provided by {{ vendor }} to {{ agency }}.
+Effective Date: {{ effective_date }}
+Agency: {{ agency }}
 
-The service provider agrees to maintain an uptime of {{ uptime_percentage }}% and provide response to critical incidents within {{ response_time }} hours. Penalties for non-compliance will be applied as outlined in section {{ penalty_section }}.
+-------------------------------
+Service Agreement
+-------------------------------
+
+This Service Agreement (the “Agreement”) is entered into by and between {{ agency }} (the “Agency”) and {{ contractor | default("[Contractor]") }} (the “Service Provider”), effective as of {{ effective_date }}.
+
+WHEREAS, the Agency requires services related to {{ purpose | default("supporting federal operations") }} and the Service Provider agrees to furnish such services;
+
+NOW, THEREFORE, the Parties agree as follows:
+
+1. **Scope of Services**  
+   The Service Provider shall perform all services detailed in Exhibit A or as mutually agreed in writing.
+
+2. **Term**  
+   This Agreement shall remain in effect from the Effective Date until {{ expiry_date | default("[TBD]") }}, unless extended or terminated by mutual agreement.
+
+3. **Compensation**  
+   Payment terms and total contract value shall be set forth in Exhibit A.
+
+4. **Performance Standards**  
+   Services shall be delivered in accordance with federal performance standards and contractual obligations.
+
+5. **Governing Law**  
+   This Agreement shall be governed by the laws of the United States and applicable federal acquisition regulations.
+
+-------------------------------
+Custom Clause (LLM Generated)
+-------------------------------
+
+{{ llm_clause | default("[LLM-generated clause goes here]") }}

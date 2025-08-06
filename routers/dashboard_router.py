@@ -6,6 +6,8 @@ from typing import List
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi import Query, HTTPException
+from typing import Literal
+from datetime import datetime, timedelta
 from config import DB_PATH, CLAUSE_FILE
 
 router = APIRouter()
@@ -127,6 +129,28 @@ class ContractSummary(BaseModel):
     performance: int
     closeout: int
     total: int
+
+class ContractEvent(BaseModel):
+    contract_id: int
+    event_type: Literal["renewal", "action_item"]
+    event_date: str  # ISO format: YYYY-MM-DD
+    description: str
+
+
+class ContractMetric(BaseModel):
+    contract_id: int
+    contract_value: float
+    risk_flag: int  # 0 or 1
+    ai_confidence_score: float
+    renewal_date: str  # ISO format
+
+
+class DashboardMetricsResponse(BaseModel):
+    time_range: str
+    urgent_renewals: int
+    value_at_risk: float
+    ai_confidence: str  # Percent formatted string
+    action_items: int
 
 # class DashboardOverview(BaseModel):
 #     contracts_summary: ContractStageSummary
@@ -715,3 +739,130 @@ def get_contracts_summary():
             "closeout": 0,
             "total": 0
         }
+# endpoint for renewal recommender
+@router.post("/api/renewal_recommender_table")
+def create_tables():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS contract_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id INTEGER NOT NULL,
+        event_type TEXT NOT NULL CHECK (event_type IN ('renewal', 'action_item')),
+        event_date DATE NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS contract_metrics (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id INTEGER NOT NULL,
+        contract_value REAL NOT NULL,
+        risk_flag INTEGER DEFAULT 0 CHECK (risk_flag IN (0, 1)),
+        ai_confidence_score REAL,
+        renewal_date DATE,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+    return {"message": "Tables created successfully."}
+
+
+# ------------------------------
+# 🌱 Endpoint 2: Seed Data
+# ------------------------------
+@router.post("/api/renewal_recommender/seed_data")
+def seed_data():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Clear existing records
+    cursor.execute("DELETE FROM contract_events")
+    cursor.execute("DELETE FROM contract_metrics")
+
+    today = datetime.utcnow().date()
+
+    # Insert into contract_events
+    events = [
+        (1, 'renewal', today + timedelta(days=10), 'Contract 1 renewal'),
+        (2, 'action_item', today + timedelta(days=5), 'Contract 2 action item'),
+        (3, 'action_item', today + timedelta(days=45), 'Quarterly review task'),
+    ]
+    cursor.executemany("""
+    INSERT INTO contract_events (contract_id, event_type, event_date, description)
+    VALUES (?, ?, ?, ?)
+    """, events)
+
+    # Insert into contract_metrics
+    metrics = [
+        (1, 500000.00, 1, 88.5, today + timedelta(days=10)),
+        (2, 475000.00, 1, 89.2, today + timedelta(days=30)),
+        (3, 600000.00, 0, 91.3, today + timedelta(days=90)),
+    ]
+    cursor.executemany("""
+    INSERT INTO contract_metrics (contract_id, contract_value, risk_flag, ai_confidence_score, renewal_date)
+    VALUES (?, ?, ?, ?, ?)
+    """, metrics)
+
+    conn.commit()
+    conn.close()
+    return {"message": "Sample data seeded successfully."}
+
+
+# ------------------------------
+# 📊 Endpoint 3: Dashboard Metrics
+# ------------------------------
+@router.get("/api/renewal_recommender/metrics", response_model=DashboardMetricsResponse)
+def get_dashboard_metrics(
+    time_range: Literal["30days", "60days", "90days", "180days"] = Query("30days")
+):
+    days_map = {"30days": 30, "60days": 60, "90days": 90, "180days": 180}
+    days = days_map[time_range]
+    today = datetime.utcnow().date()
+    end_date = today + timedelta(days=days)
+
+    conn =sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Urgent Renewals
+    cursor.execute("""
+        SELECT COUNT(*) FROM contract_events
+        WHERE event_type = 'renewal' AND event_date BETWEEN ? AND ?
+    """, (today, end_date))
+    urgent_renewals = cursor.fetchone()[0]
+
+    # Value at Risk
+    cursor.execute("""
+        SELECT SUM(contract_value) FROM contract_metrics
+        WHERE risk_flag = 1 AND renewal_date BETWEEN ? AND ?
+    """, (today, end_date))
+    value_at_risk = cursor.fetchone()[0] or 0
+
+    # AI Confidence
+    cursor.execute("""
+        SELECT AVG(ai_confidence_score) FROM contract_metrics
+        WHERE updated_at BETWEEN ? AND ?
+    """, (today, end_date))
+    ai_conf = round(cursor.fetchone()[0] or 0.0, 2)
+
+    # Action Items
+    cursor.execute("""
+        SELECT COUNT(*) FROM contract_events
+        WHERE event_type = 'action_item' AND event_date BETWEEN ? AND ?
+    """, (today, end_date))
+    action_items = cursor.fetchone()[0]
+
+    conn.close()
+
+    return DashboardMetricsResponse(
+        time_range=time_range,
+        urgent_renewals=urgent_renewals,
+        value_at_risk=value_at_risk,
+        ai_confidence=f"{ai_conf}%",
+        action_items=action_items
+    )

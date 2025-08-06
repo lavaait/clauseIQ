@@ -1,5 +1,49 @@
+Contract Draft - NDA Template - Standard
+
+Effective Date: {{ effective_date }}
+Agency: {{ agency }}
+
+-------------------------------
+NDA Template - Standard
+-------------------------------
+
 ## Non-Disclosure Agreement (Standard)
 
-This NDA is made effective on {{ effective_date }} between {{ agency }} and the Receiving Party.
+This Non-Disclosure Agreement (the “Agreement”) is entered into by and between {{ agency }} (the “Agency”) and {{ contractor | default("[Contractor]") }} (the “Contractor”) (collectively, the “Parties”), effective as of {{ effective_date }}.
 
-The parties agree to keep all shared information confidential under the {{ contract_type }} terms.
+WHEREAS, the Parties intend to engage in discussions or share information related to {{ purpose | default("procurement, services, or collaboration") }}, which may involve the disclosure of confidential or proprietary information;
+
+NOW, THEREFORE, in consideration of the mutual promises and covenants contained herein, the Parties agree as follows:
+
+1. **Confidential Information**  
+   “Confidential Information” shall include all technical, business, or financial information disclosed by either Party, whether orally or in writing, that is designated as confidential or which reasonably should be understood to be confidential.
+
+2. **Obligations**  
+   The receiving Party agrees to:  
+   - Maintain the confidentiality of the Confidential Information using reasonable means;  
+   - Not disclose it to third parties without prior written consent;  
+   - Use the information only for the purpose specified in this Agreement.
+
+3. **Exclusions**  
+   Confidential Information does not include information that:  
+   - Was publicly known at the time of disclosure;  
+   - Becomes publicly known through no fault of the receiving Party;  
+   - Is independently developed without use of or reference to the disclosing Party’s information.
+
+4. **Term**  
+   This Agreement shall remain in effect for a period of two (2) years from the Effective Date, or until {{ expiry_date | default("[TBD]") }}, unless otherwise terminated in writing by mutual agreement.
+
+5. **Return of Materials**  
+   Upon termination of the Agreement or upon written request, each Party shall promptly return or destroy all Confidential Information of the other Party.
+
+6. **No License**  
+   Nothing in this Agreement grants any rights in or to the Confidential Information except as expressly set forth herein.
+
+7. **Governing Law**  
+   This Agreement shall be governed by the laws of the United States and the applicable federal regulations.
+
+-------------------------------
+Custom Clause (LLM Generated)
+-------------------------------
+
+{{ llm_clause | default("[LLM-generated clause goes here]") }}

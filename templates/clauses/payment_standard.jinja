@@ -1,3 +1,31 @@
-## Payment Terms
+Contract Draft - Payment Contract Template
 
-{{ agency }} agrees to a total contract value of ${{ value }} for a {{ contract_type }}.
+Effective Date: {{ effective_date }}
+Agency: {{ agency }}
+
+-------------------------------
+Payment Agreement
+-------------------------------
+
+This Payment Agreement (the “Agreement”) is made effective as of {{ effective_date }} by and between {{ agency }} (the “Agency”) and {{ contractor | default("[Contractor]") }} (the “Payee”).
+
+1. **Purpose**  
+   The Agency agrees to pay the Payee for {{ purpose | default("services rendered or goods delivered") }} in accordance with the terms of this Agreement.
+
+2. **Payment Terms**  
+   The total amount, payment schedule, and method shall be outlined in Exhibit A or as otherwise agreed in writing.
+
+3. **Term**  
+   This Agreement shall remain in effect until {{ expiry_date | default("[TBD]") }}, unless terminated earlier by either Party with written notice.
+
+4. **Taxes and Reporting**  
+   The Payee shall be responsible for all applicable taxes and reporting obligations related to received payments.
+
+5. **Governing Law**  
+   This Agreement shall be governed by the laws of the United States and relevant fiscal regulations.
+
+-------------------------------
+Custom Clause (LLM Generated)
+-------------------------------
+
+{{ llm_clause | default("[LLM-generated clause goes here]") }}

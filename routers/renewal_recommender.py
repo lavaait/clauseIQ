@@ -129,26 +129,44 @@ def compute_confidence_score(rag: Dict[str, str]) -> float:
 @router.get("/api/renewal/recommend/all")
 def recommend_for_all_from_tasks():
     conn = sqlite3.connect("contracts.db")
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     # Get distinct contract_ids from the tasks table
     cursor.execute("SELECT DISTINCT contract_id FROM tasks")
     contract_ids = cursor.fetchall()
-    conn.close()
 
     if not contract_ids:
+        conn.close()
         return {"message": "No contract tasks found in the database."}
 
     results = []
 
     for (contract_id,) in contract_ids:
-        # Get KPIs from tasks table
+        # 1. Get value from contracts table
+        cursor.execute("SELECT value FROM contracts WHERE id = ?", (contract_id,))
+        contract_row = cursor.fetchone()
+        if contract_row and contract_row["value"] is not None:
+            contract_value = contract_row["value"]
+        else:
+            # Assign a dynamic dummy value based on contract_id (e.g., some scaling logic)
+            contract_value = 100000 
+        # 2. Get latest due date from tasks table for the contract
+        cursor.execute("""
+            SELECT due_date FROM tasks
+            WHERE contract_id = ?
+            ORDER BY due_date DESC LIMIT 1
+        """, (contract_id,))
+        task_row = cursor.fetchone()
+        due_date = task_row["due_date"] if task_row else None
+
+        # 3. Compute KPIs and RAG
         kpis = compute_kpis_from_sqlite(contract_id)
         rag = rag_status(kpis["term_length"], kpis["usage_percent"], kpis["delivery_score"])
         action = recommend_action(rag)
         confidence = compute_confidence_score(rag)
 
-        vendor_name = f"Vendor for {contract_id}"  # placeholder; replace if needed
+        vendor_name = f"Vendor for {contract_id}"  # fallback
         contract_summary = f"Contract {contract_id} involves delivery of services/tasks as per timeline."
 
         status_text = (
@@ -174,7 +192,10 @@ def recommend_for_all_from_tasks():
             "rag_status": rag,
             "recommended_action": action,
             "confidence_score": confidence,
-            "llm_response": llm_response
+            "llm_response": llm_response,
+            "value": contract_value,
+            "expiry_date": due_date
         })
 
+    conn.close()
     return {"contracts": results}
