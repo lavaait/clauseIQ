@@ -69,28 +69,37 @@ def init_db():
         """)
         
         #____ user admin table _________
+        cursor.execute("DROP TABLE IF EXISTS users")
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('admin', 'reviewer', 'viewer')),
-        created_at TEXT DEFAULT (datetime('now'))
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        role TEXT NOT NULL,
+        department TEXT NOT NULL,
+        status TEXT NOT NULL,
+        last_active TEXT,
+        permissions TEXT,           -- store JSON string
+        notifications TEXT,         -- store JSON string
+        ai_explainability BOOLEAN DEFAULT FALSE
         )
         """)
 
         #_______ audit logs ______________
+        # Drop and recreate for clean dev testing
+        cursor.execute("DROP TABLE IF EXISTS audit_logs")
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS audit_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        action TEXT NOT NULL,
-        ai_decision TEXT,
-        status TEXT CHECK (status IN ('accepted', 'rejected', 'pending')),
-        timestamp TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        CREATE TABLE audit_logs (
+            id INTEGER PRIMARY KEY,
+            timestamp TEXT,
+            user TEXT,
+            action TEXT,
+            aiDecision TEXT,
+            confidence INTEGER,
+            details TEXT,
+            category TEXT
         )
-        """)
+    """)
 
 if __name__ == "__main__":
     init_db()

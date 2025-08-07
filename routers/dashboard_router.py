@@ -152,6 +152,30 @@ class DashboardMetricsResponse(BaseModel):
     ai_confidence: str  # Percent formatted string
     action_items: int
 
+class AuditLog(BaseModel):
+    id: int
+    timestamp: str
+    user: str
+    action: str
+    aiDecision: str
+    confidence: int
+    details: str
+    category: str
+
+class UserIn(BaseModel):
+    name: str
+    email: str
+    role: str
+    department: str
+
+class UserOut(UserIn):
+    id: int
+    status: str
+    last_active: str
+    permissions: List[str]
+    notifications: dict
+    ai_explainability: bool
+
 # class DashboardOverview(BaseModel):
 #     contracts_summary: ContractStageSummary
 #     compliance_percentage: float
@@ -1099,3 +1123,286 @@ def get_dashboard_metrics(
         ai_confidence=f"{ai_conf}%",
         action_items=action_items
     )
+
+# endpoint for audit logs
+@router.post("/api/audit_logs")
+def seed_audit_logs():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    audit_log_records = [
+    {
+        "id": 1,
+        "timestamp": "2025-01-20 14:30:22",
+        "user": "John Doe",
+        "action": "Contract Risk Assessment",
+        "aiDecision": "High Risk - Recommend Legal Review",
+        "confidence": 89,
+        "details": "Unusual termination clauses detected",
+        "category": "risk"
+    },
+    {
+        "id": 2,
+        "timestamp": "2025-01-20 13:45:11",
+        "user": "Alice Smith",
+        "action": "Document Classification",
+        "aiDecision": "Category: Master Service Agreement",
+        "confidence": 95,
+        "details": "Standard MSA template identified",
+        "category": "classification"
+    },
+    {
+        "id": 3,
+        "timestamp": "2025-01-20 12:15:33",
+        "user": "Bob Johnson",
+        "action": "Vendor Evaluation",
+        "aiDecision": "Approved - Low Risk Vendor",
+        "confidence": 78,
+        "details": "Financial stability confirmed",
+        "category": "approval"
+    },
+    {
+        "id": 4,
+        "timestamp": "2025-01-20 11:20:44",
+        "user": "John Doe",
+        "action": "Compliance Check",
+        "aiDecision": "Non-compliant - GDPR Issues",
+        "confidence": 92,
+        "details": "Data processing clauses missing",
+        "category": "compliance"
+    },
+    {
+        "id": 5,
+        "timestamp": "2025-01-20 10:30:15",
+        "user": "Carol White",
+        "action": "Price Analysis",
+        "aiDecision": "15% Above Market Rate",
+        "confidence": 82,
+        "details": "Competitor pricing analysis completed",
+        "category": "analysis"
+    },
+    {
+        "id": 6,
+        "timestamp": "2025-01-20 09:45:33",
+        "user": "Alice Smith",
+        "action": "Contract Risk Assessment",
+        "aiDecision": "Medium Risk - Review Recommended",
+        "confidence": 76,
+        "details": "Payment terms require attention",
+        "category": "risk"
+    },
+    {
+        "id": 7,
+        "timestamp": "2025-01-20 09:12:18",
+        "user": "Bob Johnson",
+        "action": "Document Classification",
+        "aiDecision": "Category: Non-Disclosure Agreement",
+        "confidence": 98,
+        "details": "Standard NDA format detected",
+        "category": "classification"
+    },
+    {
+        "id": 8,
+        "timestamp": "2025-01-20 08:55:07",
+        "user": "John Doe",
+        "action": "Vendor Evaluation",
+        "aiDecision": "Pending Review - Insufficient Data",
+        "confidence": 45,
+        "details": "Missing financial documentation",
+        "category": "pending"
+    }
+]
+    # Convert list of dicts to list of tuples for bulk insert
+    audit_log_tuples = [
+        (
+            r["id"],
+            r["timestamp"],
+            r["user"],
+            r["action"],
+            r["aiDecision"],
+            r["confidence"],
+            r["details"],
+            r["category"]
+        )
+        for r in audit_log_records
+    ]
+
+    # Insert into DB
+    cursor.executemany("""
+        INSERT INTO audit_logs (id, timestamp, user, action, aiDecision, confidence, details, category)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, audit_log_tuples)
+
+    conn.commit()
+    conn.close()
+
+    return {
+    "message": "Audit logs inserted",
+    "total": len(audit_log_records)
+}
+@router.get("/api/audit_logs_details", response_model=List[AuditLog])
+def get_audit_logs():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM audit_logs")
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [
+        AuditLog(
+            id=row[0],
+            timestamp=row[1],
+            user=row[2],
+            action=row[3],
+            aiDecision=row[4],
+            confidence=row[5],
+            details=row[6],
+            category=row[7]
+        ) for row in rows
+    ]
+
+
+@router.post("/api/users/seed")
+def seed_users():
+    import json
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    permissions_map = {
+        'Contract Manager': ['create_contract', 'edit_contract', 'view_contract', 'submit_for_approval'],
+        'Legal': ['review_contract', 'approve_legal', 'add_legal_notes', 'reject_contract'],
+        'Procurement Officer': ['approve_under_50k', 'approve_over_50k', 'final_approval', 'assign_vendor'],
+        'Admin': ['view_all', 'manage_users', 'manage_workflows', 'executive_approval']
+    }
+
+    sample_users = [
+        {"name": "Alice Smith", "email": "alice.smith@company.com", "role": "Legal", "department": "Legal"},
+        {"name": "Bob Johnson", "email": "bob.johnson@company.com", "role": "Procurement Officer", "department": "Procurement"},
+        {"name": "Carol White", "email": "carol.white@company.com", "role": "Admin", "department": "Operations"}
+    ]
+
+    inserted_users = []
+
+    for user in sample_users:
+        permissions = permissions_map.get(user["role"], [])
+        notifications = {"email": False, "sms": False, "inApp": False}
+
+        cursor.execute("""
+            INSERT INTO users (name, email, role, department, status, last_active, permissions, notifications, ai_explainability)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            user["name"], user["email"], user["role"], user["department"],
+            "active", "Just now",
+            json.dumps(permissions),
+            json.dumps(notifications),
+            False
+        ))
+
+        inserted_users.append({
+            "id": cursor.lastrowid,
+            "name": user["name"],
+            "email": user["email"],
+            "role": user["role"],
+            "department": user["department"],
+            "status": "active",
+            "last_active": "Just now",
+            "permissions": permissions,
+            "notifications": notifications,
+            "ai_explainability": False
+        })
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "message": f"{len(inserted_users)} users inserted",
+        "users": inserted_users
+    }
+
+@router.get("/api/users", response_model=List[UserOut])
+def get_users():
+    import json
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.row_factory = sqlite3.Row
+
+    rows = cursor.execute("SELECT * FROM users").fetchall()
+    users = []
+
+    for row in rows:
+        users.append(UserOut(
+            id=row["id"],
+            name=row["name"],
+            email=row["email"],
+            role=row["role"],
+            department=row["department"],
+            status=row["status"],
+            last_active=row["last_active"],
+            permissions=json.loads(row["permissions"]),
+            notifications=json.loads(row["notifications"]),
+            ai_explainability=bool(row["ai_explainability"])
+        ))
+
+    conn.close()
+    return users
+
+
+@router.delete("/api/users/{user_id}")
+def delete_user(user_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    return {"message": f"User {user_id} deleted"}
+
+
+@router.put("/api/users/{user_id}")
+def update_user(user_id: int, updates: dict):
+    allowed_fields = {"role", "department"}
+    set_clauses = []
+    values = []
+
+    for key, value in updates.items():
+        if key in allowed_fields:
+            set_clauses.append(f"{key} = ?")
+            values.append(value)
+
+    if not set_clauses:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
+
+    query = f"UPDATE users SET {', '.join(set_clauses)} WHERE id = ?"
+    values.append(user_id)
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(query, values)
+    conn.commit()
+    conn.close()
+    return {"message": "User updated"}
+
+
+@router.put("/api/users/{user_id}/toggle")
+def toggle_feature(user_id: int, feature: str):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.row_factory = sqlite3.Row
+
+    user = cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if feature == "ai_explainability":
+        new_value = not bool(user["ai_explainability"])
+        cursor.execute("UPDATE users SET ai_explainability = ? WHERE id = ?", (int(new_value), user_id))
+    elif feature in ["email", "sms", "inApp"]:
+        notif = json.loads(user["notifications"])
+        notif[feature] = not notif[feature]
+        cursor.execute("UPDATE users SET notifications = ? WHERE id = ?", (json.dumps(notif), user_id))
+    else:
+        raise HTTPException(status_code=400, detail="Invalid feature")
+
+    conn.commit()
+    conn.close()
+    return {"message": f"{feature} toggled"}
